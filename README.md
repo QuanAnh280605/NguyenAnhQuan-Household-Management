@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏢 Apartment Household Management
 
-## Getting Started
+A simple web application to manage apartments, households, residents, and daily building operations.
 
-First, run the development server:
+---
 
+## 🗺️ System Overview
+
+Here is the functional mindmap of the system:
+
+![System Mindmap](./image.png)
+
+---
+
+## ⭐ Main Features
+
+The system has **7 main modules**. The highlighted items (**⭐**) are the core parts:
+
+### 1. 🏢 Apartments & Buildings
+- **⭐ Manage Apartments**: Room number, size, floor, and current status (*empty, rented, living*).
+- **⭐ Manage Owners**: Owner contact and legal documents.
+- Manage building and floor information.
+
+### 2. 👨‍👩‍👧‍👦 Households
+- Create and update household profiles.
+- Manage the head of the household.
+- **⭐ Manage Family Members**: Keep track of people living together in each home.
+
+### 3. 👤 Residents (Core)
+- **⭐ Personal Info**: Full name, Citizen ID, birthday, gender, and contact details.
+- **⭐ Resident Status**: Check who is currently living here, moved out, or temporarily away.
+- Relationship to the household head (spouse, child, tenant, etc.).
+
+### 4. 📋 Move-in & Stay Tracking
+- Register move-ins and move-outs.
+- Report temporary stays (*tạm trú*) and absences (*tạm vắng*).
+
+### 5. 🚗 Vehicles & Parking
+- Register cars, motorbikes, and bicycles.
+- Manage license plates and parking slots.
+
+### 6. 💰 Bills & Payments
+- Calculate monthly fees (management, parking, water, electricity).
+- Create invoices and track paid or unpaid bills.
+
+### 7. 📢 Resident Feedback
+- Receive questions and complaints (noise, repairs, cleaning).
+- Assign staff to fix issues and reply to residents.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js (React 19)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install packages
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Run the app
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. Open in browser
+Visit **[http://localhost:3000](http://localhost:3000)**.
