@@ -1,0 +1,453 @@
+// ==============================================================================
+// ResidentHub - Apartment & Household Management System
+// DBML (Database Markup Language) Schema
+// Interactive visualizer: https://dbdiagram.io or https://dbdocs.io
+// ==============================================================================
+
+Project ResidentHub {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # ResidentHub Database Model
+    Normalized 3NF schema for managing buildings, apartments, households,
+    residents, residency movements, parking slots, utility billing, and maintenance tickets.
+  '''
+}
+
+// ==============================================================================
+// ENUMS
+// ==============================================================================
+
+enum apartment_status {
+  EMPTY
+  RENTED
+  OWNER_OCCUPIED
+}
+
+enum ownership_type {
+  SOLE
+  CO_OWNER
+}
+
+enum gender_type {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum resident_status {
+  PERMANENT
+  TEMPORARY
+  ABSENT
+  MOVED
+}
+
+enum household_status {
+  ACTIVE
+  MOVED_OUT
+}
+
+enum residence_record_type {
+  TAM_TRU
+  TAM_VANG
+  NHAP_HO
+  CHUYEN_DI
+}
+
+enum residence_record_status {
+  PENDING
+  APPROVED
+  EXPIRED
+  REJECTED
+}
+
+enum parking_slot_status {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+}
+
+enum vehicle_type {
+  CAR
+  MOTORBIKE
+  ELECTRIC_BIKE
+  BICYCLE
+  OTHER
+}
+
+enum vehicle_status {
+  ACTIVE
+  INACTIVE
+  REVOKED
+}
+
+enum meter_type {
+  WATER
+  ELECTRICITY
+}
+
+enum invoice_status {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum payment_method {
+  BANK_TRANSFER
+  CASH
+  VNPAY
+  MOMO
+}
+
+enum feedback_category {
+  NOISE
+  REPAIR
+  CLEANING
+  SECURITY
+  OTHER
+}
+
+enum feedback_priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum feedback_status {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum user_role {
+  ADMIN
+  MANAGER
+  TECHNICIAN
+  RESIDENT
+}
+
+// ==============================================================================
+// 1. BUILDINGS & APARTMENTS
+// ==============================================================================
+
+Table buildings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  code varchar(50) [unique, not null, note: 'Unique building identifier (e.g., TOWER_A)']
+  name varchar(255) [not null, note: 'Building name']
+  total_floors int [not null]
+  address text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Note: 'Physical apartment building structures'
+}
+
+Table apartments {
+  id uuid [pk, default: `gen_random_uuid()`]
+  building_id uuid [not null, ref: > buildings.id]
+  room_number varchar(50) [not null, note: 'Room/Unit identifier, e.g. 1205']
+  floor int [not null]
+  area numeric(8,2) [not null, note: 'Usable floor area in m2']
+  bedroom_count int [default: 1]
+  bathroom_count int [default: 1]
+  status apartment_status [default: 'EMPTY']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    (building_id, room_number) [unique]
+    building_id
+    status
+  }
+  Note: 'Individual apartment units within buildings'
+}
+
+Table owners {
+  id uuid [pk, default: `gen_random_uuid()`]
+  full_name varchar(255) [not null]
+  citizen_id varchar(50) [unique, not null, note: 'National ID / CCCD number']
+  phone varchar(20)
+  email varchar(255)
+  address text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  Note: 'Legal owners of apartment property'
+}
+
+Table apartment_owners {
+  id uuid [pk, default: `gen_random_uuid()`]
+  apartment_id uuid [not null, ref: > apartments.id]
+  owner_id uuid [not null, ref: > owners.id]
+  ownership_type ownership_type [default: 'SOLE']
+  start_date date [not null]
+  end_date date
+  is_current boolean [default: true]
+  created_at timestamptz [default: `now()`]
+
+  Note: 'Many-to-Many relationship tracking ownership history'
+}
+
+// ==============================================================================
+// 2. RESIDENTS & HOUSEHOLDS
+// ==============================================================================
+
+Table residents {
+  id uuid [pk, default: `gen_random_uuid()`]
+  full_name varchar(255) [not null]
+  citizen_id varchar(50) [unique, note: '12-digit Citizen Identity Card']
+  date_of_birth date
+  gender gender_type [default: 'OTHER']
+  phone varchar(20)
+  email varchar(255)
+  hometown text
+  resident_status resident_status [default: 'PERMANENT']
+  avatar_url text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    citizen_id
+    phone
+  }
+  Note: 'Individual resident demographic records'
+}
+
+Table households {
+  id uuid [pk, default: `gen_random_uuid()`]
+  apartment_id uuid [not null, ref: > apartments.id]
+  head_resident_id uuid [not null, ref: > residents.id]
+  household_code varchar(50) [unique, not null, note: 'Official household book code, e.g. HK-1205']
+  registration_date date [not null, default: `now()`]
+  status household_status [default: 'ACTIVE']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    apartment_id
+    head_resident_id
+  }
+  Note: 'Official household registration (So ho khau)'
+}
+
+Table household_members {
+  id uuid [pk, default: `gen_random_uuid()`]
+  household_id uuid [not null, ref: > households.id]
+  resident_id uuid [not null, ref: > residents.id]
+  relationship_to_head varchar(100) [not null, note: 'Relationship: HEAD, SPOUSE, CHILD, PARENT, TENANT']
+  joined_date date [not null, default: `now()`]
+  is_head boolean [default: false]
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (household_id, resident_id) [unique]
+    household_id
+    resident_id
+  }
+  Note: 'Links residents to household with familial relationship'
+}
+
+// ==============================================================================
+// 3. RESIDENCE RECORDS (CIVIL MOVEMENTS)
+// ==============================================================================
+
+Table residence_records {
+  id uuid [pk, default: `gen_random_uuid()`]
+  resident_id uuid [not null, ref: > residents.id]
+  apartment_id uuid [not null, ref: > apartments.id]
+  record_type residence_record_type [not null, note: 'Temporary stay, absence, or move']
+  start_date date [not null]
+  end_date date
+  reason text
+  police_verified_code varchar(100) [note: 'Local police verification registration code']
+  status residence_record_status [default: 'PENDING']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    resident_id
+    apartment_id
+  }
+  Note: 'Audit trail for statutory residency declarations'
+}
+
+// ==============================================================================
+// 4. VEHICLES & PARKING
+// ==============================================================================
+
+Table parking_slots {
+  id uuid [pk, default: `gen_random_uuid()`]
+  building_id uuid [not null, ref: > buildings.id]
+  slot_code varchar(50) [not null, note: 'e.g. B1-01, B2-15']
+  floor varchar(20) [not null, note: 'Basement floor: B1, B2']
+  allowed_type vehicle_type [not null]
+  status parking_slot_status [default: 'AVAILABLE']
+  created_at timestamptz [default: `now()`]
+
+  indexes {
+    (building_id, slot_code) [unique]
+  }
+  Note: 'Physical parking bays in basement levels'
+}
+
+Table vehicles {
+  id uuid [pk, default: `gen_random_uuid()`]
+  resident_id uuid [not null, ref: > residents.id]
+  apartment_id uuid [not null, ref: > apartments.id]
+  parking_slot_id uuid [unique, ref: - parking_slots.id]
+  license_plate varchar(30) [not null]
+  vehicle_type vehicle_type [not null]
+  brand_model varchar(100)
+  color varchar(50)
+  rfid_card_number varchar(100) [unique, note: 'Contactless RFID access badge']
+  status vehicle_status [default: 'ACTIVE']
+  registration_date date [default: `now()`]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    apartment_id
+    license_plate
+  }
+  Note: 'Registered resident vehicles with allocated slots'
+}
+
+// ==============================================================================
+// 5. BILLS & PAYMENTS
+// ==============================================================================
+
+Table fee_types {
+  id uuid [pk, default: `gen_random_uuid()`]
+  code varchar(50) [unique, not null, note: 'MANAGEMENT, PARKING_CAR, WATER, ELECTRICITY']
+  name varchar(255) [not null]
+  unit varchar(50) [not null, note: 'm2, vehicle, m3, kWh']
+  unit_price numeric(12,2) [not null]
+  is_mandatory boolean [default: true]
+  created_at timestamptz [default: `now()`]
+
+  Note: 'Master catalog of building service tariffs'
+}
+
+Table meter_readings {
+  id uuid [pk, default: `gen_random_uuid()`]
+  apartment_id uuid [not null, ref: > apartments.id]
+  meter_type meter_type [not null]
+  billing_period varchar(20) [not null, note: 'e.g., 10-2025']
+  previous_reading numeric(10,2) [not null]
+  current_reading numeric(10,2) [not null]
+  consumption numeric(10,2) [note: 'current_reading - previous_reading']
+  recorded_at timestamptz [default: `now()`]
+
+  indexes {
+    (apartment_id, meter_type, billing_period) [unique]
+  }
+  Note: 'Monthly utility consumption records'
+}
+
+Table invoices {
+  id uuid [pk, default: `gen_random_uuid()`]
+  apartment_id uuid [not null, ref: > apartments.id]
+  household_id uuid [ref: > households.id]
+  invoice_code varchar(100) [unique, not null, note: 'e.g. INV-202510-1205']
+  billing_month varchar(20) [not null, note: 'e.g., 10/2025']
+  total_amount numeric(12,2) [not null, default: 0]
+  paid_amount numeric(12,2) [not null, default: 0]
+  due_date date [not null]
+  status invoice_status [default: 'UNPAID']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    (apartment_id, status)
+    billing_month
+  }
+  Note: 'Monthly unified apartment bill statements'
+}
+
+Table invoice_items {
+  id uuid [pk, default: `gen_random_uuid()`]
+  invoice_id uuid [not null, ref: > invoices.id]
+  fee_type_id uuid [not null, ref: > fee_types.id]
+  item_name varchar(255) [not null]
+  quantity numeric(10,2) [not null]
+  unit_price numeric(12,2) [not null, note: 'Price snapshot at generation time']
+  amount numeric(12,2) [not null, note: 'quantity * unit_price']
+  created_at timestamptz [default: `now()`]
+
+  Note: 'Granular line-item breakdown of invoice charges'
+}
+
+Table payment_transactions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  invoice_id uuid [not null, ref: > invoices.id]
+  amount numeric(12,2) [not null]
+  payment_method payment_method [not null]
+  transaction_code varchar(100) [unique]
+  note text
+  paid_at timestamptz [default: `now()`]
+
+  Note: 'Individual payment events supporting partial and multi-channel settlement'
+}
+
+// ==============================================================================
+// 6. USERS & ACCOUNTS
+// ==============================================================================
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  resident_id uuid [unique, ref: - residents.id]
+  username varchar(100) [unique, not null]
+  password_hash varchar(255) [not null]
+  role user_role [default: 'RESIDENT']
+  full_name varchar(255) [not null]
+  email varchar(255) [unique]
+  phone varchar(20)
+  is_active boolean [default: true]
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    username
+  }
+  Note: 'Authentication and role credentials'
+}
+
+// ==============================================================================
+// 7. FEEDBACK & MAINTENANCE
+// ==============================================================================
+
+Table feedbacks {
+  id uuid [pk, default: `gen_random_uuid()`]
+  resident_id uuid [not null, ref: > residents.id]
+  apartment_id uuid [not null, ref: > apartments.id]
+  assigned_to uuid [ref: > users.id, note: 'Assigned technician user']
+  title varchar(255) [not null]
+  category feedback_category [not null, default: 'OTHER']
+  content text [not null]
+  priority feedback_priority [default: 'MEDIUM']
+  status feedback_status [default: 'OPEN']
+  created_at timestamptz [default: `now()`]
+  resolved_at timestamptz
+  updated_at timestamptz [default: `now()`]
+
+  indexes {
+    status
+    resident_id
+  }
+  Note: 'Service requests, repair tickets, and resident complaints'
+}
+
+Table feedback_updates {
+  id uuid [pk, default: `gen_random_uuid()`]
+  feedback_id uuid [not null, ref: > feedbacks.id]
+  updated_by_user_id uuid [not null, ref: > users.id]
+  message text [not null]
+  previous_status feedback_status
+  new_status feedback_status
+  created_at timestamptz [default: `now()`]
+
+  Note: 'Progress update log and resolution notes'
+}

@@ -1,95 +1,156 @@
-# Apartment Household Management
+<div align="center">
 
-A simple web application to manage apartments, households, residents, and daily building operations.
+# ResidentHub
+**Modern Apartment & Household Management Platform**
+
+*Single Source of Truth for Building Operations, Household Demographics, and Automated Billing.*
+
+[![Tech Stack](https://img.shields.io/badge/Stack-Next.js%2019%20%7C%20TypeScript%20%7C%20Tailwind-blue)](README.md)
+[![Database](https://img.shields.io/badge/Schema-14%20Tables%20(3NF)-success)](database/schema.dbml)
+[![Architecture](https://img.shields.io/badge/Specs-RBAC%20%2B%20State%20Machines-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
+[![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20Aligned-brightgreen)](docs/UI_DATABASE_MAPPING.md)
+[![UI Prototype](https://img.shields.io/badge/Prototype-Stitch%20Interactive-purple)](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)
+
+</div>
+
+```mermaid
+flowchart LR
+    A["🏢 Units & Owners<br/><small>Properties & Area</small>"]
+    B["👨‍👩‍👧‍👦 Households & Residents<br/><small>Civil Registry & Stay Status</small>"]
+    C["🚗 Vehicles & Parking<br/><small>B1/B2 Slots & RFID Badges</small>"]
+    D["🧾 Automated Billing<br/><small>Meters, Invoices & Debt</small>"]
+    E["🛠️ Tickets & Maintenance<br/><small>SLA & Work Orders</small>"]
+
+    A --> B --> C --> D --> E
+    classDef main fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
+    class A,B,C,D,E main
+```
+
+<div align="center"><b>Streamlining multi-tenant apartment management into an integrated, auditable operational flow.</b></div>
 
 ---
 
-## System Overview
+## 📊 Metric Box — System at a Glance
 
-Here is the functional mindmap of the system:
+| Dimension | Specification | Notes |
+| :--- | :--- | :--- |
+| **Functional Scope** | **7 Core Modules** | Buildings, Households, Residents, Stay Tracking, Vehicles, Invoices, Feedbacks |
+| **Database Architecture** | **14 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
+| **Data Definition** | **DBML + SQL DDL** | [`database/schema.dbml`](database/schema.dbml) and [`schema.sql`](schema.sql) |
+| **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level isolation |
+| **Application Stack** | **Next.js (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS |
+| **Traceability** | **100% UI to Database Alignment** | Every UI field is explicitly mapped to database columns in [`docs/UI_DATABASE_MAPPING.md`](docs/UI_DATABASE_MAPPING.md) |
+| **UI/UX Prototype** | **[Interactive Stitch Prototype](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)** | High-fidelity interactive design system |
+
+---
+
+## 🏗️ Architecture: 3 System Views
+
+### View 1: Top-Down Business Deconstruction
+
+Decomposed from the high-level management objective, the platform encapsulates 7 operational subsystems:
 
 ![System Mindmap](./image.png)
 
----
-
-## Main Features
-
-The system comprises 7 functional modules:
-
-### 1. Buildings & Apartments
-- **Manage Apartments**: Room number, floor, area, bedroom & bathroom count, and apartment category.
-- **Manage Owners**: Ownership legal records, contact details (Citizen ID, phone number, email, property contracts).
-- Building and floor management.
-- Apartment occupancy status (*vacant, owner-occupied, rented, under renovation*).
-- Apartment directory and advanced search (filter by building, floor, and occupancy status).
-
-### 2. Households
-- Create and update household registration profiles (*Sổ hộ khẩu*).
-- Household head management.
-- **Manage Family Members**: Detailed roster of occupants living together and their relationship to the household head.
-- **Change of Household Head**: Ownership succession and headship transfer workflows.
-- Household audit log (track household splitting, merging, and movement history).
-
-### 3. Residents
-- Register and manage resident profiles.
-- **Personal Information**: Full legal name, Citizen ID / VNeID, date of birth, gender, and hometown.
-- **Resident Status**: Permanent resident (*thường trú*), temporary resident (*tạm trú*), temporary absence (*tạm vắng*), moved out.
-- Relationship to household head and primary contact details (phone, email).
-- Central resident directory and search.
-
-### 4. Residence & Stay Tracking
-- Move-in and move-out registration workflows.
-- Temporary residence (*tạm trú*) and absence (*tạm vắng*) declarations with police verification numbers.
-- Internal relocation management (transfer between apartments within the complex).
-- Stay duration tracking (proactive expiration alerts for temporary stays).
-- Comprehensive residence movement history and audit trail.
-
-### 5. Vehicles & Parking
-- Vehicle registration and information management.
-- Vehicle owner linkage and license plate management.
-- Vehicle classification (cars, motorbikes, electric scooters, bicycles).
-- RFID card management and dedicated slot allocation across basement levels (Basement B1 & B2).
-- Vehicle deregistration and parking slot revocation upon departure.
-
-### 6. Bills & Payments
-- Service fee catalog and tariff configuration (management fees per m², parking fees, utilities).
-- Automated billing calculation based on apartment floor area and utility meter readings.
-- Recurring monthly invoice generation.
-- Multi-channel payment recording (Bank transfer, Cash, VNPay, MoMo).
-- Receivables and debt tracking, overdue invoice management, and complete transaction history.
-
-### 7. Resident Feedback & Requests
-- Service ticket reception and categorization (noise complaints, technical repairs, sanitation, security).
-- Technician and building staff assignment.
-- Workflow status updates (*Open, In Progress, Resolved, Closed*) with resident communication.
-- Comprehensive request resolution history tracking.
+```
+                            ┌─ 1. Buildings & Apartments (Properties & Floor plans)
+                            ├─ 2. Households & Family Rosters (So ho khau)
+                            ├─ 3. Residents & Demographics (CCCD, Legal identity)
+ResidentHub Operations ─────┼─ 4. Residence Tracking (Temporary stay, Absence, Move-out)
+        Platform            ├─ 5. Vehicles & Parking Allocation (Basement B1/B2, RFID)
+                            ├─ 6. Automated Billing & Invoicing (Meters, Tariffs, Overdue)
+                            └─ 7. Maintenance & Resident Feedback (Tickets, SLA triage)
+```
 
 ---
 
-## Tech Stack
+### View 2: Monthly Billing & Settlement Sequence
 
-- **Framework**: Next.js (React 19)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: PostgreSQL (v13+)
+Automating the entire recurring financial lifecycle: from cut-off meter readings to batch invoicing and payment gateway reconciliation.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor MGR as Accountant / Management
+    participant SYS as ResidentHub Engine
+    actor RES as Resident / Household Head
+    participant GATEWAY as Payment Gateway (Bank / VietQR)
+
+    Note over MGR,SYS: Cut-off Window: 25th - 28th of every month
+    MGR->>SYS: Record Utility Meters (Current reading >= Previous reading)
+    SYS-->>SYS: Calculate Consumption = (Current - Previous) * Tariff
+    SYS-->>SYS: Compute Fixed Charges (Area m² * Management Rate + Registered Vehicles)
+    MGR->>SYS: Trigger "Batch Generate Invoices"
+    SYS-->>SYS: Create INVOICES (Status: UNPAID) + itemized INVOICE_ITEMS
+    SYS->>RES: Dispatch push notification / email statement with Due Date
+
+    alt Online Settlement
+        RES->>SYS: Authorize payment via VietQR / Bank
+        SYS->>GATEWAY: Initiate payment order
+        GATEWAY-->>SYS: Webhook IPN confirms success
+        SYS-->>SYS: Record PAYMENT_TRANSACTIONS & update paid_amount
+    else Cash Settlement
+        RES->>MGR: Pay cash at building reception
+        MGR->>SYS: Record manual cash receipt
+    end
+
+    SYS-->>SYS: Update Status: PAID (if balance = 0) or PARTIAL
+    Note over SYS: Past Due Date: Auto-transition remaining balances to OVERDUE
+```
 
 ---
 
-## UI/UX Design
+### View 3: Civil Residency & Invoice State Machines
 
-- **Prototype & Design**: [ResidentHub Apartment Management System](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)
+#### A. Residency Movement Lifecycle
+```mermaid
+stateDiagram-v2
+    [*] --> PERMANENT : Register permanent stay
+    [*] --> TEMPORARY : Register temporary stay
+    PERMANENT --> ABSENT : Declare temporary absence
+    ABSENT --> PERMANENT : Return / Expiration
+    TEMPORARY --> PERMANENT : Convert status
+    PERMANENT --> MOVED_OUT : Relocation / Ownership transfer
+    TEMPORARY --> MOVED_OUT : Lease expiration
+    MOVED_OUT --> [*]
+```
+
+#### B. Invoice Financial Lifecycle
+```mermaid
+stateDiagram-v2
+    [*] --> UNPAID : Invoice generated
+    UNPAID --> PARTIAL : Partial payment recorded
+    UNPAID --> PAID : Full settlement
+    PARTIAL --> PAID : Remaining balance settled
+    UNPAID --> OVERDUE : Past due date without full payment
+    PARTIAL --> OVERDUE : Past due date with remaining balance
+    OVERDUE --> PAID : Outstanding balance settled
+    PAID --> [*]
+```
 
 ---
 
-## System Workflows & Specs
+## 🎯 UI to Database Traceability Matrix
 
-- **Business Workflows, RBAC Matrix & Implementation Plan**: [docs/SYSTEM_WORKFLOWS_AND_SPECS.md](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
+ResidentHub guarantees architectural cohesion between the user interface and the underlying database schema. Detailed field-by-field mapping is available in [docs/UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md).
+
+| Application Screen | Route | Target Database Tables | Key Entities & Columns |
+| :--- | :--- | :--- | :--- |
+| **Apartments Management** | `/can-ho`, `/can-ho/[roomNumber]` | `apartments`, `buildings`, `owners`, `apartment_owners` | `room_number`, `floor`, `area`, `status`, `full_name`, `citizen_id` |
+| **Resident Directory** | `/cu-dan` | `residents`, `households`, `household_members` | `full_name`, `citizen_id`, `resident_status`, `household_code`, `is_head` |
+| **Stay Tracking & History**| `/cu-tru`, `/lich-su-cu-tru` | `residence_records` | `record_type`, `start_date`, `end_date`, `police_verified_code`, `status` |
+| **Vehicles & Parking** | (Integrated in Unit view) | `vehicles`, `parking_slots` | `license_plate`, `vehicle_type`, `rfid_card_number`, `slot_code`, `floor` |
+| **Billing & Payments** | `/hoa-don` | `invoices`, `invoice_items`, `meter_readings`, `payment_transactions` | `invoice_code`, `billing_month`, `total_amount`, `paid_amount`, `status` |
+| **Service Tickets** | `/phan-anh` | `feedbacks`, `feedback_updates` | `title`, `category`, `priority`, `status`, `assigned_to` |
+| **Identity & Users** | `/nguoi-dung` | `users` | `username`, `role` (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`), `is_active` |
 
 ---
 
-## Database Design (ERD)
+## 🗄️ Database Architecture & Normalized ERD
 
-Normalized Entity-Relationship Diagram (ERD) for the ResidentHub management system:
+The database schema is modeled in 3NF across 14 relational tables. Inspect the interactive schema definitions:
+- **DBML Schema:** [`database/schema.dbml`](database/schema.dbml)
+- **PostgreSQL DDL:** [`schema.sql`](schema.sql)
 
 ```mermaid
 erDiagram
@@ -131,226 +192,22 @@ erDiagram
     USERS ||--o| RESIDENTS : "profile_of"
     USERS ||--o{ FEEDBACKS : "handled_by"
     USERS ||--o{ FEEDBACK_UPDATES : "updated_by"
-
-    %% ==========================================
-    %% 1. TÒA NHÀ & CĂN HỘ
-    %% ==========================================
-    BUILDINGS {
-        uuid id PK
-        string code "Mã tòa, VD: TOWER_A"
-        string name "Tên tòa nhà"
-        int total_floors "Số tầng"
-        string address "Địa chỉ"
-        timestamp created_at
-    }
-
-    APARTMENTS {
-        uuid id PK
-        uuid building_id FK
-        string room_number "Số phòng: 1205"
-        int floor "Số tầng"
-        decimal area "Diện tích m2"
-        int bedroom_count "Số phòng ngủ"
-        int bathroom_count "Số WC"
-        string status "EMPTY, RENTED, OWNER_OCCUPIED"
-        timestamp created_at
-    }
-
-    OWNERS {
-        uuid id PK
-        string full_name "Tên chủ sở hữu"
-        string citizen_id "Số CCCD"
-        string phone "Số điện thoại"
-        string email "Email"
-        string address "Địa chỉ"
-        timestamp created_at
-    }
-
-    APARTMENT_OWNERS {
-        uuid id PK
-        uuid apartment_id FK
-        uuid owner_id FK
-        string ownership_type "SOLE, CO_OWNER"
-        date start_date "Ngày bắt đầu sở hữu"
-        date end_date "Ngày chuyển nhượng"
-        boolean is_current "Đang sở hữu"
-    }
-
-    %% ==========================================
-    %% 2. HỘ DÂN & CƯ DÂN
-    %% ==========================================
-    HOUSEHOLDS {
-        uuid id PK
-        uuid apartment_id FK
-        uuid head_resident_id FK "Chủ hộ"
-        string household_code "Mã sổ hộ khẩu"
-        date registration_date "Ngày lập sổ"
-        string status "ACTIVE, MOVED_OUT"
-        timestamp created_at
-    }
-
-    RESIDENTS {
-        uuid id PK
-        string full_name "Họ và tên"
-        string citizen_id "Số CCCD"
-        date date_of_birth "Ngày sinh"
-        string gender "MALE, FEMALE, OTHER"
-        string phone "Số điện thoại"
-        string email "Email"
-        string hometown "Quê quán"
-        string resident_status "PERMANENT, TEMPORARY, ABSENT, MOVED"
-        timestamp created_at
-    }
-
-    HOUSEHOLD_MEMBERS {
-        uuid id PK
-        uuid household_id FK
-        uuid resident_id FK
-        string relationship_to_head "Quan hệ với chủ hộ"
-        date joined_date "Ngày nhập hộ"
-        boolean is_head "Là chủ hộ"
-    }
-
-    %% ==========================================
-    %% 3. BIẾN ĐỘNG CƯ TRÚ
-    %% ==========================================
-    RESIDENCE_RECORDS {
-        uuid id PK
-        uuid resident_id FK
-        uuid apartment_id FK
-        string record_type "TAM_TRU, TAM_VANG, NHAP_HO, CHUYEN_DI"
-        date start_date "Ngày bắt đầu"
-        date end_date "Ngày kết thúc"
-        string reason "Lý do khai báo"
-        string police_verified_code "Mã xác nhận công an"
-        string status "PENDING, APPROVED, EXPIRED"
-    }
-
-    %% ==========================================
-    %% 4. PHƯƠNG TIỆN & BÃI ĐỖ
-    %% ==========================================
-    PARKING_SLOTS {
-        uuid id PK
-        uuid building_id FK
-        string slot_code "Mã vị trí đỗ: B1-01"
-        string floor "Tầng hầm: B1, B2"
-        string allowed_type "CAR, MOTORBIKE, BICYCLE"
-        string status "AVAILABLE, OCCUPIED, RESERVED"
-    }
-
-    VEHICLES {
-        uuid id PK
-        uuid resident_id FK
-        uuid apartment_id FK
-        uuid parking_slot_id FK
-        string license_plate "Biển số xe"
-        string vehicle_type "CAR, MOTORBIKE, ELECTRIC_BIKE"
-        string brand_model "Hãng và mẫu xe"
-        string color "Màu xe"
-        string rfid_card_number "Mã thẻ từ gửi xe"
-        string status "ACTIVE, INACTIVE, REVOKED"
-        date registration_date "Ngày đăng ký"
-    }
-
-    %% ==========================================
-    %% 5. PHÍ & HÓA ĐƠN
-    %% ==========================================
-    FEE_TYPES {
-        uuid id PK
-        string code "Mã loại phí"
-        string name "Tên loại phí"
-        string unit "Đơn vị tính: m2, xe, m3, kWh"
-        decimal unit_price "Đơn giá quy định"
-        boolean is_mandatory "Bắt buộc hàng tháng"
-    }
-
-    METER_READINGS {
-        uuid id PK
-        uuid apartment_id FK
-        string meter_type "WATER, ELECTRICITY"
-        string billing_period "Kỳ chốt số: 10-2025"
-        decimal previous_reading "Chỉ số đầu"
-        decimal current_reading "Chỉ số cuối"
-        decimal consumption "Lượng tiêu thụ"
-        timestamp recorded_at
-    }
-
-    INVOICES {
-        uuid id PK
-        uuid apartment_id FK
-        uuid household_id FK
-        string invoice_code "Mã HĐ: INV-202510-1205"
-        string billing_month "Tháng: 10/2025"
-        decimal total_amount "Tổng tiền phải nộp"
-        decimal paid_amount "Số tiền đã nộp"
-        date due_date "Hạn chót thanh toán"
-        string status "UNPAID, PARTIAL, PAID, OVERDUE"
-        timestamp created_at
-    }
-
-    INVOICE_ITEMS {
-        uuid id PK
-        uuid invoice_id FK
-        uuid fee_type_id FK
-        string item_name "Tên khoản phí"
-        decimal quantity "Số lượng (m2, số xe, m3)"
-        decimal unit_price "Đơn giá"
-        decimal amount "Thành tiền"
-    }
-
-    PAYMENT_TRANSACTIONS {
-        uuid id PK
-        uuid invoice_id FK
-        decimal amount "Số tiền thanh toán"
-        string payment_method "BANK_TRANSFER, CASH, VNPAY, MOMO"
-        string transaction_code "Mã giao dịch"
-        timestamp paid_at
-    }
-
-    %% ==========================================
-    %% 6. PHẢN ÁNH & DỊCH VỤ
-    %% ==========================================
-    FEEDBACKS {
-        uuid id PK
-        uuid resident_id FK
-        uuid apartment_id FK
-        uuid assigned_to FK "Nhân viên xử lý"
-        string title "Tiêu đề phản ánh"
-        string category "NOISE, REPAIR, CLEANING, SECURITY"
-        string priority "LOW, MEDIUM, HIGH, URGENT"
-        string status "OPEN, IN_PROGRESS, RESOLVED, CLOSED"
-        timestamp created_at
-    }
-
-    FEEDBACK_UPDATES {
-        uuid id PK
-        uuid feedback_id FK
-        uuid updated_by_user_id FK
-        string message "Nội dung cập nhật tiến độ"
-        string previous_status "Trạng thái trước"
-        string new_status "Trạng thái mới"
-        timestamp created_at
-    }
-
-    %% ==========================================
-    %% 7. HỆ THỐNG & TÀI KHOẢN
-    %% ==========================================
-    USERS {
-        uuid id PK
-        uuid resident_id FK "Liên kết cư dân"
-        string username "Tên đăng nhập"
-        string password_hash "Mật khẩu mã hóa"
-        string role "ADMIN, MANAGER, TECHNICIAN, RESIDENT"
-        string full_name "Họ và tên"
-        string email "Email"
-        string phone "Số điện thoại"
-        boolean is_active "Trạng thái hoạt động"
-    }
 ```
 
 ---
 
-## Quick Start
+## 📚 Documentation Index
+
+| Document | Topic | What it answers |
+| :--- | :--- | :--- |
+| [SYSTEM_WORKFLOWS_AND_SPECS.md](docs/SYSTEM_WORKFLOWS_AND_SPECS.md) | Business Logic & RBAC | State machine rules, RBAC permission matrix, and post-DBML roadmap |
+| [UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md) | UI to Database Traceability | Granular field-by-field mapping between application screens and SQL columns |
+| [schema.dbml](database/schema.dbml) | Database Markup Language | Visual, importable DBML schema for dbdocs.io and dbdiagram.io |
+| [schema.sql](schema.sql) | PostgreSQL DDL | Complete table definitions, indexes, composite constraints & triggers |
+
+---
+
+## 🚀 Quick Start
 
 ### 1. Install Dependencies
 
