@@ -81,6 +81,12 @@ The system comprises 7 functional modules:
 
 ---
 
+## System Workflows & Specs
+
+- **Business Workflows, RBAC Matrix & Implementation Plan**: [docs/SYSTEM_WORKFLOWS_AND_SPECS.md](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
+
+---
+
 ## Database Design (ERD)
 
 Normalized Entity-Relationship Diagram (ERD) for the ResidentHub management system:
