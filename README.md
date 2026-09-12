@@ -26,7 +26,15 @@ flowchart LR
     class A,B,C,D,E main
 ```
 
-<div align="center"><b>Streamlining multi-tenant apartment management into an integrated, auditable operational flow.</b></div>
+<div align="center">
+
+### [Explore Live Application Tour →](#-user-interface-tour)
+
+[![ResidentHub Operations Console: Management dashboard displaying apartment occupancy, billing collection rate, and real-time operations.](docs/screenshots/dashboard.png)](#-user-interface-tour)
+
+<sub><b>Real Running Application</b> — Next.js App Router, 7 operational modules, 14 normalized tables, and full RBAC governance.<br/><a href="#-user-interface-tour">Inspect every screen and workflow below →</a></sub>
+
+</div>
 
 ---
 
@@ -37,8 +45,8 @@ flowchart LR
 | **Functional Scope** | **7 Core Modules** | Buildings, Households, Residents, Stay Tracking, Vehicles, Invoices, Feedbacks |
 | **Database Architecture** | **14 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
 | **Data Definition** | **DBML + SQL DDL** | [`database/schema.dbml`](database/schema.dbml) and [`schema.sql`](schema.sql) |
-| **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level isolation |
-| **Application Stack** | **Next.js (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS |
+| **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level data isolation |
+| **Frontend Stack** | **Next.js (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS |
 | **Traceability** | **100% UI to Database Alignment** | Every UI field is explicitly mapped to database columns in [`docs/UI_DATABASE_MAPPING.md`](docs/UI_DATABASE_MAPPING.md) |
 | **UI/UX Prototype** | **[Interactive Stitch Prototype](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)** | High-fidelity interactive design system |
 
@@ -130,6 +138,70 @@ stateDiagram-v2
 
 ---
 
+## 🖥️ User Interface Tour
+
+ResidentHub is a production-grade enterprise application, not a mock design. All screens below are captured directly from the running Next.js application:
+
+### 1. Operations Command Console (Dashboard)
+Central oversight console aggregating building occupancy, recurring revenue collection rates, civil movements, and open maintenance requests.
+
+![Operations Dashboard](docs/screenshots/dashboard.png)
+
+---
+
+### 2. Apartments & Properties Management
+Visual directory of units with multi-tower filtering (Tower A, Tower B), floor distribution, bedroom specs, and live occupancy states.
+
+![Apartments Directory](docs/screenshots/apartments.png)
+
+Clicking into any unit reveals the comprehensive **Apartment Deep-Dive Dossier**, linking ownership legal contracts, registered co-occupants, vehicle parking slots, and historical invoice statements:
+
+![Apartment Detail View](docs/screenshots/apartment_detail.png)
+
+---
+
+### 3. Residents & Household Demographics
+Official civil registration roster tracking 12-digit Citizen Identity Cards (CCCD), family kinship relations (*Chủ hộ, Vợ, Con*), and statutory residency classifications (*Thường trú, Tạm trú*).
+
+![Residents Directory](docs/screenshots/residents.png)
+
+---
+
+### 4. Automated Recurring Billing & Debt Reconciliation
+Itemized monthly service invoice management featuring automated tariff calculations, overdue debt tracking, and interactive multi-channel payment reconciliation (*VietQR, Cash, VNPay*).
+
+![Billing & Invoices](docs/screenshots/billing.png)
+
+---
+
+### 5. Service Requests & Resident Feedback SLA
+Centralized maintenance ticket triage with urgency prioritization (*Khẩn cấp, Ưu tiên cao*), category routing (*Kỹ thuật, Vệ sinh, Tiếng ồn, An ninh*), and technician dispatch logging.
+
+![Tickets & Maintenance](docs/screenshots/tickets.png)
+
+---
+
+### 6. Vehicles & Basement Parking Slots (B1 & B2)
+Underground parking allocation enforcing apartment vehicle quotas, license plate records, and contactless RFID access card assignments.
+
+![Vehicles & Parking](docs/screenshots/vehicles.png)
+
+---
+
+### 📑 Complete Screens Index
+
+| Application Module | Screen Scope & Capabilities | Direct Route | Screenshot |
+| :--- | :--- | :--- | :---: |
+| **Command Console** | Macro KPI cards, revenue pulse, recent civil movement timeline | `/` | [View Screen](docs/screenshots/dashboard.png) |
+| **Apartment Directory** | Unit grid, floor plans, area specs, occupancy filters | `/can-ho` | [View Screen](docs/screenshots/apartments.png) |
+| **Apartment Dossier** | Ownership tenure, co-occupants, vehicles, financial ledger | `/can-ho/[roomNumber]` | [View Screen](docs/screenshots/apartment_detail.png) |
+| **Resident Demographics** | Civil profiles, national CCCD, family tree relationships | `/cu-dan` | [View Screen](docs/screenshots/residents.png) |
+| **Billing & Payments** | Automated utility billing, overdue reminders, payment modal | `/phi-chung-cu` | [View Screen](docs/screenshots/billing.png) |
+| **Feedback & Tickets** | Resident incident triage, technician dispatch, SLA status | `/phan-anh-va-yeu-cau` | [View Screen](docs/screenshots/tickets.png) |
+| **Vehicles & Parking** | Basement B1/B2 parking allocation, RFID smart card cards | `/phuong-tien-va-bai-do` | [View Screen](docs/screenshots/vehicles.png) |
+
+---
+
 ## 🎯 UI to Database Traceability Matrix
 
 ResidentHub guarantees architectural cohesion between the user interface and the underlying database schema. Detailed field-by-field mapping is available in [docs/UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md).
@@ -139,9 +211,9 @@ ResidentHub guarantees architectural cohesion between the user interface and the
 | **Apartments Management** | `/can-ho`, `/can-ho/[roomNumber]` | `apartments`, `buildings`, `owners`, `apartment_owners` | `room_number`, `floor`, `area`, `status`, `full_name`, `citizen_id` |
 | **Resident Directory** | `/cu-dan` | `residents`, `households`, `household_members` | `full_name`, `citizen_id`, `resident_status`, `household_code`, `is_head` |
 | **Stay Tracking & History**| `/cu-tru`, `/lich-su-cu-tru` | `residence_records` | `record_type`, `start_date`, `end_date`, `police_verified_code`, `status` |
-| **Vehicles & Parking** | (Integrated in Unit view) | `vehicles`, `parking_slots` | `license_plate`, `vehicle_type`, `rfid_card_number`, `slot_code`, `floor` |
-| **Billing & Payments** | `/hoa-don` | `invoices`, `invoice_items`, `meter_readings`, `payment_transactions` | `invoice_code`, `billing_month`, `total_amount`, `paid_amount`, `status` |
-| **Service Tickets** | `/phan-anh` | `feedbacks`, `feedback_updates` | `title`, `category`, `priority`, `status`, `assigned_to` |
+| **Vehicles & Parking** | `/phuong-tien-va-bai-do` | `vehicles`, `parking_slots` | `license_plate`, `vehicle_type`, `rfid_card_number`, `slot_code`, `floor` |
+| **Billing & Payments** | `/phi-chung-cu` | `invoices`, `invoice_items`, `meter_readings`, `payment_transactions` | `invoice_code`, `billing_month`, `total_amount`, `paid_amount`, `status` |
+| **Service Tickets** | `/phan-anh-va-yeu-cau` | `feedbacks`, `feedback_updates` | `title`, `category`, `priority`, `status`, `assigned_to` |
 | **Identity & Users** | `/nguoi-dung` | `users` | `username`, `role` (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`), `is_active` |
 
 ---
@@ -204,6 +276,7 @@ erDiagram
 | [UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md) | UI to Database Traceability | Granular field-by-field mapping between application screens and SQL columns |
 | [schema.dbml](database/schema.dbml) | Database Markup Language | Visual, importable DBML schema for dbdocs.io and dbdiagram.io |
 | [schema.sql](schema.sql) | PostgreSQL DDL | Complete table definitions, indexes, composite constraints & triggers |
+| [docs/screenshots/](docs/screenshots/) | High-Res UI Gallery | Production screenshots across all 7 operational modules |
 
 ---
 
