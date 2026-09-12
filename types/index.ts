@@ -67,8 +67,11 @@ export interface Invoice {
   electricityFee: number;
   vehicleFee: number;
   totalAmount: number;
+  paidAmount?: number;
   status: InvoiceStatus;
   dueDate: string;
+  paymentMethod?: string;
+  paymentDate?: string;
 }
 
 export interface Feedback {
@@ -77,9 +80,11 @@ export interface Feedback {
   roomNumber: string;
   residentName: string;
   title: string;
+  content?: string;
   category: FeedbackCategory;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   status: FeedbackStatus;
+  assignedTo?: string;
   createdAt: string;
   updatedAt: string;
 }
