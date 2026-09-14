@@ -6,7 +6,9 @@
 *Single Source of Truth for Building Operations, Household Demographics, and Automated Billing.*
 
 [![Tech Stack](https://img.shields.io/badge/Stack-Next.js%2019%20%7C%20TypeScript%20%7C%20Tailwind-blue)](README.md)
-[![Database](https://img.shields.io/badge/Schema-14%20Tables%20(3NF)-success)](database/schema.dbml)
+[![Architecture: Arc42](https://img.shields.io/badge/Architecture-Arc42%20Standard-indigo)](docs/ARCHITECTURE_ARC42.md)
+[![Visualisation: C4 Model](https://img.shields.io/badge/Visualisation-C4%20Model-teal)](docs/ARCHITECTURE_C4.md)
+[![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](database/schema.dbml)
 [![Architecture](https://img.shields.io/badge/Specs-RBAC%20%2B%20State%20Machines-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
 [![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20Aligned-brightgreen)](docs/UI_DATABASE_MAPPING.md)
 [![UI Prototype](https://img.shields.io/badge/Prototype-Stitch%20Interactive-purple)](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)
@@ -272,11 +274,13 @@ erDiagram
 
 | Document | Topic | What it answers |
 | :--- | :--- | :--- |
+| [docs/README.md](docs/README.md) | Master Documentation Hub | Complete documentation portal, reading paths, and architectural overview |
+| [ARCHITECTURE_C4.md](docs/ARCHITECTURE_C4.md) | Visual Architecture (C4 Model) | Context, Container, Component, Code diagrams, Dynamic sequence diagrams, and Deployment |
 | [SYSTEM_WORKFLOWS_AND_SPECS.md](docs/SYSTEM_WORKFLOWS_AND_SPECS.md) | Business Logic & RBAC | State machine rules, RBAC permission matrix, and post-DBML roadmap |
 | [UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md) | UI to Database Traceability | Granular field-by-field mapping between application screens and SQL columns |
 | [schema.dbml](database/schema.dbml) | Database Markup Language | Visual, importable DBML schema for dbdocs.io and dbdiagram.io |
 | [schema.sql](schema.sql) | PostgreSQL DDL | Complete table definitions, indexes, composite constraints & triggers |
-| [docs/screenshots/](docs/screenshots/) | High-Res UI Gallery | Production screenshots across all 7 operational modules |
+| [docs/screenshots/](docs/screenshots/README.md) | High-Res UI Gallery | Production screenshots across all 7 operational modules |
 
 ---
 
