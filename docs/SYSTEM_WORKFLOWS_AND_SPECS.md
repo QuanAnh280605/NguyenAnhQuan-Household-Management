@@ -1,14 +1,14 @@
 # ResidentHub - Core Workflows & Specifications
 
-This document captures the essential missing design artifacts: **Business Lifecycles (State Machines)**, **RBAC Permission Matrix**, and **Post-DBML Implementation Steps**.
+This document captures the essential domain designs: **Business Lifecycles (State Machines & Failure Twins)**, **RBAC Permission Matrix**, and **Implementation Engineering Rules**.
 
-> 📚 **Comprehensive Architectural Specifications**:
->
-> - [C4 Model Architecture Document](ARCHITECTURE_C4.md) (Level 1 to Level 4 visual diagrams)
+> 📚 **Architecture Dossier Navigation**:
+> - [C4 Model Architecture Document](ARCHITECTURE_C4.md) (Standard Mermaid visual diagrams & failure sequences)
+> - [arc42 Complete Architecture Dossier](ARCHITECTURE_ARC42.md) (12-section IEEE 42010 architectural spec)
 
 ---
 
-## 1. Core Lifecycles & State Machines
+## 1. Core Lifecycles, State Machines & Failure Twins
 
 ### 1.1. Residence Lifecycle
 
@@ -26,41 +26,65 @@ stateDiagram-v2
 
 - **Rules**: Max 1 household head (`is_head = true`) per unit. Head departure mandates assigning a successor first. Move-out revokes parking slots, deactivates user accounts, and requires zero outstanding balance.
 
-### 1.2. Billing & Payment Lifecycle
+---
+
+### 1.2. Billing & Payment Lifecycle (with Failure Twins)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> UNPAID : Invoice issued
-    UNPAID --> PARTIAL : Partial payment
-    UNPAID --> PAID : Full payment settled
-    PARTIAL --> PAID : Settle remaining
-    UNPAID --> OVERDUE : Past due date
+    [*] --> UNPAID : Invoice issued (25th of month)
+    UNPAID --> PARTIAL : Partial payment recorded
+    UNPAID --> PAID : Full payment settled (VietQR / Cash)
+    PARTIAL --> PAID : Settle remaining balance
+    UNPAID --> OVERDUE : Past due date (10th of next month)
     PARTIAL --> OVERDUE : Past due date
-    OVERDUE --> PAID : Settle debt
+    OVERDUE --> PAID : Settle debt + late penalty
+    
+    state "VietQR Payment Failure Twin" as FailureTwin {
+        UNPAID --> PAYMENT_PENDING : User scans VietQR (15m TTL)
+        PAYMENT_PENDING --> PAID : Gateway IPN Webhook Verified
+        PAYMENT_PENDING --> UNPAID : Session Expired (> 15m) / Cancelled
+        PAYMENT_PENDING --> DISPUTED : Mismatched Transfer Amount
+    }
+    
     PAID --> [*]
 ```
 
 - **Cycle**: Record utility meters (25th–28th) $\rightarrow$ Calculate (Area $\times$ Tariff + Utilities + Parking) $\rightarrow$ Batch generate invoices $\rightarrow$ Settle via Gateway/Cash $\rightarrow$ Auto-flag `OVERDUE` after deadline.
+- **Billing Dead-Letter Handling**: If a unit contains invalid meter data (e.g. current index < previous index), the automated batch isolates that unit into `billing_dead_letter_log` rather than halting the 1,000+ unit generation.
 
-### 1.3. Service Ticket Lifecycle
+---
+
+### 1.3. Service Ticket & SLA State Machine (Happy Path vs. SLA Breach)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> OPEN : Resident reports issue
-    OPEN --> ASSIGNED : Dispatch technician
-    OPEN --> REJECTED : Invalid / Duplicate
+    [*] --> OPEN : Resident reports incident
+    OPEN --> ASSIGNED : Dispatch technician (< 4h)
+    OPEN --> REJECTED : Invalid / Out of building scope
     ASSIGNED --> IN_PROGRESS : On-site inspection
-    IN_PROGRESS --> RESOLVED : Fixed (with photo proof)
-    RESOLVED --> CLOSED : Resident approves / 48h timeout
-    RESOLVED --> REOPENED : Resident unsatisfied
-    REOPENED --> IN_PROGRESS : Rework
+    IN_PROGRESS --> RESOLVED : Work done (Photo proof uploaded)
+    RESOLVED --> CLOSED : Resident approves / 48h auto-close
+    
+    state "SLA Breach & Escalation Twin" as SLABreach {
+        ASSIGNED --> SLA_BREACHED : > 24h without on-site progress
+        IN_PROGRESS --> SLA_BREACHED : > 48h resolution SLA exceeded
+        RESOLVED --> REOPENED : Resident unsatisfied within 48h
+        REOPENED --> ESCALATED : Recurring defect -> Alert Building Director
+        SLA_BREACHED --> ESCALATED : Auto-escalate to Operations Head
+        ESCALATED --> IN_PROGRESS : Reassign Senior Specialist
+    }
+    
     CLOSED --> [*]
 ```
 
-### 1.4. Vehicle & Parking Allocation
+---
 
-- **Quota**: Max 1 car, 2 motorbikes per unit.
-- **Workflow**: Check unit quota $\rightarrow$ Check available slot (B1/B2) $\rightarrow$ Verify logbook & ID $\rightarrow$ Activate RFID card $\rightarrow$ Link to monthly recurring billing.
+### 1.4. Vehicle & Parking Allocation (Concurrency Guard)
+
+- **Quota**: Max 1 car, 2 motorbikes per apartment unit.
+- **Workflow**: Check unit quota $\rightarrow$ Acquire pessimistic database lock on parking slot (`SELECT ... FOR UPDATE`) $\rightarrow$ Verify registration logbook & Citizen ID $\rightarrow$ Activate RFID card $\rightarrow$ Link to monthly recurring billing.
+- **Race Condition Twin**: If two residents attempt to reserve the final remaining B1 slot simultaneously, the transaction isolating `parking_slots` commits the first requester and aborts the second with `409 Conflict: SLOT_ALREADY_RESERVED`.
 
 ---
 

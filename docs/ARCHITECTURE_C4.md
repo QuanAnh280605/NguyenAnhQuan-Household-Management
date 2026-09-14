@@ -1,329 +1,425 @@
-# ResidentHub - System Architecture Document (C4 Model & Mermaid Diagrams)
+# ResidentHub - System Architecture Document (C4 Model & Pragmatic Mermaid)
 
-This document provides a comprehensive architectural specification for the **ResidentHub** platform (Apartment & Household Management System) using the **Mermaid C4 Diagram** syntax, strictly following the [Simon Brown C4 Model](https://c4model.com/), [Mermaid C4 Syntax](https://mermaid.ai/open-source/syntax/c4.html), and [C4-PlantUML Standards](https://github.com/plantuml-stdlib/C4-PlantUML/blob/master/README.md).
-
-The architecture is organized across **4 core hierarchical levels** and **2 supplementary diagrams**:
-1. [C4 System Context Diagram (`C4Context`) - Level 1](#1-c4-system-context-diagram-c4context---level-1)
-2. [C4 Container Diagram (`C4Container`) - Level 2](#2-c4-container-diagram-c4container---level-2)
-3. [C4 Component Diagram (`C4Component`) - Level 3](#3-c4-component-diagram-c4component---level-3)
-4. [C4 Code & Data Architecture - Level 4](#4-c4-code--data-architecture---level-4)
-5. [C4 Dynamic Diagram (`C4Dynamic`) - Supplementary Operational Workflow](#5-c4-dynamic-diagram-c4dynamic---supplementary-operational-workflow)
-6. [C4 Deployment Diagram (`C4Deployment`) - Supplementary Infrastructure View](#6-c4-deployment-diagram-c4deployment---supplementary-infrastructure-view)
+This document provides the formal architectural specification for the **ResidentHub** platform (Apartment & Household Management System) using the **C4 Model** ([Simon Brown](https://c4model.com/)).
 
 ---
 
-## 1. C4 System Context Diagram (`C4Context`) - Level 1
+## 📑 Architecture Document Navigation
 
-The System Context diagram illustrates the high-level boundary of **ResidentHub** within the building management ecosystem. Adhering strictly to C4 Level 1 principles, **ResidentHub is treated as a Black Box**, orchestrating internal stakeholders (`Person`) and third-party ecosystems (`System_Ext`).
+- 🏛️ **C4 Level 1**: [System Context Diagram](#1-c4-system-context-diagram---level-1) (Black Box boundary & Stakeholders)
+- 📦 **C4 Level 2**: [Container Diagram](#2-c4-container-diagram---level-2) (Applications, Databases, and Storage)
+- 🧩 **C4 Level 3**: [Component Diagram](#3-c4-component-diagram---level-3) (Internal Next.js 16 modular services)
+- ⚡ **C4 Dynamic**: [Runtime View & Failure Twins](#4-c4-dynamic-diagrams---runtime-view--failure-twins) (Happy Path vs. Failure Twin sequences)
+- 🚀 **C4 Deployment**: [Production Deployment Topology](#5-c4-deployment-diagram---infrastructure-view) (Vercel Edge, AWS RDS Multi-AZ, S3)
+- 🧪 **Fitness Functions**: [Integrity & Layering Gates](#6-architecture-fitness-functions--integrity-tests) (Automated CI assertions)
+- 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 architectural dossier, see **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**.
+
+---
+
+## 1. C4 System Context Diagram - Level 1
+
+The System Context diagram illustrates the high-level boundary of **ResidentHub** within the urban residential ecosystem. Adhering strictly to C4 Level 1 principles, **ResidentHub is treated as a Black Box**, orchestrating internal stakeholders and external third-party services.
 
 ```mermaid
-C4Context
-    title System Context diagram for ResidentHub - Apartment & Household Management
+flowchart LR
+    subgraph users["👥 Stakeholders & Actors"]
+        resident(["👤 Resident / Household Head<br/><i>[Person]</i><br/>Views statements, pays bills via VietQR,<br/>submits repair requests"])
+        manager(["👤 Building Management & Accounting<br/><i>[Person]</i><br/>Manages units, enters utility readings,<br/>issues monthly batch invoices"])
+        tech(["👤 Building Technician<br/><i>[Person]</i><br/>Receives work tickets, inspects on-site,<br/>logs SLA completion photo proofs"])
+        admin(["👤 System Administrator<br/><i>[Person]</i><br/>Governs security, user permissions,<br/>and building master parameters"])
+    end
 
-    Person(resident, "Resident / Household Head", "Apartment resident: Views statements, pays utility bills via VietQR, and submits maintenance requests.")
-    Person(manager, "Building Management & Accounting", "Operations staff: Manages unit directory, reviews residency registrations, logs meter readings, and issues invoices.")
-    Person(tech, "Building Technician", "Maintenance staff: Receives repair tickets, inspects technical issues on-site, and logs SLA resolution proofs.")
-    Person(admin, "System Administrator", "Internal IT Admin: Governs user accounts, configures building parameters, and enforces RBAC policies.")
+    subgraph enterprise["🏢 Building Management Ecosystem"]
+        residentHub["ResidentHub Platform<br/><i>[Software System]</i><br/>Central digital platform operating apartment facilities,<br/>household census registries, and automated utility billing<br/>across an 18-table relational PostgreSQL schema."]
+    end
 
-    Enterprise_Boundary(b0, "Building Management Ecosystem") {
-        System(residentHub, "ResidentHub Platform", "Central digital platform operating apartment facilities, household registries, and automated utility billing across an 18-table relational PostgreSQL schema.")
-    }
+    subgraph external["🌐 External Third-Party Systems"]
+        vietqr["VietQR Payment Gateway<br/><i>[External System: Napas 247]</i><br/>Inter-bank switch generating dynamic QR codes<br/>and dispatching asynchronous IPN Webhooks"]
+        notif["Notification Service<br/><i>[External System: SMTP / ZNS / SMS]</i><br/>Multi-channel notification dispatcher for monthly<br/>e-statements and urgent building announcements"]
+        civil["Public Residency Portal<br/><i>[External System: Government API]</i><br/>Civil registry authority for validating legal permanent<br/>and temporary stay records (Planned)"]
+    end
 
-    System_Ext(vietqr, "VietQR Payment Gateway", "Financial gateway generating dynamic Napas 247 QR codes and dispatching IPN Webhook payment notifications.")
-    System_Ext(notif, "Notification Service (Email/SMS)", "Multi-channel messaging service dispatching monthly e-statements, Zalo ZNS notifications, and urgent alerts.")
-    System_Ext(civil, "Public Residency Portal", "Civil registration authority system for synchronizing and auditing legal permanent and temporary stay records (Planned Integration).")
+    resident -- "Views bills, pays fees, files tickets [HTTPS]" --> residentHub
+    manager -- "Manages units, logs meters, bills [HTTPS]" --> residentHub
+    tech -- "Receives work orders, updates SLA [HTTPS]" --> residentHub
+    admin -- "Configures parameters, governs RBAC [HTTPS]" --> residentHub
 
-    Rel(resident, residentHub, "Views statements, pays utility bills, files complaints", "HTTPS")
-    Rel(manager, residentHub, "Operates units, records meters, issues invoices", "HTTPS")
-    Rel(tech, residentHub, "Receives work orders, updates resolution SLA", "HTTPS")
-    Rel(admin, residentHub, "Configures parameters, governs user permissions", "HTTPS")
+    residentHub -- "Initiates payment sessions & verifies IPN [HTTPS/JSON]" --> vietqr
+    residentHub -- "Dispatches e-statements & alerts [SMTP/REST API]" --> notif
+    residentHub -. "Audits & syncs residency records [REST API]" .-> civil
 
-    Rel(residentHub, vietqr, "Initiates payment requests & receives settlement Webhooks", "JSON / HTTPS")
-    Rel(residentHub, notif, "Dispatches e-statements and operational announcements", "SMTP / REST API")
-    Rel(residentHub, civil, "Synchronizes & verifies legal residency records", "REST API")
-
-    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")
+    style residentHub fill:#1168bd,color:#fff,stroke:#0b4f9e,stroke-width:2px
+    style vietqr fill:#666666,color:#fff,stroke:#444,stroke-width:1px
+    style notif fill:#666666,color:#fff,stroke:#444,stroke-width:1px
+    style civil fill:#888888,color:#fff,stroke:#555,stroke-dasharray: 4 4
+    style resident fill:#08427b,color:#fff,stroke:#052e56
+    style manager fill:#08427b,color:#fff,stroke:#052e56
+    style tech fill:#08427b,color:#fff,stroke:#052e56
+    style admin fill:#08427b,color:#fff,stroke:#052e56
+    style enterprise fill:#f8fafc,stroke:#94a3b8,stroke-dasharray: 5 5
+    style users fill:#f1f5f9,stroke:#cbd5e1
+    style external fill:#f1f5f9,stroke:#cbd5e1
 ```
 
 ### Context Elements Catalog
+
 | Identifier | C4 Type | Display Label | Description & Responsibilities |
 | :--- | :--- | :--- | :--- |
-| `resident` | `Person` | Resident / Household Head | Self-service portal user: reviews bills, completes VietQR payments, and files service requests. |
-| `manager` | `Person` | Building Management & Accounting | Operational user: inputs utility indices, generates monthly batch invoices, and reviews stay declarations. |
-| `tech` | `Person` | Building Technician | Field staff: claims service tickets, uploads completion photo evidence, and meets operational SLAs. |
-| `admin` | `Person` | System Administrator | Internal IT operator: system configuration, security governance, and 4-tier RBAC management (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`). |
-| `residentHub` | `System` | ResidentHub Platform | Single Source of Truth for building operations, resident census, and financial ledger. |
-| `vietqr` | `System_Ext` | VietQR Gateway | Inter-bank switch providing Napas 247 dynamic QR codes and IPN transaction callbacks. |
-| `notif` | `System_Ext` | Notification Service | External delivery network for e-statements and debt reminders via Email / SMS / Zalo ZNS. |
-| `civil` | `System_Ext` | Public Residency Portal | Governmental civil registry interface for residency audit and compliance checking. |
+| `resident` | `Person` | Resident / Household Head | Portal user: reviews monthly bills, scans VietQR to settle balances, declares temporary stay, and submits repair tickets. |
+| `manager` | `Person` | Management & Accounting | Operational user: audits meters (25th-28th), issues batch invoices, manages parking slots, and reconciles cash/gateway payments. |
+| `tech` | `Person` | Building Technician | Field staff: assigned maintenance tickets, conducts physical inspections, and uploads photo evidence for SLA resolution. |
+| `admin` | `Person` | System Administrator | IT security officer: manages 4-tier RBAC (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`), configures fee tariffs, and audits access logs. |
+| `residentHub` | `System` | ResidentHub Platform | Core software system delivering residential operations, census registry, and financial ledger. |
+| `vietqr` | `System_Ext` | VietQR Payment Gateway | Financial switch generating dynamic Napas 247 QR codes and firing asynchronous IPN Webhook callbacks. |
+| `notif` | `System_Ext` | Notification Gateway | Multi-channel network dispatching itemized e-statements and debt reminders via Email, SMS, and Zalo ZNS. |
+| `civil` | `System_Ext` | Public Residency Portal | Governmental civil registry interface for residency verification (Planned integration). |
 
 ---
 
-## 2. C4 Container Diagram (`C4Container`) - Level 2
+## 2. C4 Container Diagram - Level 2
 
-The Container diagram zooms into **ResidentHub**, decomposing the platform into independently executable software applications (`Container`), data storage units (`ContainerDb`), and their communication protocols.
+The Container diagram decomposes **ResidentHub** into independently deployable units, client interfaces, background workers, and data persistence engines.
 
 ```mermaid
-C4Container
-    title Container diagram for ResidentHub Platform
+flowchart TB
+    subgraph users["👥 Platform Users"]
+        resident(["👤 Resident"])
+        manager(["👤 Building Manager"])
+        tech(["👤 Technician"])
+        admin(["👤 Admin"])
+    end
 
-    Person(resident, "Resident", "Apartment resident accessing services")
-    Person(manager, "Building Manager", "Operations & accounting staff")
-    Person(tech, "Technician", "Maintenance & repair staff")
-    Person(admin, "System Admin", "Internal IT security administrator")
+    subgraph platform["ResidentHub Platform Boundary [System]"]
+        direction TB
+        subgraph client_tier["Presentation Tier"]
+            spa["Single-Page Web Application<br/><i>[Container: React 19, Tailwind CSS v4, TypeScript]</i><br/>Responsive web portal providing interactive KPI dashboards,<br/>unit directory, citizen declaration forms, and VietQR payment modals."]
+        end
 
-    Container_Boundary(c1, "ResidentHub Platform Boundary") {
-        Container(spa, "Single-Page Web Application", "React 19, Tailwind CSS v4, TypeScript", "Responsive client portal providing KPI dashboards, unit directory, interactive registration forms, and VietQR payment modals.")
-        Container(api, "Web & API Application Server", "Next.js 16 App Router, Node.js 20, TypeScript", "Executes core business logic, RBAC enforcement, finite state machines, automated billing calculations, and Server Actions.")
-        Container(worker, "Cron Background Worker", "Node.js Worker Process", "Scheduled batch process scanning for overdue invoices (OVERDUE) and orchestrating recurring billing cutoffs on the 25th.")
-        ContainerDb(database, "Relational Database", "PostgreSQL 16 Engine", "Stores 18 normalized 3NF relational tables: Buildings, Apartments, Owners, Co-owners, Residents, Households, Members, Stay Records, Vehicles, Parking Slots, Tariffs, Meters, Invoices, Invoice Items, Transactions, Users, Feedbacks, and SLA Updates.")
-        ContainerDb(storage, "Object & File Storage", "Cloudflare R2 / AWS S3", "Secure cloud storage holding utility meter snapshots, maintenance incident evidence, and digital payment receipts.")
-    }
+        subgraph app_tier["Application & Execution Tier"]
+            api["Web & API Application Server<br/><i>[Container: Next.js 16 App Router, Node.js 20]</i><br/>Executes core domain logic, Server Actions, 4-tier RBAC enforcement,<br/>residency state machines, and automated utility billing engines."]
+            worker["Cron Background Worker<br/><i>[Container: Node.js 20 Worker Process]</i><br/>Scheduled batch daemon auditing overdue accounts (OVERDUE),<br/>triggering recurring billing cutoffs (25th), and dispatching reminders."]
+        end
 
-    System_Ext(vietqr, "VietQR Payment Gateway", "Financial gateway generating dynamic Napas 247 QR codes and sending IPN Webhooks.")
-    System_Ext(mail, "Email / SMS Delivery Network", "Automated distribution service for monthly statements and payment reminder notices.")
-    System_Ext(civil, "Public Residency Portal", "Civil police registry for legal residency verification (Planned Integration).")
+        subgraph data_tier["Data Persistence Tier"]
+            database[("Relational Database<br/><i>[Container: PostgreSQL 16 Engine]</i><br/>18 normalized 3NF tables maintaining referential integrity for units,<br/>residents, vehicles, meters, invoices, transactions, and SLA tickets.")]
+            storage[("Object & File Storage<br/><i>[Container: Cloudflare R2 / AWS S3]</i><br/>Encrypted object storage preserving utility meter photos,<br/>maintenance incident attachments, and PDF invoice statements.")]
+        end
+    end
 
-    Rel(resident, spa, "Interacts with portal via web browser", "HTTPS")
-    Rel(manager, spa, "Executes building administration tasks", "HTTPS")
-    Rel(tech, spa, "Receives and updates maintenance tickets", "HTTPS")
-    Rel(admin, spa, "Configures system settings and RBAC", "HTTPS")
+    subgraph external["🌐 External Integrations"]
+        vietqr["VietQR Gateway<br/><i>[External System: Napas 247]</i>"]
+        mail["Email / SMS Gateway<br/><i>[External System: SMTP / ZNS]</i>"]
+    end
 
-    Rel(spa, api, "Dispatches API requests & Server Actions", "JSON / HTTPS")
-    Rel(api, database, "Reads and writes transactional data", "SQL / TCP 5432")
-    Rel(worker, database, "Scans overdue balances and updates statuses", "SQL / TCP 5432")
-    Rel(api, storage, "Uploads incident proofs and receipts", "HTTPS / S3 API")
-    Rel(spa, storage, "Fetches uploaded assets directly via CDN", "HTTPS / CDN")
+    resident & manager & tech & admin -- "Interacts via Web Browser [HTTPS]" --> spa
+    spa -- "Invokes Server Actions & REST APIs [JSON/HTTPS]" --> api
+    api -- "Executes parameterized SQL & ACID transactions [TCP 5432]" --> database
+    worker -- "Scans overdue bills & batches billing [TCP 5432]" --> database
+    api -- "Stores & signs evidence photos [S3 API]" --> storage
+    spa -- "Fetches optimized assets directly [HTTPS/CDN]" --> storage
 
-    Rel(api, vietqr, "Initializes payment transactions & receives Webhook IPN", "JSON / HTTPS")
-    Rel(api, mail, "Dispatches operational notifications & e-invoices", "SMTP / REST")
-    Rel(api, civil, "Synchronizes official residency records", "REST API")
+    api -- "Initiates dynamic QR & receives Webhook IPN [JSON/HTTPS]" --> vietqr
+    api -- "Dispatches e-statements & alerts [SMTP/REST]" --> mail
+    worker -- "Triggers scheduled bulk announcements [SMTP/REST]" --> mail
+
+    style spa fill:#1168bd,color:#fff,stroke:#0b4f9e,stroke-width:2px
+    style api fill:#1168bd,color:#fff,stroke:#0b4f9e,stroke-width:2px
+    style worker fill:#2563eb,color:#fff,stroke:#1d4ed8,stroke-width:1px
+    style database fill:#0284c7,color:#fff,stroke:#0369a1,stroke-width:2px
+    style storage fill:#0284c7,color:#fff,stroke:#0369a1,stroke-width:2px
+    style vietqr fill:#666,color:#fff,stroke:#444
+    style mail fill:#666,color:#fff,stroke:#444
+    style platform fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray: 6 6
+    style client_tier fill:#eff6ff,stroke:#bfdbfe
+    style app_tier fill:#eff6ff,stroke:#bfdbfe
+    style data_tier fill:#f0fdf4,stroke:#bbf7d0
+    style users fill:#f1f5f9,stroke:#cbd5e1
+    style external fill:#f1f5f9,stroke:#cbd5e1
 ```
 
 ### Container Inventory
+
 | Container | Tech Stack & Environment | Primary Technical Responsibilities |
 | :--- | :--- | :--- |
-| **`spa`** | React 19, Tailwind CSS v4, TypeScript | Client-side presentation tier rendering reactive administrative tables, charting metrics, payment QR dialogs, and citizen declaration forms. |
-| **`api`** | Next.js 16 App Router, Node.js 20 | Internal API Gateway, React Server Components (RSC), Server Actions, RBAC authorization, and automated Billing Engine execution. |
-| **`worker`** | Node.js Worker Process | Headless cron runner executing scheduled batch tasks: month-end meter audits, penalty fees, and overdue state transitions. |
-| **`database`** | PostgreSQL 16 (18 Tables in 3NF) | Primary ACID relational database maintaining referential integrity across 18 business entities with strict foreign keys and composite unique constraints. |
-| **`storage`** | Cloudflare R2 / AWS S3 | Encrypted object storage preserving binary media: meter capture images, maintenance attachments, and PDF e-statements. |
+| **`spa`** | React 19, Tailwind CSS v4, TypeScript | Client-side reactive UI delivering master-detail tables, KPI charts, VietQR modal dialogs, and registration wizards. |
+| **`api`** | Next.js 16 App Router, Node.js 20 | Unified Server Application handling Server Actions, REST endpoints, RBAC session verification, and transactional domain logic. |
+| **`worker`** | Node.js 20 Worker Process | Scheduled cron worker scanning for overdue invoices, computing monthly penalties, and driving batch billing cycles. |
+| **`database`** | PostgreSQL 16 (18 Tables in 3NF) | ACID relational engine enforcing referential integrity, unique constraints, and isolation across 18 business entities. |
+| **`storage`** | Cloudflare R2 / AWS S3 | Encrypted object storage preserving utility meter photos, repair evidence, and generated PDF e-statements. |
 
 ---
 
-## 3. C4 Component Diagram (`C4Component`) - Level 3
+## 3. C4 Component Diagram - Level 3
 
-The Component diagram inspects the internals of the **Web & API Application Server** container, detailing functional modules (`Component`), the notification engine, and the Data Access Layer (`repo`).
-
-```mermaid
-C4Component
-    title Component diagram for ResidentHub - Web & API Application Server
-
-    Container(spa, "Single-Page Web App", "React 19", "Client Web Interface")
-    ContainerDb(db, "PostgreSQL Database", "PostgreSQL 16", "Stores 18 normalized 3NF relational tables")
-    ContainerDb(storage, "Object Storage", "S3 / R2", "Multimedia asset repository")
-    System_Ext(vietqr, "VietQR Gateway", "Napas 247", "Inter-bank payment switch")
-    System_Ext(mail, "Email / SMS Network", "SMTP / ZNS", "External messaging infrastructure")
-
-    Container_Boundary(api, "Web & API Application Server Container") {
-        Component(auth, "1. Auth & RBAC Security Component", "TypeScript Middleware / JWT", "Authenticates identity tokens, enforces 4 system roles (ADMIN, MANAGER, TECHNICIAN, RESIDENT), and ensures apartment data isolation.")
-        Component(apt, "2. Apartment Management Component", "TypeScript Service", "Manages physical floor plans, net floor areas (m²), handover statuses, and legal ownership contracts.")
-        Component(res, "3. Resident & Household Registry", "TypeScript Service", "Validates 12-digit Citizen IDs (CCCD), household books, co-inhabitant links, and executes residency state machines.")
-        Component(park, "4. Vehicle & Parking Component", "TypeScript Service", "Enforces unit parking quotas (1 car, 2 bikes), assigns RFID tags, and reserves B1/B2 parking slots using pessimistic row locks.")
-        Component(bill, "5. Utility & Automated Billing Engine", "TypeScript Calculation Engine", "Ingests meter reads, computes tiered utility tariffs and area fees, runs batch invoice generation, and reconciles payments.")
-        Component(ticket, "6. Maintenance Ticket SLA Component", "TypeScript Workflow Service", "Handles resident repair reports, technician dispatching, SLA deadline tracking, and on-site photo audit logging.")
-        Component(notif, "7. Notification & Dispatcher Service", "TypeScript Service", "Orchestrates template generation for e-statements, payment reminders, and SLA progress updates dispatched to email/SMS.")
-        Component(repo, "8. Data Access Layer", "TypeScript / PostgreSQL Driver", "Manages database connection pooling, enforces ACID transaction blocks, and runs parameterized SQL queries across all 18 tables.")
-
-        Rel(auth, apt, "Authorizes request")
-        Rel(auth, res, "Authorizes request")
-        Rel(auth, park, "Authorizes request")
-        Rel(auth, bill, "Authorizes request")
-        Rel(auth, ticket, "Authorizes request")
-
-        Rel(res, apt, "Validates linked apartment unit")
-        Rel(park, apt, "Verifies apartment parking quota")
-        Rel(bill, apt, "Retrieves apartment area (m²)")
-        Rel(bill, park, "Retrieves active registered vehicle count")
-        Rel(bill, notif, "Triggers invoice statement dispatch")
-        Rel(ticket, notif, "Triggers ticket status update alerts")
-
-        Rel(apt, repo, "Persists unit & ownership entities")
-        Rel(res, repo, "Persists citizen & household records")
-        Rel(park, repo, "Persists vehicles & slot allocations")
-        Rel(bill, repo, "Persists invoices, items & transactions")
-        Rel(ticket, repo, "Persists tickets & resolution logs")
-    }
-
-    Rel(spa, auth, "Submits HTTP Requests + Session JWT", "JSON / HTTPS")
-    Rel(ticket, storage, "Uploads incident evidence photos", "S3 API")
-    Rel(bill, vietqr, "Generates dynamic QR & receives Webhook IPN", "JSON / HTTPS")
-    Rel(notif, mail, "Dispatches e-statements & alert notices", "SMTP / REST API")
-    Rel(repo, db, "Executes SQL Queries & ACID Transactions", "TCP 5432")
-```
-
-### Component Catalog
-| Identifier | Component Name | Technical Description & Responsibilities |
-| :--- | :--- | :--- |
-| **`auth`** | Auth & RBAC Security | Session decryption, token validation, 4-tier role enforcement (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`), and apartment-level row isolation. |
-| **`apt`** | Apartment Component | Manages architectural layout, unit specifications, and legal titles (`apartments`, `owners`, `apartment_owners`). |
-| **`res`** | Resident Registry | Validates National Citizen IDs, tracks family relationships, and governs stay state transitions (`residents`, `households`, `household_members`, `residence_records`). |
-| **`park`** | Parking Component | Validates per-unit quotas, assigns RFID access cards, and prevents double-booking using pessimistic database locks (`vehicles`, `parking_slots`). |
-| **`bill`** | Billing Engine | Computes tiered electricity/water consumption, calculates area-based fees, and generates itemized monthly bills (`invoices`, `invoice_items`, `meter_readings`, `fee_types`). |
-| **`ticket`** | Ticket SLA Component | Workflow manager handling resident ticket creation, technician assignment, and SLA timer monitoring (`feedbacks`, `feedback_updates`). |
-| **`notif`** | Notification Service | Template compiler and queue dispatcher forwarding billing notices and critical announcements to email and messaging gateways. |
-| **`repo`** | Data Access Layer | Encapsulates connection pooling, parameterized query execution, and multi-table atomic transaction wrappers across all 18 database tables. |
-
----
-
-## 4. C4 Code & Data Architecture - Level 4
-
-Level 4 maps software components down to physical data modeling and object-oriented design patterns implemented in code.
-
-### 4.1. The 18-Table Relational Schema Catalog (3NF)
-The physical persistence layer is formally defined in [schema.sql](file:///d:/VSF/chung-cu-household-management/schema.sql) and [database/schema.dbml](file:///d:/VSF/chung-cu-household-management/database/schema.dbml), organized into 5 core business domains:
+The Component diagram inspects the internal modular architecture of the **Web & API Application Server** container, detailing functional service components and the Data Access Layer.
 
 ```mermaid
-erDiagram
-    BUILDINGS ||--o{ APARTMENTS : contains
-    APARTMENTS ||--o{ APARTMENT_OWNERS : has
-    OWNERS ||--o{ APARTMENT_OWNERS : owns
-    APARTMENTS ||--o{ HOUSEHOLDS : hosts
-    HOUSEHOLDS ||--o{ HOUSEHOLD_MEMBERS : includes
-    RESIDENTS ||--o{ HOUSEHOLD_MEMBERS : member_of
-    RESIDENTS ||--o{ RESIDENCE_RECORDS : logs
-    APARTMENTS ||--o{ VEHICLES : registers
-    PARKING_SLOTS ||--o| VEHICLES : parks
-    APARTMENTS ||--o{ METER_READINGS : measures
-    APARTMENTS ||--o{ INVOICES : bills
-    FEE_TYPES ||--o{ INVOICE_ITEMS : categorizes
-    INVOICES ||--o{ INVOICE_ITEMS : contains
-    INVOICES ||--o{ PAYMENT_TRANSACTIONS : pays
-    USERS ||--o{ FEEDBACKS : reports
-    FEEDBACKS ||--o{ FEEDBACK_UPDATES : tracks
-```
+flowchart TB
+    subgraph callers["Callers & Integrations"]
+        spa["Single-Page Web Application<br/><i>[Container: React 19]</i>"]
+        vietqr["VietQR Gateway<br/><i>[External System]</i>"]
+        mail["Messaging Gateway<br/><i>[External System]</i>"]
+        db[("PostgreSQL Database<br/><i>[ContainerDb: 18 Tables]</i>")]
+        storage[("Object Storage<br/><i>[ContainerDb: S3 / R2]</i>")]
+    end
 
-1. **Property & Asset Domain**: `buildings` (physical structures), `apartments` (living units), `owners` (legal title holders), `apartment_owners` (co-ownership relations).
-2. **Residency & Census Domain**: `residents` (citizen profiles), `households` (family registry units), `household_members` (head/member relations), `residence_records` (temporary stay and absence history).
-3. **Parking & Vehicle Domain**: `parking_slots` (underground B1/B2 slots), `vehicles` (registered motor vehicles and bikes).
-4. **Finance & Metering Domain**: `fee_types` (tariff policies), `meter_readings` (utility meter readings), `invoices` (master monthly bill), `invoice_items` (line-item charge breakdown), `payment_transactions` (reconciled payment receipts).
-5. **Governance & Service Domain**: `users` (system accounts and security credentials), `feedbacks` (incident service tickets), `feedback_updates` (chronological resolution and SLA audit log).
+    subgraph api["Web & API Application Server Container [Next.js 16]"]
+        direction TB
+        auth["1. Auth & RBAC Security Component<br/><i>[Component: Middleware / JWT]</i><br/>Session decryption, token validation, 4-tier role enforcement<br/>(ADMIN, MANAGER, TECHNICIAN, RESIDENT), and apartment-level row isolation."]
+        
+        subgraph domain_services["Core Domain Services"]
+            apt["2. Apartment Management Component<br/><i>[Component: TypeScript Service]</i><br/>Manages unit directory, architectural floor plans,<br/>net floor area (m²), handover state, and legal title holders."]
+            res["3. Resident & Household Registry<br/><i>[Component: TypeScript Service]</i><br/>Validates 12-digit Citizen IDs (CCCD), family ties,<br/>head-of-household rules, and residency state transitions."]
+            park["4. Vehicle & Parking Component<br/><i>[Component: TypeScript Service]</i><br/>Enforces unit parking quotas (1 car, 2 bikes), assigns RFID cards,<br/>and reserves B1/B2 parking slots using pessimistic row locks."]
+            bill["5. Utility & Automated Billing Engine<br/><i>[Component: TypeScript Calculation Engine]</i><br/>Ingests meter reads, computes tiered utility tariffs,<br/>runs batch invoice generation, and reconciles payments."]
+            ticket["6. Maintenance Ticket SLA Component<br/><i>[Component: TypeScript Workflow Service]</i><br/>Handles repair reports, technician dispatching,<br/>SLA deadline tracking, and resolution photo logging."]
+            notif["7. Notification & Dispatcher Service<br/><i>[Component: TypeScript Service]</i><br/>Compiles templates for e-statements, payment receipts,<br/>and SLA alerts, dispatching them to external queues."]
+        end
 
-### 4.2. Core Design Patterns in Code
-- **Strategy Pattern (Fee Calculation)**: Isolates tariff formulas (area-based maintenance fees, 6-tier progressive electricity tariffs, clean water tiers, and vehicle quota formulas) into interchangeable calculation strategies.
-- **Finite State Machine (FSM)**:
-  - *Residency Status*: `PERMANENT` $\leftrightarrow$ `ABSENT` $\rightarrow$ `MOVED`.
-  - *Invoice Lifecycle*: `UNPAID` $\rightarrow$ `PARTIAL` $\rightarrow$ `PAID` / `OVERDUE`.
-  - *Maintenance SLA*: `OPEN` $\rightarrow$ `IN_PROGRESS` $\rightarrow$ `RESOLVED` $\rightarrow$ `CLOSED`.
-- **Repository & Unit of Work**: Ensures atomicity across multi-table operations through explicit PostgreSQL transactions (`BEGIN ... COMMIT / ROLLBACK`).
+        repo["8. Data Access Layer (DAL)<br/><i>[Component: PostgreSQL Driver / Pool]</i><br/>Manages connection pooling, enforces explicit ACID transaction wrappers<br/>(BEGIN ... COMMIT / ROLLBACK), and executes parameterized SQL."]
+    end
 
----
+    spa -- "HTTPS Requests + Session Token" --> auth
+    auth --> apt & res & park & bill & ticket
 
-## 5. C4 Dynamic Diagram (`C4Dynamic`) - Supplementary Operational Workflow
+    res -- "Validates linked unit" --> apt
+    park -- "Checks apartment vehicle quota" --> apt
+    bill -- "Reads unit floor area (m²)" --> apt
+    bill -- "Retrieves active parking registrations" --> park
+    bill -- "Triggers billing notices" --> notif
+    ticket -- "Triggers ticket status updates" --> notif
 
-The Dynamic diagram demonstrates the runtime collaboration between users, software components, and external gateways during the end-of-month utility billing and secure VietQR settlement cycle.
+    apt & res & park & bill & ticket --> repo
+    repo -- "Executes parameterized SQL & ACID blocks [TCP 5432]" --> db
 
-```mermaid
-C4Dynamic
-    title Dynamic diagram for ResidentHub - Monthly Billing & VietQR Settlement Flow
+    bill -- "Signs payment session & receives IPN" --> vietqr
+    ticket -- "Uploads resolution photos" --> storage
+    notif -- "Dispatches e-statements & SMS" --> mail
 
-    Person(manager, "Building Management", "Accounting & operations staff")
-    Person(resident, "Resident", "Apartment owner / tenant")
-    Container(spa, "Single-Page Web App", "React 19", "Client Portal")
-    Component(bill, "Utility & Billing Engine", "TypeScript", "Calculation Engine")
-    Component(notif, "Notification Service", "TypeScript", "Dispatcher Service")
-    Component(repo, "Data Access Layer", "TypeScript", "Database Access Tier")
-    ContainerDb(db, "PostgreSQL Database", "PostgreSQL 16", "18-Table 3NF Database")
-    System_Ext(vietqr, "VietQR Gateway", "Napas 247 Switch", "Inter-bank payment provider")
-    System_Ext(mail, "Messaging Gateway", "SMTP / ZNS", "Notification service")
-
-    Rel(manager, spa, "1. Inputs utility meter readings for cutoff cycle (25th)")
-    Rel(spa, bill, "2. Submits batch meter readings payload")
-    Rel(bill, repo, "3. Persists new utility records")
-    Rel(repo, db, "4. INSERT INTO meter_readings")
-
-    Rel(manager, spa, "5. Triggers automated batch invoice generation")
-    Rel(spa, bill, "6. Calls batchGenerateInvoices(billingMonth)")
-    Rel(bill, repo, "7. Reads unit floor area, active vehicle quota, utility reads")
-    Rel(repo, db, "8. SELECT properties, active vehicles, meter readings")
-    Rel(bill, repo, "9. Creates master INVOICES (status=UNPAID) + itemized INVOICE_ITEMS")
-    Rel(repo, db, "10. INSERT invoices, invoice_items (ACID Transaction)")
-    Rel(bill, notif, "11. Triggers billing announcement dispatch")
-    Rel(notif, mail, "12. Sends e-statements with invoice breakdown to residents")
-
-    Rel(resident, spa, "13. Logs in to inspect invoice and clicks 'Pay via VietQR'")
-    Rel(spa, bill, "14. Requests payment session creation (POST /api/invoices/{id}/pay)")
-    Rel(bill, vietqr, "15. Cryptographically signs request & asks for dynamic Napas 247 QR with invoice_id")
-    Rel(vietqr, bill, "16. Returns dynamic QR payload with verification checksum")
-    Rel(bill, spa, "17. Returns signed QR payload securely to browser client")
-    Rel(spa, resident, "18. Renders dynamic VietQR on screen for resident")
-
-    Rel(resident, vietqr, "19. Scans QR and transfers funds via Mobile Banking App")
-    Rel(vietqr, bill, "20. Webhook IPN delivers verified payment notification")
-    Rel(bill, repo, "21. Updates paid_amount and transitions invoice status to PAID")
-    Rel(repo, db, "22. UPDATE invoices, INSERT payment_transactions")
-    Rel(bill, notif, "23. Triggers payment confirmation receipt")
-    Rel(notif, mail, "24. Delivers electronic receipt acknowledging cleared balance")
+    style auth fill:#0b4f9e,color:#fff,stroke:#083b77,stroke-width:2px
+    style apt fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style res fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style park fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style bill fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style ticket fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style notif fill:#1168bd,color:#fff,stroke:#0b4f9e
+    style repo fill:#065f46,color:#fff,stroke:#044332,stroke-width:2px
+    style api fill:#f8fafc,stroke:#334155,stroke-width:2px,stroke-dasharray: 5 5
+    style domain_services fill:#eff6ff,stroke:#bfdbfe
+    style callers fill:#f1f5f9,stroke:#cbd5e1
 ```
 
 ---
 
-## 6. C4 Deployment Diagram (`C4Deployment`) - Supplementary Infrastructure View
+## 4. C4 Dynamic Diagrams - Runtime View & Failure Twins
 
-The Deployment diagram maps software containers onto physical hardware, network boundaries, and managed cloud infrastructure tiers.
+### 4.1. Workflow 1: VietQR Billing Settlement
+
+#### Happy Path (Successful Settlement)
 
 ```mermaid
-C4Deployment
-    title Deployment diagram for ResidentHub - Live Production Environment
+sequenceDiagram
+    autonumber
+    participant R as Resident
+    participant SPA as Single-Page App
+    participant BE as Billing Engine
+    participant DAL as Data Access (DAL)
+    participant DB as PostgreSQL
+    participant GW as VietQR Gateway (Napas 247)
+    participant NS as Notification Service
 
-    Deployment_Node(user_device, "Customer's Computer / Mobile Device", "Microsoft Windows, Apple macOS, iOS, Android") {
-        Deployment_Node(browser, "Web Browser", "Google Chrome, Mozilla Firefox, Apple Safari, Microsoft Edge") {
-            Container(spa, "Single-Page Web Application", "React 19 Runtime", "Delivers administrative portal and resident self-service UI.")
-        }
-    }
-
-    Deployment_Node(cloud, "Cloud Infrastructure", "AWS / Cloudflare / Vercel") {
-        Deployment_Node(edge, "Edge Network & Security Tier", "Cloudflare") {
-            Container(waf, "Cloudflare WAF & CDN", "Reverse Proxy", "DDoS mitigation, SSL/TLS 1.3 termination, load balancing, and edge asset caching.")
-        }
-
-        Deployment_Node(app_server_node, "Application Server Cluster", "Ubuntu 22.04 LTS / Docker") {
-            Deployment_Node(node_runtime, "Node.js 20 LTS Runtime", "Server Runtime") {
-                Container(api, "ResidentHub App Server", "Next.js 16 App Router", "Handles business transactions, Server Actions, and REST APIs.")
-                Container(worker, "Cron Background Worker", "Node.js Worker Process", "Background daemon auditing overdue accounts and scheduling recurring notifications.")
-            }
-        }
-
-        Deployment_Node(db_node, "Database Cluster", "Managed AWS RDS / Supabase") {
-            Deployment_Node(pg_primary_node, "Primary Database Instance", "Ubuntu / PostgreSQL 16") {
-                ContainerDb(db_primary, "PostgreSQL Database - Primary", "PostgreSQL 16 Engine", "Manages 18 normalized 3NF tables; handles ACID read and write operations.")
-            }
-            Deployment_Node(pg_standby_node, "Secondary Database Instance", "Ubuntu / PostgreSQL 16") {
-                ContainerDb(db_standby, "PostgreSQL Database - Standby", "PostgreSQL 16 Engine", "High-availability standby replica for disaster recovery and automatic failover.")
-            }
-        }
-
-        Deployment_Node(storage_node, "Object Storage Service", "Amazon S3 / Cloudflare R2") {
-            ContainerDb(s3, "Encrypted S3 Bucket", "Object Storage", "Stores encrypted meter photos, maintenance attachments, and PDF receipts.")
-        }
-    }
-
-    Rel(spa, waf, "Accesses application interface", "HTTPS / TLS 1.3")
-    Rel(waf, api, "Proxies verified traffic", "HTTPS / Reverse Proxy")
-
-    Rel(api, db_primary, "Executes queries and transactions", "TCP 5432 / Connection Pooling")
-    Rel(worker, db_primary, "Audits billing ledgers periodically", "TCP 5432")
-    Rel(db_primary, db_standby, "Streams database replication asynchronously", "Streaming Replication")
-
-    Rel(api, s3, "Uploads incident proofs and invoices", "HTTPS / S3 API")
-    Rel(spa, s3, "Streams public media assets directly", "HTTPS / CDN")
+    R->>SPA: Clicks "Thanh toán VietQR"
+    SPA->>BE: POST /api/invoices/{id}/pay-session
+    BE->>GW: Request dynamic QR (invoice_id, amount, checksum)
+    GW-->>BE: Returns signed QR string + Napas reference
+    BE-->>SPA: 200 OK (QR image payload + session_id)
+    SPA->>R: Displays VietQR on screen
+    R->>GW: Scans QR & transfers funds via Banking App
+    GW->>BE: Webhook IPN (POST /api/webhooks/vietqr)
+    BE->>BE: Verify cryptographic HMAC-SHA256 signature
+    BE->>DAL: executePaymentSettlement(invoice_id, amount, tx_code)
+    DAL->>DB: BEGIN TRANSACTION
+    DAL->>DB: INSERT INTO payment_transactions (...)
+    DAL->>DB: UPDATE invoices SET status = 'PAID', paid_amount = total_amount
+    DAL->>DB: COMMIT
+    BE-->>GW: 200 OK (status: acknowledged)
+    BE->>NS: dispatchPaymentReceipt(invoice_id)
+    NS-->>R: Email / SMS Confirmation Receipt
+    SPA->>SPA: WebSocket / Polling updates UI to PAID
 ```
 
-### Infrastructure Mapping Catalog
-| Infrastructure Node | Hardware / Cloud Environment | Deployed Container | Role & Capacity |
+#### Failure Twin (Network Timeout, Duplicate IPN, & Expiration)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant R as Resident
+    participant SPA as Single-Page App
+    participant BE as Billing Engine
+    participant DAL as Data Access Layer
+    participant DB as PostgreSQL
+    participant GW as VietQR Gateway (Napas 247)
+
+    alt Scenario A: Dynamic QR Session Expired (> 15 minutes)
+        R->>SPA: Scans QR after 15-minute window
+        R->>GW: Submits transfer
+        GW-->>R: Transfer rejected (QR Session Expired)
+        SPA->>BE: GET /api/invoices/{id}/payment-status
+        BE-->>SPA: 200 OK (status: EXPIRED)
+        SPA->>R: Renders QR expired alert and offers refresh button
+    else Scenario B: Duplicate / Replayed Webhook IPN (Network Lag)
+        GW->>BE: Webhook IPN (Duplicate delivery due to retry)
+        BE->>BE: Verify signature OK
+        BE->>DAL: checkExistingTransaction(gateway_transaction_code)
+        DAL->>DB: SELECT id FROM payment_transactions WHERE transaction_code = ?
+        DB-->>DAL: Found record (Transaction already committed)
+        Note over BE,DAL: Idempotency Guard: Suppress duplicate balance update!
+        BE-->>GW: 200 OK (status: already_processed)
+    else Scenario C: Database Failure during Commit
+        GW->>BE: Webhook IPN
+        BE->>DAL: executePaymentSettlement(...)
+        DAL->>DB: BEGIN TRANSACTION
+        DAL->>DB: UPDATE invoices ... (Connection Timeout / Deadlock)
+        DB--xDAL: ERROR: Deadlock detected
+        DAL->>DB: ROLLBACK
+        BE-->>GW: 500 Internal Error (Webhook triggers gateway retry backoff)
+        Note over BE,GW: Gateway will retry in 1m, 5m, 15m. No partial balance saved.
+    end
+```
+
+---
+
+### 4.2. Workflow 2: Month-End Batch Invoice Generation
+
+#### Happy Path (Full Batch Success)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant M as Building Accountant
+    participant SPA as Single-Page App
+    participant BE as Billing Engine
+    participant DAL as Data Access Layer
+    participant DB as PostgreSQL
+    participant NS as Notification Service
+
+    M->>SPA: Requests batch invoice generation for billing month
+    SPA->>BE: POST /api/billing/batch-generate (month: 2026-09)
+    BE->>DAL: fetchAllEligibleApartmentsWithMeters(2026-09)
+    DAL->>DB: SELECT units, active_vehicles, meter_readings
+    DB-->>DAL: Returns 1200 apartment records
+    BE->>BE: Compute itemized fees for 1200 units (Area, Power, Water, Parking)
+    BE->>DAL: insertBatchInvoices(1200 invoices, 4800 items)
+    DAL->>DB: BEGIN TRANSACTION
+    DAL->>DB: INSERT INTO invoices and invoice_items
+    DAL->>DB: COMMIT
+    BE->>NS: queueBatchNotification(2026-09)
+    NS-->>M: Dispatches success alert: 1200 invoices issued
+    BE-->>SPA: 200 OK (created: 1200, failed: 0)
+```
+
+#### Failure Twin (Missing Readings & Partial Rollback)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant M as Building Accountant
+    participant SPA as Single-Page App
+    participant BE as Billing Engine
+    participant DAL as Data Access Layer
+    participant DB as PostgreSQL
+
+    M->>SPA: Requests batch invoice generation for billing month
+    SPA->>BE: POST /api/billing/batch-generate
+    BE->>DAL: auditMetersAndDataIntegrity()
+    DAL->>DB: SELECT missing_meters, negative_readings
+    DB-->>DAL: Returns 12 units with unrecorded meters or negative usage
+    
+    alt Validation Guard Refuses Incomplete Batch
+        BE-->>SPA: 422 Unprocessable Entity (Missing meter readings for units A-1204, B-0502)
+        SPA->>M: Displays warning: 12 apartments missing meter readings
+        Note over BE,DB: Zero invoices inserted. Platform maintains 100% financial integrity.
+    else Batch Isolated Execution (Partial Commit with Dead-Letter)
+        Note over BE: System generates invoices for 1188 valid units in chunks of 100
+        Note over BE: 12 failed units are logged into dead-letter log for accountant audit
+    end
+```
+
+---
+
+## 5. C4 Deployment Diagram - Infrastructure View
+
+The Deployment diagram maps ResidentHub containers to cloud infrastructure nodes, VPC security boundaries, and high-availability database tiers.
+
+```mermaid
+flowchart TB
+    subgraph client_env["📱 End-User Client Device"]
+        browser["Web Browser<br/><i>[Chrome, Firefox, Safari, Edge]</i><br/>Executes React 19 Single-Page App"]
+    end
+
+    subgraph cloud["☁️ Production Cloud Infrastructure"]
+        subgraph edge_tier["Edge Security & Perimeter Tier (Cloudflare Anycast)"]
+            waf["Cloudflare WAF & CDN<br/><i>[Reverse Proxy]</i><br/>DDoS Layer 7 defense, SSL/TLS 1.3 termination,<br/>and static asset caching"]
+        end
+
+        subgraph app_cluster["Application Server Cluster (Docker / Container Apps)"]
+            direction TB
+            api_pod["ResidentHub App Server Instance<br/><i>[Docker Container: Next.js 16 App Router]</i><br/>Stateless Server Action & API workers (Autoscaling: 2 - 10 pods)"]
+            worker_pod["ResidentHub Cron Worker<br/><i>[Docker Container: Node.js 20]</i><br/>Singleton batch worker for billing cutoffs and reminder queues"]
+        end
+
+        subgraph db_cluster["Database Tier (AWS RDS Multi-AZ / Supabase Managed)"]
+            direction LR
+            db_primary[("PostgreSQL 16 - Primary Instance<br/><i>[Engine: db.r6g.xlarge]</i><br/>Handles read-write ACID transactions across 18 tables")]
+            db_standby[("PostgreSQL 16 - Standby Replica<br/><i>[Multi-AZ Standby]</i><br/>Synchronous replication for zero-data-loss failover")]
+        end
+
+        subgraph storage_cluster["Object Storage Tier (Cloudflare R2 / AWS S3)"]
+            s3[("Encrypted Media Bucket<br/><i>[S3 / R2 Bucket]</i><br/>Preserves meter captures, incident proofs, and PDF statements")]
+        end
+    end
+
+    browser -- "HTTPS / TLS 1.3 (TCP 443)" --> waf
+    waf -- "Internal HTTPS Proxy" --> api_pod
+    api_pod -- "SQL Queries & Connection Pool (TCP 5432)" --> db_primary
+    worker_pod -- "Batch queries (TCP 5432)" --> db_primary
+    db_primary -. "Synchronous WAL Streaming" .-> db_standby
+    api_pod -- "Uploads media via signed S3 API" --> s3
+    browser -- "Downloads CDN public media directly" --> s3
+
+    style browser fill:#08427b,color:#fff,stroke:#052e56
+    style waf fill:#d97706,color:#fff,stroke:#b45309,stroke-width:2px
+    style api_pod fill:#1168bd,color:#fff,stroke:#0b4f9e,stroke-width:2px
+    style worker_pod fill:#2563eb,color:#fff,stroke:#1d4ed8
+    style db_primary fill:#0284c7,color:#fff,stroke:#0369a1,stroke-width:2px
+    style db_standby fill:#0284c7,color:#fff,stroke:#0369a1,stroke-dasharray: 4 4
+    style s3 fill:#0284c7,color:#fff,stroke:#0369a1,stroke-width:2px
+    style edge_tier fill:#fffbeb,stroke:#fde68a
+    style app_cluster fill:#eff6ff,stroke:#bfdbfe
+    style db_cluster fill:#f0fdf4,stroke:#bbf7d0
+    style storage_cluster fill:#f0fdf4,stroke:#bbf7d0
+    style cloud fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5
+```
+
+### Infrastructure Inventory
+
+| Node | Environment | Deployed Artifact | Technical Specifications |
 | :--- | :--- | :--- | :--- |
-| **`browser`** | End-User Client Device | `spa` | Client environment executing optimized React 19 JavaScript bundles. |
-| **`edge`** | Cloudflare Global Anycast Network | `waf` | Perimeter defense, Web Application Firewall (WAF), edge SSL offloading, and static asset caching. |
-| **`app_server_node`** | Docker on Ubuntu 22.04 LTS | `api`, `worker` | Compute cluster running Next.js 16 App Server and headless Node.js cron workers. |
-| **`db_node`** | AWS RDS Multi-AZ / Supabase | `db_primary`, `db_standby` | Enterprise database cluster operating active-standby replication across 18 normalized tables with automated failover. |
-| **`storage_node`** | Amazon S3 / Cloudflare R2 | `s3` | Scalable object storage preserving encrypted unstructured media with regional CDN distribution. |
+| **`waf`** | Cloudflare Edge | Reverse Proxy / WAF | Global DDoS mitigation, HTTP/3, TLS 1.3 termination, and automatic rate-limiting at 100 req/min/IP. |
+| **`api_pod`** | Container Apps / ECS | Docker Image (`residenthub:latest`) | Horizontal Pod Autoscaler (HPA) scaling between 2 to 10 replicas on CPU > 70% or RPS spikes. |
+| **`worker_pod`** | Container Daemon | Docker Image (`residenthub:latest`) | Singleton worker with distributed lease lock ensuring only 1 worker processes the 25th month-end billing. |
+| **`db_primary`** | AWS RDS PostgreSQL 16 | Relational Storage | 18 tables in 3NF, automated daily snapshots, 30-day Point-in-Time Recovery (PITR), and connection pooling via PgBouncer. |
+| **`db_standby`** | AWS RDS Multi-AZ | Hot Standby Replica | Zero-downtime automatic failover within 60 seconds of hardware or zone failure. |
+| **`s3`** | Cloudflare R2 / S3 | Object Bucket | AES-256 server-side encrypted unstructured media storage with zero egress fee distribution via Cloudflare CDN. |
+
+---
+
+## 6. Architecture Fitness Functions & Integrity Tests
+
+| Fitness Test | Enforced Rule | Failure Condition | Implementation |
+| :--- | :--- | :--- | :--- |
+| `LayersPointInward` | Layering | Client components importing DB directly; API routes referencing private UI components | ESLint `import/order` & project boundary lint rules |
+| `NoCircularDependencies` | Modularity | Service modules forming circular dependency cycles | `madge --circular src/` check in CI pipeline |
+| `EveryActionGuardsRBAC` | Security | Any Server Action or API mutation lacking a call to `enforceRole(...)` | Static AST analyzer test in Vitest |
+| `FinancialCalculationsAreInteger` | Precision | Currency arithmetic producing floating-point fractional numbers | Unit test suite asserting integer VND rounding on all bills |
+| `NoOrphanDatabaseEntities` | Integrity | Foreign keys configured without `ON DELETE RESTRICT/CASCADE` constraints | Database migration linter on `schema.sql` |
