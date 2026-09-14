@@ -2,11 +2,16 @@
 
 This document captures the essential missing design artifacts: **Business Lifecycles (State Machines)**, **RBAC Permission Matrix**, and **Post-DBML Implementation Steps**.
 
+> 📚 **Comprehensive Architectural Specifications**:
+>
+> - [C4 Model Architecture Document](ARCHITECTURE_C4.md) (Level 1 to Level 4 visual diagrams)
+
 ---
 
 ## 1. Core Lifecycles & State Machines
 
 ### 1.1. Residence Lifecycle
+
 ```mermaid
 stateDiagram-v2
     [*] --> PERMANENT : Register permanent stay
@@ -18,9 +23,11 @@ stateDiagram-v2
     TEMPORARY --> MOVED_OUT : Lease expiration / Departure
     MOVED_OUT --> [*]
 ```
+
 - **Rules**: Max 1 household head (`is_head = true`) per unit. Head departure mandates assigning a successor first. Move-out revokes parking slots, deactivates user accounts, and requires zero outstanding balance.
 
 ### 1.2. Billing & Payment Lifecycle
+
 ```mermaid
 stateDiagram-v2
     [*] --> UNPAID : Invoice issued
@@ -32,9 +39,11 @@ stateDiagram-v2
     OVERDUE --> PAID : Settle debt
     PAID --> [*]
 ```
+
 - **Cycle**: Record utility meters (25th–28th) $\rightarrow$ Calculate (Area $\times$ Tariff + Utilities + Parking) $\rightarrow$ Batch generate invoices $\rightarrow$ Settle via Gateway/Cash $\rightarrow$ Auto-flag `OVERDUE` after deadline.
 
 ### 1.3. Service Ticket Lifecycle
+
 ```mermaid
 stateDiagram-v2
     [*] --> OPEN : Resident reports issue
@@ -49,6 +58,7 @@ stateDiagram-v2
 ```
 
 ### 1.4. Vehicle & Parking Allocation
+
 - **Quota**: Max 1 car, 2 motorbikes per unit.
 - **Workflow**: Check unit quota $\rightarrow$ Check available slot (B1/B2) $\rightarrow$ Verify logbook & ID $\rightarrow$ Activate RFID card $\rightarrow$ Link to monthly recurring billing.
 
