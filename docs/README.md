@@ -8,6 +8,7 @@ flowchart TD
     
     Arc42["📘 ARCHITECTURE_ARC42.md<br/><b>arc42 Architecture Dossier</b><br/><i>12-Section IEEE Specification</i>"]
     C4["🏛️ ARCHITECTURE_C4.md<br/><b>C4 Visual Architecture</b><br/><i>Standard Mermaid L1-L3 & Failure Twins</i>"]
+    UseCases["📋 USE_CASES.md<br/><b>Use Cases & E2E Journeys</b><br/><i>UML & Fully-Dressed Specs</i>"]
     Specs["⚙️ SYSTEM_WORKFLOWS_AND_SPECS.md<br/><b>State Machines & RBAC</b><br/><i>Lifecycles & Governance</i>"]
     Trace["🔗 UI_DATABASE_MAPPING.md<br/><b>UI-DB Traceability</b><br/><i>Field & Screen Mapping</i>"]
     Shots["🖼️ screenshots/<br/><b>UI Visual Catalog</b><br/><i>7 Production Screens</i>"]
@@ -15,17 +16,21 @@ flowchart TD
 
     Hub --> Arc42
     Hub --> C4
+    Hub --> UseCases
     Hub --> Specs
     Hub --> Trace
     Hub --> Shots
     Arc42 <--> C4
+    UseCases <--> Specs
     C4 -.-> DB
     Trace -.-> DB
+    UseCases -.-> Trace
     Shots -.-> Trace
 
     style Hub fill:#1e293b,stroke:#0f172a,color:#f8fafc
     style Arc42 fill:#1e40af,stroke:#1d4ed8,color:#eff6ff
     style C4 fill:#1e40af,stroke:#1d4ed8,color:#eff6ff
+    style UseCases fill:#0d9488,stroke:#0f766e,color:#f0fdfa
     style Specs fill:#b45309,stroke:#d97706,color:#fffbeb
     style DB fill:#065f46,stroke:#059669,color:#ecfdf5
     style Trace fill:#065f46,stroke:#059669,color:#ecfdf5
@@ -71,10 +76,11 @@ Select the reading path tailored to your role, perspective, and available time:
 - ➡️ **[SYSTEM_WORKFLOWS_AND_SPECS.md §1](SYSTEM_WORKFLOWS_AND_SPECS.md#1-core-lifecycles-state-machines--failure-twins)**: Residence lifecycles, billing debt transitions, and parking quota allocation.
 - ➡️ **[UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md)**: Comprehensive mapping matrix from 18 SQL tables to UI screens.
 
-### 5. "I am a QA engineer seeking test scenarios" (QA & Test Automation Engineer)
+### 5. "I am a Product Owner / BA / QA engineer seeking use case specifications"
 >
-> **Goal:** Construct test suites covering both Happy Paths and edge cases/failure twins.
+> **Goal:** Construct test suites covering both Happy Paths, business journeys, edge cases, and failure twins.
 
+- ➡️ **[USE_CASES.md](USE_CASES.md)**: Complete UML use case catalogs, 4 End-to-End resident journeys, 6 fully-dressed specifications, and traceability matrix.
 - ➡️ **[ARCHITECTURE_C4.md §4](ARCHITECTURE_C4.md#4-c4-dynamic-diagrams---runtime-view--failure-twins)**: Failure twins: VietQR expiration, duplicate webhook delivery, meter audit rollbacks.
 - ➡️ **[SYSTEM_WORKFLOWS_AND_SPECS.md §2](SYSTEM_WORKFLOWS_AND_SPECS.md#2-role-based-access-control-rbac-matrix)**: 4-tier RBAC permission verification matrix across 7 system modules.
 - ➡️ **[ARCHITECTURE_ARC42.md §10](ARCHITECTURE_ARC42.md#10-quality-requirements-stimulus--response--measure)**: Stimulus-Response-Measure matrix (QR1 through QR5).
@@ -92,6 +98,7 @@ Select the reading path tailored to your role, perspective, and available time:
 
 | Document | Focus Area | Target Audience | Primary Contents |
 | :--- | :--- | :--- | :--- |
+| **[USE_CASES.md](USE_CASES.md)** | **Use Cases & E2E Journeys** | POs, BAs, QA, Fullstack | • Actor & Trigger taxonomy (HTTP, Cron, Webhook)<br/>• 4 UML Subsystem Use Case Diagrams<br/>• **4 End-to-End Journeys (Move-in, Billing, SLA, Move-out)**<br/>• 6 Fully-Dressed Use Case Specs with Failure Twins<br/>• Use Case $\leftrightarrow$ UI $\leftrightarrow$ Service $\leftrightarrow$ DB Traceability |
 | **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)** | **arc42 Complete Architecture Dossier** | Architects, Leads, Reviewers | • 12 standard IEEE sections<br/>• Measurable Quality Goals (Q1-Q7)<br/>• External Interfaces & Solution Strategy<br/>• ADR Index (ADR-0001 to ADR-0004)<br/>• Architecture Fitness Functions in CI |
 | **[ARCHITECTURE_C4.md](ARCHITECTURE_C4.md)** | **C4 Visual Architecture (Standard Mermaid)** | Developers, Architects, DevOps | • Level 1 System Context (Black box)<br/>• Level 2 Containers (React 19, Next.js 16, PostgreSQL 16)<br/>• Level 3 Components (8 internal server services)<br/>• **Dynamic Runtime View & Failure Twins**<br/>• Production Cloud Deployment Topology |
 | **[SYSTEM_WORKFLOWS_AND_SPECS.md](SYSTEM_WORKFLOWS_AND_SPECS.md)** | **Business Lifecycles & Governance** | Backend Developers, QA | • Residence State Machine (`PERMANENT` / `TEMPORARY` / `ABSENT` / `MOVED`)<br/>• Billing & VietQR Failure Twin State Machine<br/>• Incident SLA & Escalation State Machine<br/>• RBAC Matrix (4 Roles across 7 Modules)<br/>• Post-DBML 4-Phase Implementation Roadmap |

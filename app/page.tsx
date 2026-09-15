@@ -2,344 +2,311 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { mockFeedbacks, mockApartmentA1205 } from '@/lib/mock-data';
+import { mockFeedbacks } from '@/lib/mock-data';
 
 export default function HomePage() {
-  const [chartPeriod, setChartPeriod] = useState<'6m' | '12m'>('6m');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const monthlyFlowData = [
+    { month: 'T5/25', in: 18, out: 5 },
+    { month: 'T6/25', in: 24, out: 6 },
+    { month: 'T7/25', in: 19, out: 4 },
+    { month: 'T8/25', in: 22, out: 7 },
+    { month: 'T9/25', in: 15, out: 3 },
+    { month: 'T10/25', in: 12, out: 2 },
+  ];
+
+  const maxVal = 28;
+
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowAddModal(false);
+    setToastMessage('Đã lưu hồ sơ cư dân mới thành công vào cơ sở dữ liệu BQL!');
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   return (
-    <div className="flex flex-col w-full space-y-space-lg max-w-7xl mx-auto">
-      {/* Welcome Banner Row */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+    <div className="flex flex-col w-full space-y-5 max-w-7xl mx-auto">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 bg-emerald-700 text-white px-4 py-3 rounded-lg shadow-lg animate-in slide-in-from-top-2 text-sm font-medium">
+          <span className="material-symbols-outlined text-[20px]">check_circle</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Operational Header Bar */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-4 lg:p-5 rounded-lg border border-slate-200 shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-              Xin chào, Nguyễn Văn An
+            <h1 className="text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
+              Bảng Điều Khiển Vận Hành Tòa Nhà
             </h1>
-            <span className="text-2xl select-none">👋</span>
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">
+              Trực tiếp
+            </span>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            Tổng quan tình hình cư dân và vận hành chung cư hôm nay.
+          <p className="text-xs sm:text-sm text-slate-500">
+            Chung cư Parkview Tower (Tháp A & B) • Cập nhật dữ liệu lúc 09:30 ngày 24/10/2025
           </p>
         </div>
 
-        <div className="flex items-center flex-wrap gap-space-sm">
-          <div className="flex items-center gap-2 px-space-md py-2 rounded-lg bg-surface-container-lowest shadow-sm border border-outline-variant/30 text-on-surface">
-            <span className="material-symbols-outlined text-[18px] text-outline">calendar_today</span>
-            <span className="font-label-md text-label-md font-medium">Hôm nay, 24 Tháng 10 2025</span>
-          </div>
+        <div className="flex items-center flex-wrap gap-2">
+          <button
+            onClick={() => {
+              setToastMessage('Báo cáo ca trực đang được kết xuất thành file Excel...');
+              setTimeout(() => setToastMessage(null), 3500);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition-colors"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-[17px] text-slate-500">file_download</span>
+            <span>Báo cáo ca trực</span>
+          </button>
 
-          <div className="relative">
-            <select className="appearance-none bg-surface-container-lowest border border-outline-variant/30 shadow-sm px-space-md py-2 pr-8 rounded-lg font-label-md text-label-md text-on-surface focus:outline-none cursor-pointer">
-              <option>30 ngày qua</option>
-              <option>Tuần này</option>
-              <option>Quý này</option>
-              <option>Năm nay</option>
-            </select>
-            <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">
-              expand_more
-            </span>
-          </div>
+          <Link
+            href="/phi-chung-cu"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-sm transition-colors"
+          >
+            <span className="material-symbols-outlined text-[17px] text-slate-500">receipt_long</span>
+            <span>Thu phí nhanh</span>
+          </Link>
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-space-md py-2 rounded-lg bg-primary-container hover:bg-primary text-white font-label-md text-label-md shadow-sm transition-all active:scale-[0.99] font-medium"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold shadow-sm transition-colors"
             type="button"
           >
-            <span className="material-symbols-outlined text-[18px]">person_add</span>
+            <span className="material-symbols-outlined text-[17px]">person_add</span>
             <span>Thêm cư dân</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Stat Highlight Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+      {/* 4 Professional KPI Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
         {/* Total Apartments */}
-        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-outline-variant/20 space-y-3 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
+        <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               TỔNG CĂN HỘ
             </span>
-            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+            <span className="p-1 rounded bg-slate-100 text-blue-800">
               <span className="material-symbols-outlined text-[18px]">apartment</span>
+            </span>
+          </div>
+          <div className="my-2.5">
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">
+              320 <span className="text-xs font-normal text-slate-500">căn</span>
+            </div>
+            <div className="text-xs text-slate-600 mt-1 flex items-center justify-between">
+              <span>Đang ở: <strong>298</strong> (93.1%)</span>
+              <span className="text-slate-400">•</span>
+              <span>Trống: <strong>24</strong></span>
             </div>
           </div>
-          <div>
-            <div className="font-metric-display text-metric-display text-on-surface tracking-tight font-bold">
-              320
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">298 đang có người ở</span>
-              <span className="px-2 py-0.5 rounded-full font-label-sm text-label-sm bg-tertiary-fixed/40 text-tertiary font-bold">
-                93.1%
-              </span>
-            </div>
-          </div>
-          <div className="pt-2 text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 border-t border-outline-variant/15">
-            <span className="material-symbols-outlined text-[14px] text-tertiary font-bold">add_circle</span>
-            <span>+2 căn bàn giao tháng này</span>
+          <div className="pt-2 text-[11px] text-slate-500 flex items-center gap-1 border-t border-slate-100">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>12 căn đang hoàn thiện nội thất</span>
           </div>
         </div>
 
         {/* Total Residents */}
-        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-outline-variant/20 space-y-3 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              TỔNG CƯ DÂN
+        <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              QUY MÔ DÂN CƯ
             </span>
-            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+            <span className="p-1 rounded bg-slate-100 text-blue-800">
               <span className="material-symbols-outlined text-[18px]">groups</span>
+            </span>
+          </div>
+          <div className="my-2.5">
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">
+              1,248 <span className="text-xs font-normal text-slate-500">nhân khẩu</span>
+            </div>
+            <div className="text-xs text-slate-600 mt-1 flex items-center justify-between">
+              <span>306 hộ gia đình</span>
+              <span className="text-slate-400">•</span>
+              <span>TB 3.9 người/hộ</span>
             </div>
           </div>
-          <div>
-            <div className="font-metric-display text-metric-display text-on-surface tracking-tight font-bold">
-              1,248
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">+12 trong tháng này</span>
-              <span className="flex items-center px-1.5 py-0.5 rounded-full font-label-sm text-label-sm bg-tertiary-fixed/40 text-tertiary font-bold">
-                <span className="material-symbols-outlined text-[12px]">arrow_upward</span> 1.2%
-              </span>
-            </div>
-          </div>
-          <div className="pt-2 text-on-surface-variant font-label-sm text-label-sm flex items-center gap-2 border-t border-outline-variant/15">
-            <span>642 nam</span>
-            <span className="text-outline-variant">•</span>
-            <span>606 nữ</span>
+          <div className="pt-2 text-[11px] text-emerald-700 font-medium flex items-center gap-1 border-t border-slate-100">
+            <span className="material-symbols-outlined text-[14px]">trending_up</span>
+            <span>Tăng trưởng thuần +12 người tháng này</span>
           </div>
         </div>
 
-        {/* Households */}
-        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-outline-variant/20 space-y-3 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              HỘ DÂN
+        {/* Fee Collection Progress */}
+        <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              THU PHÍ T10/2025
             </span>
-            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[18px]">family_restroom</span>
-            </div>
-          </div>
-          <div>
-            <div className="font-metric-display text-metric-display text-on-surface tracking-tight font-bold">
-              306
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">95.6% căn hộ đã đăng ký</span>
-            </div>
-          </div>
-          <div className="pt-2 text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 border-t border-outline-variant/15">
-            <span className="material-symbols-outlined text-[14px] text-primary">person_pin_circle</span>
-            <span>4 hộ chuyển đến gần đây</span>
-          </div>
-        </div>
-
-        {/* Outstanding Fees */}
-        <div className="bg-surface-container-lowest rounded-xl p-5 shadow-sm border border-outline-variant/20 space-y-3 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              CÔNG NỢ PHÍ
+            <span className="p-1 rounded bg-slate-100 text-blue-800">
+              <span className="material-symbols-outlined text-[18px]">payments</span>
             </span>
-            <div className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+          </div>
+          <div className="my-2.5">
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">
+              564.2 <span className="text-xs font-normal text-slate-500">triệu đ</span>
+            </div>
+            <div className="text-xs text-slate-600 mt-1 flex items-center justify-between">
+              <span>Đạt <strong>81.7%</strong> kỳ thu</span>
+              <span className="text-red-600 font-medium">42 căn chưa nộp</span>
             </div>
           </div>
-          <div>
-            <div className="font-metric-display text-metric-display text-on-surface tracking-tight font-bold">
-              126.5 <span className="font-headline-sm text-headline-sm font-normal text-on-surface-variant">triệu</span>
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="px-2 py-0.5 rounded-full font-label-sm text-label-sm bg-error-container text-on-error-container font-semibold">
-                42 chưa đóng
-              </span>
-            </div>
-          </div>
-          <div className="pt-2 text-on-surface-variant font-label-sm text-label-sm flex items-center justify-between border-t border-outline-variant/15">
-            <span>Đã thu 81.7% tổng kỳ</span>
-            <Link href="/phi-chung-cu" className="font-medium text-primary hover:underline">
-              Chi tiết
+          <div className="pt-2 text-[11px] text-slate-500 flex items-center justify-between border-t border-slate-100">
+            <span>Kế hoạch: 690.7 tr</span>
+            <Link href="/phi-chung-cu" className="text-blue-700 font-semibold hover:underline">
+              Chi tiết nợ
             </Link>
+          </div>
+        </div>
+
+        {/* Operational Issues & Feedbacks */}
+        <div className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              PHẢN ÁNH & SỰ CỐ
+            </span>
+            <span className="p-1 rounded bg-slate-100 text-blue-800">
+              <span className="material-symbols-outlined text-[18px]">assignment_late</span>
+            </span>
+          </div>
+          <div className="my-2.5">
+            <div className="text-2xl font-bold text-slate-900 tracking-tight font-mono">
+              14 <span className="text-xs font-normal text-slate-500">yêu cầu</span>
+            </div>
+            <div className="text-xs text-slate-600 mt-1 flex items-center justify-between">
+              <span className="text-red-600 font-semibold">2 khẩn cấp</span>
+              <span className="text-slate-400">•</span>
+              <span>4 đang xử lý</span>
+              <span className="text-slate-400">•</span>
+              <span className="text-emerald-700">8 đã xong</span>
+            </div>
+          </div>
+          <div className="pt-2 text-[11px] text-slate-500 flex items-center gap-1 border-t border-slate-100">
+            <span className="material-symbols-outlined text-[14px] text-blue-700">timer</span>
+            <span>Thời gian phản hồi TB: 18 phút</span>
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Charts & Operations Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
-        {/* Left 2 Columns: Chart & Feedbacks */}
-        <div className="lg:col-span-2 space-y-space-lg">
-          {/* Biến động cư dân Chart Card */}
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Main Operations Grid: 2 Columns Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Left 2 Columns: Monthly Resident Migration Bar Chart & Recent Feedbacks */}
+        <div className="lg:col-span-2 space-y-5">
+          {/* Monthly Migration Chart (Realistic Bar Chart) */}
+          <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  Biến động cư dân
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+                  Biến Động Cư Dân Theo Tháng
                 </h2>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Lưu lượng chuyển đến và rời đi theo các tháng gần đây
+                <p className="text-xs text-slate-500">
+                  Số lượt cư dân chuyển đến và rời đi trong 6 tháng gần nhất
                 </p>
               </div>
-              <div className="flex items-center gap-1 p-1 bg-surface-container-low rounded-lg self-start sm:self-auto border border-outline-variant/20">
-                <button
-                  onClick={() => setChartPeriod('6m')}
-                  className={`px-3 py-1 text-label-sm font-label-sm rounded-md transition-all font-medium ${
-                    chartPeriod === '6m'
-                      ? 'bg-surface-container-lowest text-on-surface shadow-sm font-semibold'
-                      : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  6 tháng
-                </button>
-                <button
-                  onClick={() => setChartPeriod('12m')}
-                  className={`px-3 py-1 text-label-sm font-label-sm rounded-md transition-all font-medium ${
-                    chartPeriod === '12m'
-                      ? 'bg-surface-container-lowest text-on-surface shadow-sm font-semibold'
-                      : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  12 tháng
-                </button>
+
+              <div className="flex items-center gap-3 self-start sm:self-auto">
+                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                  <span className="w-3 h-3 rounded-sm bg-blue-700"></span>
+                  <span>Chuyển đến</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-600">
+                  <span className="w-3 h-3 rounded-sm bg-slate-400"></span>
+                  <span>Chuyển đi</span>
+                </div>
               </div>
             </div>
 
-            {/* Legend & Stats */}
-            <div className="flex items-center gap-6 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary-container"></span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">
-                  Chuyển đến (+108)
-                </span>
+            {/* Structured Bar Visualization */}
+            <div className="pt-4 pb-1">
+              <div className="grid grid-cols-6 gap-2 sm:gap-4 h-48 border-b border-slate-200 px-2">
+                {monthlyFlowData.map((item, idx) => {
+                  const inHeight = Math.round((item.in / maxVal) * 100);
+                  const outHeight = Math.round((item.out / maxVal) * 100);
+
+                  return (
+                    <div key={idx} className="flex flex-col items-center justify-end h-full gap-1">
+                      <div className="flex items-end gap-1.5 w-full justify-center h-full">
+                        {/* In Bar */}
+                        <div
+                          style={{ height: `${inHeight}%` }}
+                          className="w-4 sm:w-6 bg-blue-700 hover:bg-blue-800 rounded-t transition-all group relative flex justify-center"
+                        >
+                          <span className="absolute -top-5 text-[10px] font-bold text-slate-700 opacity-80 group-hover:opacity-100">
+                            +{item.in}
+                          </span>
+                        </div>
+                        {/* Out Bar */}
+                        <div
+                          style={{ height: `${outHeight}%` }}
+                          className="w-4 sm:w-6 bg-slate-300 hover:bg-slate-400 rounded-t transition-all group relative flex justify-center"
+                        >
+                          <span className="absolute -top-5 text-[10px] font-bold text-slate-500 opacity-80 group-hover:opacity-100">
+                            -{item.out}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-medium text-slate-600 mt-2">
+                        {item.month}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-secondary"></span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant">
-                  Chuyển đi (-24)
-                </span>
-              </div>
-              <div className="ml-auto font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-semibold">
-                <span className="material-symbols-outlined text-[14px]">trending_up</span>
-                <span>Trung bình +14 cư dân/tháng</span>
-              </div>
-            </div>
 
-            {/* Interactive SVG Chart */}
-            <div className="relative w-full h-64 pt-2">
-              <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 600 200">
-                <defs>
-                  <linearGradient id="primaryGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4338ca" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#4338ca" stopOpacity="0.0" />
-                  </linearGradient>
-                  <linearGradient id="secondaryGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#006a61" stopOpacity="0.15" />
-                    <stop offset="100%" stopColor="#006a61" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                {/* Grid Lines */}
-                <line x1="0" y1="40" x2="600" y2="40" stroke="#dae2fd" strokeDasharray="4 4" strokeWidth="1" />
-                <line x1="0" y1="90" x2="600" y2="90" stroke="#dae2fd" strokeDasharray="4 4" strokeWidth="1" />
-                <line x1="0" y1="140" x2="600" y2="140" stroke="#dae2fd" strokeDasharray="4 4" strokeWidth="1" />
-                <line x1="0" y1="190" x2="600" y2="190" stroke="#c7c4d7" strokeWidth="1" />
-
-                {/* Area and Line for Inflow (Chuyển đến) */}
-                <path
-                  d="M 20 150 Q 80 130 140 110 T 260 85 T 380 60 T 500 70 T 580 45 L 580 190 L 20 190 Z"
-                  fill="url(#primaryGradient)"
-                />
-                <path
-                  d="M 20 150 Q 80 130 140 110 T 260 85 T 380 60 T 500 70 T 580 45"
-                  fill="none"
-                  stroke="#4338ca"
-                  strokeWidth="3"
-                />
-
-                {/* Area and Line for Outflow (Chuyển đi) */}
-                <path
-                  d="M 20 170 Q 80 160 140 165 T 260 155 T 380 145 T 500 150 T 580 140 L 580 190 L 20 190 Z"
-                  fill="url(#secondaryGradient)"
-                />
-                <path
-                  d="M 20 170 Q 80 160 140 165 T 260 155 T 380 145 T 500 150 T 580 140"
-                  fill="none"
-                  stroke="#006a61"
-                  strokeWidth="2.5"
-                  strokeDasharray="6 3"
-                />
-
-                {/* Points on Primary Line */}
-                {[
-                  { cx: 20, cy: 150 },
-                  { cx: 140, cy: 110 },
-                  { cx: 260, cy: 85 },
-                  { cx: 380, cy: 60 },
-                  { cx: 500, cy: 70 },
-                  { cx: 580, cy: 45 },
-                ].map((pt, i) => (
-                  <circle
-                    key={i}
-                    cx={pt.cx}
-                    cy={pt.cy}
-                    r="4.5"
-                    fill="#ffffff"
-                    stroke="#4338ca"
-                    strokeWidth="2.5"
-                  />
-                ))}
-              </svg>
-
-              {/* X Axis Labels */}
-              <div className="flex justify-between text-[11px] font-medium text-outline pt-2">
-                <span>Tháng 5</span>
-                <span>Tháng 6</span>
-                <span>Tháng 7</span>
-                <span>Tháng 8</span>
-                <span>Tháng 9</span>
-                <span>Tháng 10 (Hiện tại)</span>
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-2.5 px-1">
+                <span>Tổng chuyển đến 6 tháng: <strong>+110 người</strong></span>
+                <span>Tổng chuyển đi 6 tháng: <strong>-27 người</strong></span>
+                <span className="text-blue-700 font-semibold">Tăng thuần: +83 người</span>
               </div>
             </div>
           </div>
 
-          {/* Phản ánh & Yêu cầu gần đây */}
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-4">
-            <div className="flex items-center justify-between">
+          {/* Recent Feedbacks / Incidents */}
+          <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
-                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  Phản ánh & Yêu cầu gần đây
+                <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+                  Phản Ánh & Yêu Cầu Cần Xử Lý
                 </h2>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Ý kiến đóng góp và sự cố cần ban quản lý giải quyết
+                <p className="text-xs text-slate-500">
+                  Danh sách sự cố và ý kiến cư dân mới gửi trong ngày
                 </p>
               </div>
               <Link
                 href="/phan-anh-va-yeu-cau"
-                className="font-label-md text-label-md text-primary font-medium hover:underline flex items-center gap-1"
+                className="text-xs text-blue-700 font-semibold hover:underline flex items-center gap-0.5"
               >
-                <span>Xem tất cả</span>
+                <span>Xem tất cả (14)</span>
                 <span className="material-symbols-outlined text-[16px]">chevron_right</span>
               </Link>
             </div>
 
-            <div className="divide-y divide-outline-variant/15">
+            <div className="divide-y divide-slate-100">
               {mockFeedbacks.map((item) => (
-                <div key={item.id} className="py-3 flex items-start justify-between gap-4">
-                  <div className="space-y-1">
+                <div key={item.id} className="py-2.5 flex items-start justify-between gap-3 text-xs">
+                  <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-on-surface">{item.title}</span>
+                      <span className="font-bold text-slate-900">{item.title}</span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        className={`text-[10px] font-bold px-1.5 py-0.2 rounded ${
                           item.priority === 'URGENT'
-                            ? 'bg-error-container text-on-error-container'
+                            ? 'bg-red-100 text-red-800'
                             : item.priority === 'HIGH'
                             ? 'bg-amber-100 text-amber-800'
-                            : 'bg-surface-container-high text-on-surface-variant'
+                            : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {item.priority === 'URGENT' ? 'Khẩn cấp' : item.priority === 'HIGH' ? 'Ưu tiên cao' : 'Bình thường'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-                      <span className="font-semibold text-primary">Căn {item.roomNumber}</span>
+                    <div className="flex items-center gap-2 text-slate-500">
+                      <span className="font-semibold text-blue-700">Căn {item.roomNumber}</span>
                       <span>•</span>
                       <span>{item.residentName}</span>
                       <span>•</span>
@@ -348,9 +315,9 @@ export default function HomePage() {
                   </div>
 
                   <span
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${
+                    className={`text-[11px] font-semibold px-2 py-0.5 rounded flex-shrink-0 ${
                       item.status === 'RESOLVED'
-                        ? 'bg-tertiary-fixed/40 text-tertiary'
+                        ? 'bg-emerald-100 text-emerald-800'
                         : item.status === 'IN_PROGRESS'
                         ? 'bg-blue-100 text-blue-800'
                         : 'bg-amber-100 text-amber-800'
@@ -368,195 +335,209 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Right 1 Column: Residence breakdown, Fee Collection, Quick Apartment Link */}
-        <div className="space-y-space-lg">
-          {/* Tỷ lệ cư trú */}
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-4">
-            <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Cơ cấu cư trú
-            </h3>
+        {/* Right 1 Column: Operational Alerts & Residence Structure */}
+        <div className="space-y-5">
+          {/* Overdue Fee Warning Widget (Replaced AI Demo Card) */}
+          <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-amber-600 text-[18px]">warning</span>
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                  Đôn Đốc Nợ Phí (&gt; 60 Ngày)
+                </h3>
+              </div>
+              <span className="text-[11px] text-red-600 font-bold">3 căn</span>
+            </div>
 
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between text-xs font-medium mb-1">
-                  <span className="text-on-surface">Thường trú (1,036 người)</span>
-                  <span className="text-primary font-bold">83%</span>
+            <p className="text-xs text-slate-500">
+              Các căn hộ có dư nợ quá 2 kỳ, cần gửi thông báo đôn đốc trước ngày 30 hàng tháng.
+            </p>
+
+            <div className="space-y-2 text-xs">
+              <div className="p-2.5 rounded bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-slate-900">Căn B-0802</div>
+                  <div className="text-[11px] text-slate-500">Chủ hộ: Nguyễn Văn Hùng</div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden">
-                  <div className="h-full bg-primary-container rounded-full" style={{ width: '83%' }}></div>
+                <div className="text-right">
+                  <div className="font-bold text-red-600 font-mono">12.850.000 đ</div>
+                  <div className="text-[10px] text-slate-400">Nợ 3 tháng</div>
                 </div>
               </div>
 
-              <div>
-                <div className="flex justify-between text-xs font-medium mb-1">
-                  <span className="text-on-surface">Tạm trú (175 người)</span>
-                  <span className="text-secondary font-bold">14%</span>
+              <div className="p-2.5 rounded bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-slate-900">Căn A-1207</div>
+                  <div className="text-[11px] text-slate-500">Chủ hộ: Nguyễn Tiến Dũng</div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden">
-                  <div className="h-full bg-secondary rounded-full" style={{ width: '14%' }}></div>
+                <div className="text-right">
+                  <div className="font-bold text-red-600 font-mono">8.420.000 đ</div>
+                  <div className="text-[10px] text-slate-400">Nợ 2 tháng</div>
                 </div>
               </div>
 
-              <div>
-                <div className="flex justify-between text-xs font-medium mb-1">
-                  <span className="text-on-surface">Tạm vắng (37 người)</span>
-                  <span className="text-outline font-bold">3%</span>
+              <div className="p-2.5 rounded bg-slate-50 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-slate-900">Căn B-1504</div>
+                  <div className="text-[11px] text-slate-500">Chủ hộ: Đỗ Hoàng Yến</div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-surface-container overflow-hidden">
-                  <div className="h-full bg-outline rounded-full" style={{ width: '3%' }}></div>
+                <div className="text-right">
+                  <div className="font-bold text-red-600 font-mono">6.150.000 đ</div>
+                  <div className="text-[10px] text-slate-400">Nợ 2 tháng</div>
                 </div>
               </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-surface-container-low text-xs text-on-surface-variant flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
-              <span>100% hồ sơ thường trú đã đối soát qua CCCD gắn chip VNeID.</span>
-            </div>
-          </div>
-
-          {/* Thu phí tháng 10/2025 */}
-          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                Thu phí tháng 10/2025
-              </h3>
-              <span className="text-xs font-bold text-tertiary bg-tertiary-fixed/30 px-2 py-0.5 rounded-full">
-                81.7%
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Đã thu:</span>
-                <span className="font-bold text-on-surface">564.2 triệu</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-on-surface-variant">Kế hoạch kỳ:</span>
-                <span className="font-bold text-on-surface">690.7 triệu</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-surface-container overflow-hidden">
-                <div className="h-full bg-tertiary-container rounded-full" style={{ width: '81.7%' }}></div>
-              </div>
-            </div>
-
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 href="/phi-chung-cu"
-                className="w-full py-2 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-medium text-xs flex items-center justify-center gap-1 transition-colors"
+                className="w-full py-1.5 px-3 rounded bg-blue-50 hover:bg-blue-100/70 text-blue-800 font-semibold text-xs flex items-center justify-center gap-1 transition-colors"
               >
-                <span>Xem danh sách căn còn nợ phí (42 căn)</span>
+                <span>Xử lý đôn đốc thu phí</span>
                 <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </Link>
             </div>
           </div>
 
-          {/* Căn hộ tiêu biểu - Quick link to A-1205 */}
-          <div className="bg-gradient-to-br from-primary-container to-primary text-white rounded-xl p-6 shadow-sm space-y-4">
+          {/* Residence Structure Progress */}
+          <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3.5">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide pb-2 border-b border-slate-100">
+              Cơ Cấu Cư Trú
+            </h3>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <div className="flex justify-between font-medium mb-1">
+                  <span className="text-slate-700">Thường trú (1,036 người)</span>
+                  <span className="text-slate-900 font-bold">83%</span>
+                </div>
+                <div className="w-full h-2 rounded bg-slate-100 overflow-hidden">
+                  <div className="h-full bg-blue-700 rounded" style={{ width: '83%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between font-medium mb-1">
+                  <span className="text-slate-700">Tạm trú (175 người)</span>
+                  <span className="text-slate-900 font-bold">14%</span>
+                </div>
+                <div className="w-full h-2 rounded bg-slate-100 overflow-hidden">
+                  <div className="h-full bg-sky-600 rounded" style={{ width: '14%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between font-medium mb-1">
+                  <span className="text-slate-700">Tạm vắng (37 người)</span>
+                  <span className="text-slate-900 font-bold">3%</span>
+                </div>
+                <div className="w-full h-2 rounded bg-slate-100 overflow-hidden">
+                  <div className="h-full bg-slate-400 rounded" style={{ width: '3%' }}></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
+              <span className="material-symbols-outlined text-blue-700 text-[18px]">verified</span>
+              <span>100% hồ sơ thường trú đã đối soát CCCD chip qua VNeID.</span>
+            </div>
+          </div>
+
+          {/* Duty Schedule / Operations Notice */}
+          <div className="bg-slate-900 text-white rounded-lg p-5 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-primary-fixed/80 font-bold">
-                Căn hộ mẫu kiểm thử
+              <span className="text-[11px] uppercase tracking-wider text-slate-300 font-bold">
+                Lịch Trực Vận Hành Hôm Nay
               </span>
-              <span className="px-2 py-0.5 rounded-full bg-white/20 text-[11px] font-semibold">
-                Đang ở
-              </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             </div>
 
-            <div>
-              <h4 className="text-2xl font-bold">{mockApartmentA1205.roomNumber}</h4>
-              <p className="text-xs text-primary-fixed mt-1">
-                {mockApartmentA1205.building} • Tầng {mockApartmentA1205.floor} • {mockApartmentA1205.area} m²
-              </p>
-              <p className="text-xs text-white/90 mt-2">
-                Chủ hộ: <strong className="text-white">{mockApartmentA1205.ownerName}</strong> (4 nhân khẩu, 2 phương tiện)
-              </p>
+            <div className="space-y-1.5 text-xs">
+              <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                <span className="text-slate-400">Ca sáng (07h - 15h):</span>
+                <span className="font-semibold text-white">Nguyễn Văn An (Trưởng ca)</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-1.5">
+                <span className="text-slate-400">Kỹ thuật điện nước:</span>
+                <span className="font-semibold text-white">Lê Văn Hưng</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Bảo vệ sảnh A & B:</span>
+                <span className="font-semibold text-white">Tổ An ninh 1 (4 đ/c)</span>
+              </div>
             </div>
-
-            <Link
-              href="/can-ho/A-1205"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-primary font-label-md text-xs font-bold hover:bg-white/90 transition-colors shadow-sm"
-            >
-              <span>Xem trang chi tiết A-1205</span>
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </Link>
           </div>
         </div>
       </div>
 
       {/* Add Resident Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-2xl max-w-lg w-full p-6 shadow-xl border border-outline-variant/30 space-y-4 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-lg w-full p-5 shadow-xl border border-slate-200 space-y-4 animate-in fade-in">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-[24px]">person_add</span>
-                <h3 className="font-headline-sm text-lg font-bold text-on-surface">Thêm cư dân mới</h3>
+                <span className="material-symbols-outlined text-blue-700 text-[22px]">person_add</span>
+                <h3 className="text-base font-bold text-slate-900">Tiếp nhận Hồ sơ Cư dân Mới</h3>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-outline hover:text-on-surface p-1 rounded-lg"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert('Đã thêm cư dân thành công!');
-                setShowAddModal(false);
-              }}
-              className="space-y-3"
-            >
+            <form onSubmit={handleAddSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-on-surface-variant mb-1">
+                <label className="block font-semibold text-slate-700 mb-1">
                   Họ và tên cư dân *
                 </label>
                 <input
                   required
                   placeholder="VD: Trần Hoàng Nam"
-                  className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none focus:border-primary-container"
+                  className="w-full px-3 py-2 text-xs rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số CCCD / Định danh *
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    Số CCCD / Mã định danh *
                   </label>
                   <input
                     required
                     placeholder="12 chữ số"
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none focus:border-primary-container"
+                    className="w-full px-3 py-2 text-xs rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Căn hộ *
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    Căn hộ tiếp nhận *
                   </label>
-                  <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none focus:border-primary-container">
-                    <option>A-1205</option>
-                    <option>A-1206</option>
-                    <option>A-1207</option>
-                    <option>B-0802</option>
+                  <select className="w-full px-3 py-2 text-xs rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700">
+                    <option>A-1205 (Đang ở)</option>
+                    <option>A-1206 (Đang ở)</option>
+                    <option>A-0501 (Trống - Bàn giao mới)</option>
+                    <option>B-0802 (Đang ở)</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số điện thoại
+                  <label className="block font-semibold text-slate-700 mb-1">
+                    Số điện thoại liên hệ
                   </label>
                   <input
                     placeholder="09xx xxx xxx"
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none focus:border-primary-container"
+                    className="w-full px-3 py-2 text-xs rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700 font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-on-surface-variant mb-1">
+                  <label className="block font-semibold text-slate-700 mb-1">
                     Quan hệ với chủ hộ
                   </label>
-                  <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none focus:border-primary-container">
+                  <select className="w-full px-3 py-2 text-xs rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 focus:ring-1 focus:ring-blue-700">
                     <option>Chủ hộ</option>
                     <option>Vợ / Chồng</option>
                     <option>Con</option>
@@ -566,19 +547,19 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-4 border-t border-outline-variant/20">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high font-medium"
+                  className="px-3.5 py-1.5 text-xs rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium"
                 >
-                  Hủy
+                  Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm rounded-lg bg-primary-container text-white hover:bg-primary font-semibold shadow-sm"
+                  className="px-3.5 py-1.5 text-xs rounded bg-blue-700 text-white hover:bg-blue-800 font-semibold shadow-sm"
                 >
-                  Lưu thông tin
+                  Lưu hồ sơ cư dân
                 </button>
               </div>
             </form>

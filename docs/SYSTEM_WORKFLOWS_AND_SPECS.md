@@ -3,6 +3,7 @@
 This document captures the essential domain designs: **Business Lifecycles (State Machines & Failure Twins)**, **RBAC Permission Matrix**, and **Implementation Engineering Rules**.
 
 > 📚 **Architecture Dossier Navigation**:
+> - [Use Case Specifications & Business Journeys](USE_CASES.md) (UML functional specs, 4 E2E journeys & traceability)
 > - [C4 Model Architecture Document](ARCHITECTURE_C4.md) (Standard Mermaid visual diagrams & failure sequences)
 > - [arc42 Complete Architecture Dossier](ARCHITECTURE_ARC42.md) (12-section IEEE 42010 architectural spec)
 

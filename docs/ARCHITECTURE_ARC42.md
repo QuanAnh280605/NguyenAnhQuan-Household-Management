@@ -3,7 +3,8 @@
 > **Platform:** ResidentHub (Apartment & Household Management System)  
 > **Standard:** arc42 (IEEE 42010) + C4 Model  
 > **Status:** Accepted · **Audience:** Architects, Tech Leads, Developers, Reviewers, DevOps  
-> **Primary Visual Specification:** [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md)
+> **Primary Visual Specification:** [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md)  
+> **Functional & Use Case Specification:** [USE_CASES.md](USE_CASES.md)
 
 ---
 
