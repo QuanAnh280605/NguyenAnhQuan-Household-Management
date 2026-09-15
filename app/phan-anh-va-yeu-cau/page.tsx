@@ -478,7 +478,7 @@ export default function PhanAnhPage() {
                   <label className="block font-bold text-on-surface mb-1">Mức độ ưu tiên</label>
                   <select
                     value={newPriority}
-                    onChange={(e) => setNewPriority(e.target.value as any)}
+                    onChange={(e) => setNewPriority(e.target.value as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT')}
                     className="w-full px-3 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                   >
                     <option value="LOW">Thấp</option>
@@ -541,7 +541,7 @@ export default function PhanAnhPage() {
             <form onSubmit={handleSaveTriage} className="p-5 space-y-4 text-xs">
               {editingFeedback.content && (
                 <div className="p-3 bg-surface-container-low rounded-xl text-on-surface-variant italic leading-relaxed">
-                  "{editingFeedback.content}"
+                  &ldquo;{editingFeedback.content}&rdquo;
                 </div>
               )}
 

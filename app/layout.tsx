@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ResidentHub - Quản lý Căn hộ & Hộ dân Chung cư",
-  description: "Hệ thống quản lý căn hộ, hộ dân, cư dân và vận hành chung cư hiện đại",
+  title: "Hệ thống Quản lý Vận hành Chung cư Parkview | BQL Tòa Nhà",
+  description: "Cổng thông tin quản lý căn hộ, cư dân, dịch vụ và thu phí vận hành chung cư chuyên nghiệp",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="vi"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-surface text-on-surface selection:bg-primary-fixed selection:text-primary">
+      <body className="min-h-full flex flex-col bg-surface text-on-surface selection:bg-blue-100 selection:text-blue-900">
         <AppShell>{children}</AppShell>
       </body>
     </html>

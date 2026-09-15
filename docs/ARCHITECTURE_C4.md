@@ -13,6 +13,7 @@ This document provides the formal architectural specification for the **Resident
 - 🚀 **C4 Deployment**: [Production Deployment Topology](#5-c4-deployment-diagram---infrastructure-view) (Vercel Edge, AWS RDS Multi-AZ, S3)
 - 🧪 **Fitness Functions**: [Integrity & Layering Gates](#6-architecture-fitness-functions--integrity-tests) (Automated CI assertions)
 - 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 architectural dossier, see **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**.
+- 📋 **Use Case Specifications**: For UML catalogs, 4 End-to-End journeys, and fully-dressed specs, see **[USE_CASES.md](USE_CASES.md)**.
 
 ---
 
