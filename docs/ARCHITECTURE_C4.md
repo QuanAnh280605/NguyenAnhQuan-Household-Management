@@ -8,12 +8,20 @@ This document provides the formal architectural specification for the **Resident
 
 - 🏛️ **C4 Level 1**: [System Context Diagram](#1-c4-system-context-diagram---level-1) (Black Box boundary & Stakeholders)
 - 📦 **C4 Level 2**: [Container Diagram](#2-c4-container-diagram---level-2) (Applications, Databases, and Storage)
-- 🧩 **C4 Level 3**: [Component Diagram](#3-c4-component-diagram---level-3) (Internal Next.js 16 modular services)
-- ⚡ **C4 Dynamic**: [Runtime View & Failure Twins](#4-c4-dynamic-diagrams---runtime-view--failure-twins) (Happy Path vs. Failure Twin sequences)
-- 🚀 **C4 Deployment**: [Production Deployment Topology](#5-c4-deployment-diagram---infrastructure-view) (Vercel Edge, AWS RDS Multi-AZ, S3)
+- 🧩 **C4 Level 3**: [Component Diagrams](#3-c4-component-diagram---level-3)
+  - [3.1. Presentation Tier Component Architecture](#31-presentation-tier--single-page-web-application-container-react-19--nextjs) (React 19 / Next.js Client)
+  - [3.2. Application Tier Modular Services Architecture](#32-application-tier--web--api-application-server-container-nextjs-16) (Next.js 16 & Domain Services)
+- ⚡ **C4 Dynamic**: [Runtime View & Failure Twins](#4-c4-dynamic-diagrams---runtime-view--failure-twins)
+  - [4.1. Workflow 1: VietQR Billing Settlement [US-BIL-03, US-BIL-04]](#41-workflow-1-vietqr-billing-settlement-us-bil-03-us-bil-04)
+  - [4.2. Workflow 2: Month-End Batch Invoice Generation [US-BIL-02]](#42-workflow-2-month-end-batch-invoice-generation-us-bil-02)
+  - [4.3. Workflow 3: Maintenance Incident Ticket Lifecycle [US-TKT-01..04]](#43-workflow-3-maintenance-incident-ticket-lifecycle-us-tkt-01us-tkt-04)
+- 🚀 **C4 Deployment**: [Production Deployment Topology](#5-c4-deployment-diagram---infrastructure-view) (Cloudflare Edge, AWS RDS Multi-AZ, S3)
 - 🧪 **Fitness Functions**: [Integrity & Layering Gates](#6-architecture-fitness-functions--integrity-tests) (Automated CI assertions)
-- 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 architectural dossier, see **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**.
-- 📋 **Use Case Specifications**: For UML catalogs, 4 End-to-End journeys, and fully-dressed specs, see **[USE_CASES.md](USE_CASES.md)**.
+- 🔗 **Quad-Traceability Matrix**: [Requirements, UI, Architecture & DB Alignment](#7-full-quad-traceability-matrix)
+- 📋 **Agile Requirements**: For User Stories and Gherkin Acceptance Criteria, see **[REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md)**.
+- 🖥️ **UI/UX & IA Specifications**: For Information Architecture and Screen Hierarchy, see **[UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md)**.
+- 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 dossier, see **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**.
+- 📋 **Use Case Specifications**: For UML catalogs and E2E journeys, see **[USE_CASES.md](USE_CASES.md)**.
 
 ---
 
@@ -152,35 +160,119 @@ flowchart TB
 
 ## 3. C4 Component Diagram - Level 3
 
-The Component diagram inspects the internal modular architecture of the **Web & API Application Server** container, detailing functional service components and the Data Access Layer.
+Adhering to Simon Brown's C4 model, Level 3 decomposes the platform's primary deployable containers into their internal structural components, responsibilities, and interface boundaries:
+- **3.1. Presentation Tier**: Internal component architecture of the **Single-Page Web Application Container** (React 19 / Next.js Client), aligned directly with [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md).
+- **3.2. Application Tier**: Modular service architecture of the **Web & API Application Server Container** (Next.js 16 App Router & Services), mapped 1-to-1 with Epics in [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md).
+
+---
+
+### 3.1. Presentation Tier — Single-Page Web Application Container (React 19 / Next.js)
+
+```mermaid
+flowchart TB
+    subgraph Browser["Client Browser Runtime"]
+        subgraph UIContainer["Single-Page Web Application Container [React 19 / Next.js]"]
+            direction TB
+            
+            subgraph Shell["1. Shell & Navigation Layout"]
+                appShell["AppShell Component<br/><i>[React Layout / Responsive Frame]</i>"]
+                sidebar["Global Sidebar & Role Guard<br/><i>[Navigation / 4-Tier RBAC Filter]</i>"]
+                breadcrumbs["Contextual Breadcrumbs<br/><i>[Dynamic Path Tracking]</i>"]
+                cmdBar["Command Palette (Ctrl+K)<br/><i>[Omni Search Modal]</i>"]
+            end
+
+            subgraph PageModules["2. Domain Page Controllers"]
+                dashView["DashboardOverviewView<br/><i>[/page.tsx]</i>"]
+                aptView["ApartmentDirectoryView<br/><i>[/can-ho, /can-ho/[id]]</i>"]
+                resView["ResidentHouseholdView<br/><i>[/cu-dan]</i>"]
+                stayView["StayDeclarationView<br/><i>[/cu-tru, /lich-su-cu-tru]</i>"]
+                parkView["ParkingFloorplanView<br/><i>[/phuong-tien-va-bai-do]</i>"]
+                billView["BillingInvoicingView<br/><i>[/phi-chung-cu]</i>"]
+                ticketView["TicketKanbanView<br/><i>[/phan-anh-va-yeu-cau]</i>"]
+                adminView["AdminSecurityConsole<br/><i>[/nguoi-dung, /cai-dat]</i>"]
+            end
+
+            subgraph ActionModals["3. Interactive Drawers & Modals"]
+                vietQrModal["VietQrPaymentModal<br/><i>[Napas 247 Dynamic QR + 15m Countdown]</i>"]
+                slotDrawer["SlotAllocationDrawer<br/><i>[Basement Grid + Lock Guard]</i>"]
+                resModal["ResidentRegisterModal<br/><i>[CCCD 12-digit Form + Validation]</i>"]
+                ticketDrawer["TicketSubmitDrawer<br/><i>[Multi-photo Upload Proof]</i>"]
+            end
+
+            subgraph UIAtoms["4. Reusable UI Atoms & Core Patterns"]
+                dataTable["AppDataTable<br/><i>[Sticky Header, Pagination, Batch Checkbox]</i>"]
+                filterBar["OmniFilterBar<br/><i>[Faceted Dropdowns & Debounce 300ms]</i>"]
+                badge["StatusBadge & Chips<br/><i>[Semantic Tokens: Emerald, Amber, Rose]</i>"]
+                kpiCard["MetricKpiCard<br/><i>[Shimmer Skeleton + Metric Display]</i>"]
+            end
+
+            subgraph ClientIngress["5. Client State & Service Adapters"]
+                serverActions["Server Action Invokers<br/><i>[Next.js Server Actions Protocol]</i>"]
+                restClient["REST Client Adapter<br/><i>[Fetch API + RFC 7807 Error Parser]</i>"]
+                stateCache["Optimistic State Manager<br/><i>[React 19 useOptimistic / Cache]</i>"]
+            end
+        end
+    end
+
+    subgraph Backend["Application Server Container [Next.js 16]"]
+        authMiddleware["Auth & RBAC Middleware"]
+        apiEndpoints["REST Route Handlers (/api/v1/*)"]
+        actionEndpoints["Server Action Handlers"]
+    end
+
+    sidebar & breadcrumbs & cmdBar --> appShell
+    appShell --> PageModules
+    PageModules --> UIAtoms
+    PageModules --> ActionModals
+    ActionModals --> UIAtoms
+
+    PageModules & ActionModals --> ClientIngress
+    serverActions --> actionEndpoints
+    restClient --> apiEndpoints
+    apiEndpoints & actionEndpoints --> authMiddleware
+
+    style UIContainer fill:#f8fafc,stroke:#0284c7,stroke-width:2px
+    style Shell fill:#eff6ff,stroke:#bfdbfe
+    style PageModules fill:#eff6ff,stroke:#bfdbfe
+    style ActionModals fill:#f0fdf4,stroke:#bbf7d0
+    style UIAtoms fill:#fdf4ff,stroke:#f5d0fe
+    style ClientIngress fill:#fffbeb,stroke:#fde68a
+    style Backend fill:#f1f5f9,stroke:#64748b,stroke-dasharray: 4 4
+```
+
+---
+
+### 3.2. Application Tier — Web & API Application Server Container (Next.js 16)
+
+The Application Tier inspects the internal modular architecture of the **Web & API Application Server** container, detailing functional domain services aligned 1-to-1 with the 6 business Epics from [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md):
 
 ```mermaid
 flowchart TB
     subgraph callers["Callers & Integrations"]
         spa["Single-Page Web Application<br/><i>[Container: React 19]</i>"]
-        vietqr["VietQR Gateway<br/><i>[External System]</i>"]
-        mail["Messaging Gateway<br/><i>[External System]</i>"]
-        db[("PostgreSQL Database<br/><i>[ContainerDb: 18 Tables]</i>")]
-        storage[("Object Storage<br/><i>[ContainerDb: S3 / R2]</i>")]
+        vietqr["VietQR Gateway<br/><i>[External System: Napas 247]</i>"]
+        mail["Messaging Gateway<br/><i>[External System: SMTP / ZNS]</i>"]
+        db[("PostgreSQL Database<br/><i>[ContainerDb: 18 Tables in 3NF]</i>")]
+        storage[("Object Storage<br/><i>[ContainerDb: S3 / Cloudflare R2]</i>")]
     end
 
     subgraph api["Web & API Application Server Container [Next.js 16]"]
         direction TB
-        auth["1. Auth & RBAC Security Component<br/><i>[Component: Middleware / JWT]</i><br/>Session decryption, token validation, 4-tier role enforcement<br/>(ADMIN, MANAGER, TECHNICIAN, RESIDENT), and apartment-level row isolation."]
+        auth["1. Auth & RBAC Security Component<br/><i>[Component: Middleware / JWT Guard]</i><br/>Enforces 4-tier RBAC (ADMIN, MANAGER, TECHNICIAN, RESIDENT),<br/>session decryption, and apartment-level row isolation (EPIC-06)."]
         
-        subgraph domain_services["Core Domain Services"]
-            apt["2. Apartment Management Component<br/><i>[Component: TypeScript Service]</i><br/>Manages unit directory, architectural floor plans,<br/>net floor area (m²), handover state, and legal title holders."]
-            res["3. Resident & Household Registry<br/><i>[Component: TypeScript Service]</i><br/>Validates 12-digit Citizen IDs (CCCD), family ties,<br/>head-of-household rules, and residency state transitions."]
-            park["4. Vehicle & Parking Component<br/><i>[Component: TypeScript Service]</i><br/>Enforces unit parking quotas (1 car, 2 bikes), assigns RFID cards,<br/>and reserves B1/B2 parking slots using pessimistic row locks."]
-            bill["5. Utility & Automated Billing Engine<br/><i>[Component: TypeScript Calculation Engine]</i><br/>Ingests meter reads, computes tiered utility tariffs,<br/>runs batch invoice generation, and reconciles payments."]
-            ticket["6. Maintenance Ticket SLA Component<br/><i>[Component: TypeScript Workflow Service]</i><br/>Handles repair reports, technician dispatching,<br/>SLA deadline tracking, and resolution photo logging."]
-            notif["7. Notification & Dispatcher Service<br/><i>[Component: TypeScript Service]</i><br/>Compiles templates for e-statements, payment receipts,<br/>and SLA alerts, dispatching them to external queues."]
+        subgraph domain_services["Core Domain Services (Epics Alignment)"]
+            apt["2. Apartment Management Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-01 (US-APT-01..03):</b> Unit directory, floor plans,<br/>floor area (m²), and legal ownership succession."]
+            res["3. Resident & Household Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-02 (US-RES-01..04):</b> CCCD 12-digit validation,<br/>single head-of-household invariant, and stay declarations."]
+            park["4. Vehicle & Parking Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-03 (US-VEH-01..04):</b> Quota limits (1 car, 2 bikes),<br/>RFID card provisioning, and pessimistic lock slot allocation."]
+            bill["5. Utility & Billing Calculation Engine<br/><i>[Component: Calculation Engine]</i><br/><b>EPIC-04 (US-BIL-01..05):</b> Tiered tariffs, anomaly detection,<br/>batch invoicing on the 25th, and VietQR dynamic sessions."]
+            ticket["6. Maintenance SLA Workflow Service<br/><i>[Component: Workflow Service]</i><br/><b>EPIC-05 (US-TKT-01..04):</b> Defect intake, technician dispatch,<br/>SLA watchdog countdown, and resolution photo proofs."]
+            notif["7. Notification & Dispatcher Service<br/><i>[Component: TypeScript Service]</i><br/>Compiles templates for e-statements, payment receipts,<br/>and urgent SLA breach alerts, pushing to external queues."]
         end
 
-        repo["8. Data Access Layer (DAL)<br/><i>[Component: PostgreSQL Driver / Pool]</i><br/>Manages connection pooling, enforces explicit ACID transaction wrappers<br/>(BEGIN ... COMMIT / ROLLBACK), and executes parameterized SQL."]
+        repo["8. Data Access Layer (DAL) & Repositories<br/><i>[Component: PostgreSQL Driver Pool]</i><br/>Manages connection pooling, explicit ACID transactions<br/>(BEGIN ... COMMIT / ROLLBACK), and parameterized SQL."]
     end
 
-    spa -- "HTTPS Requests + Session Token" --> auth
+    spa -- "HTTPS Requests + JWT Session Token" --> auth
     auth --> apt & res & park & bill & ticket
 
     res -- "Validates linked unit" --> apt
@@ -214,16 +306,17 @@ flowchart TB
 
 ## 4. C4 Dynamic Diagrams - Runtime View & Failure Twins
 
-### 4.1. Workflow 1: VietQR Billing Settlement
+### 4.1. Workflow 1: VietQR Billing Settlement [US-BIL-03, US-BIL-04]
 
 #### Happy Path (Successful Settlement)
+*Triggered from UI Modal: `VietQrPaymentModal` on `/phi-chung-cu`*
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant R as Resident
-    participant SPA as Single-Page App
-    participant BE as Billing Engine
+    participant SPA as Single-Page App (VietQrPaymentModal)
+    participant BE as Billing Engine (US-BIL-03)
     participant DAL as Data Access (DAL)
     participant DB as PostgreSQL
     participant GW as VietQR Gateway (Napas 247)
@@ -234,9 +327,9 @@ sequenceDiagram
     BE->>GW: Request dynamic QR (invoice_id, amount, checksum)
     GW-->>BE: Returns signed QR string + Napas reference
     BE-->>SPA: 200 OK (QR image payload + session_id)
-    SPA->>R: Displays VietQR on screen
+    SPA->>R: Displays VietQR with 15-minute countdown
     R->>GW: Scans QR & transfers funds via Banking App
-    GW->>BE: Webhook IPN (POST /api/webhooks/vietqr)
+    GW->>BE: Webhook IPN (POST /api/webhooks/vietqr) [US-BIL-04]
     BE->>BE: Verify cryptographic HMAC-SHA256 signature
     BE->>DAL: executePaymentSettlement(invoice_id, amount, tx_code)
     DAL->>DB: BEGIN TRANSACTION
@@ -246,7 +339,7 @@ sequenceDiagram
     BE-->>GW: 200 OK (status: acknowledged)
     BE->>NS: dispatchPaymentReceipt(invoice_id)
     NS-->>R: Email / SMS Confirmation Receipt
-    SPA->>SPA: WebSocket / Polling updates UI to PAID
+    SPA->>SPA: Polling receives status PAID -> Triggers Success Fireworks
 ```
 
 #### Failure Twin (Network Timeout, Duplicate IPN, & Expiration)
@@ -290,16 +383,17 @@ sequenceDiagram
 
 ---
 
-### 4.2. Workflow 2: Month-End Batch Invoice Generation
+### 4.2. Workflow 2: Month-End Batch Invoice Generation [US-BIL-02]
 
 #### Happy Path (Full Batch Success)
+*Triggered from UI Action: `MonthlyBillingAction` on `/phi-chung-cu`*
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant M as Building Accountant
     participant SPA as Single-Page App
-    participant BE as Billing Engine
+    participant BE as Billing Engine (US-BIL-02)
     participant DAL as Data Access Layer
     participant DB as PostgreSQL
     participant NS as Notification Service
@@ -344,6 +438,50 @@ sequenceDiagram
         Note over BE: System generates invoices for 1188 valid units in chunks of 100
         Note over BE: 12 failed units are logged into dead-letter log for accountant audit
     end
+```
+
+---
+
+### 4.3. Workflow 3: Maintenance Incident Ticket Lifecycle [US-TKT-01..US-TKT-04]
+
+*Triggers and orchestrates the defect lifecycle between Resident, Manager, and Field Technician:*
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant RES as Resident (ACT-RES)
+    participant UI as TicketKanbanView & Drawer
+    participant TKT as Maintenance Service (US-TKT-01..03)
+    participant S3 as Encrypted Media S3
+    participant DB as PostgreSQL (feedbacks, feedback_updates)
+    participant CRON as SLA Watchdog Daemon (US-TKT-04)
+    participant MGR as Building Manager (ACT-MGR)
+
+    Note over RES,UI: 1. Incident Submission [US-TKT-01]
+    RES->>UI: Fills defect report & attaches 2 photos
+    UI->>S3: Uploads images via Pre-signed URL
+    S3-->>UI: S3 Object keys returned
+    UI->>TKT: POST /api/tickets (priority: HIGH, sla_target: +4h)
+    TKT->>DB: INSERT INTO feedbacks (status: PENDING)
+    TKT-->>UI: 201 Created (Ticket #TKT-1082)
+
+    Note over MGR,TKT: 2. Dispatch & Tech Assignment [US-TKT-02]
+    MGR->>UI: Selects Ticket #TKT-1082 & assigns Electrician
+    UI->>TKT: PATCH /api/tickets/1082/dispatch (assigned_to: Tech_ID)
+    TKT->>DB: UPDATE feedbacks SET status = 'PROCESSING', assigned_to = Tech_ID
+    TKT->>DB: INSERT INTO feedback_updates (event: DISPATCHED)
+
+    alt SLA Breach Detection [US-TKT-04]
+        CRON->>DB: Scans pending tickets where NOW() > target_sla
+        DB-->>CRON: Found Ticket #TKT-1082 SLA breached
+        CRON->>MGR: Sends Emergency Escalation Push Notification
+        CRON->>DB: UPDATE feedbacks SET sla_status = 'BREACHED'
+    end
+
+    Note over TKT,DB: 3. Inspection & Resolution Proof [US-TKT-03]
+    TKT->>S3: Uploads resolution completion photo proof
+    TKT->>DB: UPDATE feedbacks SET status = 'RESOLVED', resolved_at = NOW()
+    TKT-->>RES: Push notification: Ticket resolved, please rate satisfaction
 ```
 
 ---
@@ -424,3 +562,35 @@ flowchart TB
 | `EveryActionGuardsRBAC` | Security | Any Server Action or API mutation lacking a call to `enforceRole(...)` | Static AST analyzer test in Vitest |
 | `FinancialCalculationsAreInteger` | Precision | Currency arithmetic producing floating-point fractional numbers | Unit test suite asserting integer VND rounding on all bills |
 | `NoOrphanDatabaseEntities` | Integrity | Foreign keys configured without `ON DELETE RESTRICT/CASCADE` constraints | Database migration linter on `schema.sql` |
+
+---
+
+## 7. Full Quad-Traceability Matrix
+
+This matrix establishes 100% bidirectional traceability between **Agile Requirements (INVEST)**, **User Interface Architecture (IA & Screens)**, **C4 Model Components (Front & Back)**, and the **3NF Relational Database Schema**:
+
+| INVEST User Story | UI Screen / Modal Component | C4 Frontend Component | C4 Backend Domain Service | PostgreSQL Relational Tables (3NF) |
+| :--- | :--- | :--- | :--- | :--- |
+| **`US-APT-01`** (Tra cứu căn hộ) | `/can-ho` (Apartments View) | `ApartmentDirectoryView` | `ApartmentService` | `apartments`, `buildings` |
+| **`US-APT-02`** (Thêm căn hộ mới) | `ApartmentCreateModal` | `ActionModals.resModal` | `ApartmentService` | `apartments`, `owners`, `apartment_owners` |
+| **`US-APT-03`** (Bàn giao căn hộ) | `/can-ho/[id]` (Dossier View) | `ApartmentDirectoryView` | `ApartmentService` | `apartment_owners`, `apartments` |
+| **`US-RES-01`** (Đăng ký nhân khẩu) | `ResidentRegisterModal` | `ActionModals.resModal` | `ResidentService` | `residents`, `household_members` |
+| **`US-RES-02`** (Chuyển đổi chủ hộ) | `HouseholdHeadTransferModal`| `ResidentHouseholdView` | `ResidentService` | `households`, `household_members` |
+| **`US-RES-03`** (Khai báo tạm trú) | `/cu-tru` (Stay Declaration Form)| `StayDeclarationView` | `ResidentService` | `residence_records` |
+| **`US-RES-04`** (Phê duyệt cư trú) | `/lich-su-cu-tru` (Audit History)| `StayDeclarationView` | `ResidentService` | `residence_records` |
+| **`US-VEH-01`** (Đăng ký xe & Quota)| `VehicleRegisterModal` | `ParkingFloorplanView` | `ParkingService` | `vehicles`, `apartments` |
+| **`US-VEH-02`** (Cấp nốt đỗ bi quan)| `SlotAllocationDrawer` | `ActionModals.slotDrawer`| `ParkingService` | `parking_slots`, `vehicles` |
+| **`US-VEH-03`** (Kích hoạt RFID) | `RfidActivationCard` | `ParkingFloorplanView` | `ParkingService` | `vehicles` |
+| **`US-VEH-04`** (Hủy đăng ký xe) | `VehicleRevokeDialog` | `ParkingFloorplanView` | `ParkingService` | `vehicles`, `parking_slots` |
+| **`US-BIL-01`** (Ghi chỉ số điện nước)| `MeterReadingBatchModal` | `BillingInvoicingView` | `BillingEngine` | `meter_readings`, `apartments` |
+| **`US-BIL-02`** (Phát hành hóa đơn) | `MonthlyBillingAction` | `BillingInvoicingView` | `BillingEngine` | `invoices`, `invoice_items`, `fee_types` |
+| **`US-BIL-03`** (Mã VietQR động) | `VietQrPaymentModal` | `ActionModals.vietQrModal`| `BillingEngine` | `invoices`, `payment_transactions` |
+| **`US-BIL-04`** (Webhook IPN gạch nợ)| `/api/webhooks/vietqr` | `ClientIngress.restClient`| `BillingEngine` | `payment_transactions`, `invoices` |
+| **`US-BIL-05`** (Quét nợ quá hạn) | Cron Background Worker | `WorkerProcess` | `BillingEngine` | `invoices` |
+| **`US-TKT-01`** (Gửi phản ánh sự cố)| `TicketSubmitDrawer` | `ActionModals.ticketDrawer`| `MaintenanceSlaService` | `feedbacks`, `feedback_updates` |
+| **`US-TKT-02`** (Điều phối kỹ thuật) | `TicketDispatchModal` | `TicketKanbanView` | `MaintenanceSlaService` | `feedback_updates`, `feedbacks` |
+| **`US-TKT-03`** (Nghiệm thu ảnh chụp)| `TicketResolveDrawer` | `TicketKanbanView` | `MaintenanceSlaService` | `feedbacks`, `feedback_updates` |
+| **`US-TKT-04`** (Leo thang vi phạm SLA)| Cron SLA Watchdog | `WorkerProcess` | `MaintenanceSlaService` | `feedbacks` |
+| **`US-ADM-01`** (Quản lý RBAC 4 cấp)| `/nguoi-dung` (User Management) | `AdminSecurityConsole` | `SecurityAuthService` | `users` |
+| **`US-ADM-02`** (Cấu hình biểu phí) | `/cai-dat` (Fee Tariffs) | `AdminSecurityConsole` | `BillingEngine` | `fee_types` |
+| **`US-ADM-03`** (Nhật ký kiểm toán) | `/cai-dat` (Audit Trail) | `AdminSecurityConsole` | `SecurityAuthService` | `audit_logs` |
