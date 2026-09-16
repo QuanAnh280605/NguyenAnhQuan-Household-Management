@@ -330,7 +330,7 @@ flowchart LR
 
 ## 3. End-to-End Resident Journeys (4 Core Operational Scenarios)
 
-*Inspired by FlowX CRM's **"Lead-to-Cash"** paradigm, ResidentHub standardizes 4 complete end-to-end operational journeys:*
+*ResidentHub standardizes 4 complete end-to-end operational journeys:*
 
 ### 3.1. Journey 1: New Resident Onboarding (Move-in to Access)
 

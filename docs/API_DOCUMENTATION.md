@@ -32,7 +32,7 @@
 
 ## 1. Ground Truth Status Matrix
 
-Following the **FlowX Specification Standard**, this table provides a transparent, verifiable audit of the platform's API state: what is running in production, what is backed by UI Mock Data, what uses Server Actions, and what is reserved for external REST interfaces.
+This table provides a transparent, verifiable audit of the platform's API state: what is running in production, what is backed by UI Mock Data, what uses Server Actions, and what is reserved for external REST interfaces.
 
 | Area / Subsystem | Ingress Mechanism | Transport | Current Runtime State | Implementation Reference |
 | :--- | :--- | :--- | :--- | :--- |
@@ -553,7 +553,7 @@ To protect server bandwidth and maintain secure uploads, evidence media files (i
 
 ## 6. API Runtime View & Failure Twins
 
-Following the **FlowX Failure Twin Standard**, every critical API workflow is modeled with both its **Happy Path** and its **Failure Twin** side-by-side.
+Following the **Failure Twin convention**, every critical API workflow is modeled with both its **Happy Path** and its **Failure Twin** side-by-side.
 
 ### 6.1. Pair 1: Parking Slot Allocation Race Condition
 
