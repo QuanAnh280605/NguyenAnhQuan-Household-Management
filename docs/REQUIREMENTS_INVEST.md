@@ -8,667 +8,651 @@
 > - 📋 [USE_CASES.md](USE_CASES.md) (UML Functional Catalog & Fully-Dressed Use Cases)  
 > - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (Context, Container, Components & Runtime View)  
 > - 🖥️ [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
-> - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (UI Components to PostgreSQL Schema Mapping)  
+> - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (3-Tier Layering Specifications)  
 > - 🗄️ [schema.sql](../schema.sql) (18-Table 3NF Normalized Relational Database Schema)
 
 ---
 
-## 📑 Mục lục Tài liệu
+## 📑 Table of Contents
 
-1. [Phương pháp luận INVEST & Chuẩn mực BDD Gherkin](#1-phương-pháp-luận-invest--chuẩn-mực-bdd-gherkin)
-2. [Hồ sơ Chân dung Người dùng & Mã định danh Actor](#2-hồ-sơ-chân-dung-người-dùng--mã-định-danh-actor)
-3. [EPIC-01: Quản lý Tòa nhà, Căn hộ & Hồ sơ Chủ quyền (Apartments & Ownership)](#3-epic-01-quản-lý-tòa-nhà-căn-hộ--hồ-sơ-chủ-quyền)
-4. [EPIC-02: Quản lý Hộ dân, Cư dân & Khai báo Cư trú (Residents & Civil Registry)](#4-epic-02-quản-lý-hộ-dân-cư-dân--khai-báo-cư-trú)
-5. [EPIC-03: Quản lý Phương tiện & Bãi đỗ xe Tầng hầm (Vehicles & Parking Quota)](#5-epic-03-quản-lý-phương-tiện--bãi-đỗ-xe-tầng-hầm)
-6. [EPIC-04: Điện nước, Động cơ Tính phí & Quyết toán VietQR (Billing & Payments)](#6-epic-04-điện-nước-động-cơ-tính-phí--quyết-toán-vietqr)
-7. [EPIC-05: Tiếp nhận Phản ánh & Xử lý Kỹ thuật SLA (Tickets & Maintenance)](#7-epic-05-tiếp-nhận-phản-ánh--xử-lý-kỹ-thuật-sla)
-8. [EPIC-06: Quản trị Hệ thống, Phân quyền RBAC & Biểu phí (Admin & Security)](#8-epic-06-quản-trị-hệ-thống-phân-quyền-rbac--biểu-phí)
-9. [Ma trận Đánh giá Tiêu chuẩn INVEST Toàn diện](#9-ma-trận-đánh-giá-tiêu-chuẩn-invest-toàn-diện)
-10. [Ma trận Truy vết Hai chiều (Requirements Traceability Matrix)](#10-ma-trận-truy-vết-hai-chiều-requirements-traceability-matrix)
+1. [INVEST Methodology & BDD Gherkin Standards](#1-invest-methodology--bdd-gherkin-standards)
+2. [User Personas & Actor Taxonomy](#2-user-personas--actor-taxonomy)
+3. [EPIC-01: Apartments & Ownership Lifecycle (Apartments & Ownership)](#3-epic-01-apartments--ownership-lifecycle)
+4. [EPIC-02: Residents, Census & Civil Movement (Residents & Civil Registry)](#4-epic-02-residents-census--civil-movement)
+5. [EPIC-03: Vehicles & Underground Parking Quota (Vehicles & Parking)](#5-epic-03-vehicles--underground-parking-quota)
+6. [EPIC-04: Utilities, Automated Billing Engine & Digital Payment (Billing & VietQR)](#6-epic-04-utilities-automated-billing-engine--digital-payment)
+7. [EPIC-05: Incident Maintenance & SLA Defect Tracking (Tickets & Maintenance)](#7-epic-05-incident-maintenance--sla-defect-tracking)
+8. [EPIC-06: Administration, 4-Tier RBAC & Tariffs (Admin & Security)](#8-epic-06-administration-4-tier-rbac--tariffs)
+9. [Comprehensive INVEST Compliance Scorecard](#9-comprehensive-invest-compliance-scorecard)
+10. [Bidirectional Requirements Traceability Matrix](#10-bidirectional-requirements-traceability-matrix)
 
 ---
 
-## 1. Phương pháp luận INVEST & Chuẩn mực BDD Gherkin
+## 1. INVEST Methodology & BDD Gherkin Standards
 
-Toàn bộ các yêu cầu chức năng của hệ thống **ResidentHub** được chuẩn hóa theo bộ nguyên tắc **INVEST** (Bill Wake):
+All functional requirements for the **ResidentHub** platform are standardized according to the **INVEST** guidelines (Bill Wake):
 
-| Tiêu chí | Diễn giải Chuẩn mực trong Dự án ResidentHub |
+| INVEST Criteria | Engineering Standard in ResidentHub |
 | :--- | :--- |
-| **I — Independent** | Mỗi User Story được thiết kế độc lập tối đa với các câu chuyện khác, cho phép nhóm phát triển có thể ưu tiên, lập trình và đưa vào phát hành (Release) mà không bị phụ thuộc nghẽn mạch (*blocking dependency*). |
-| **N — Negotiable** | Câu chuyện không phải hợp đồng đóng kín bất biến mà là lời mời thảo luận nghiệp vụ (*invitation to conversation*), cho phép Product Owner và Kỹ sư linh hoạt tối ưu hóa giải pháp kỹ thuật trong quá trình Sprint Planning. |
-| **V — Valuable** | Mỗi câu chuyện bắt buộc phải mang lại giá trị trực tiếp, đo lường được cho người dùng cuối (Cư dân, Ban Quản lý, Kỹ thuật viên) hoặc tối ưu hóa hiệu quả vận hành doanh nghiệp tòa nhà. |
-| **E — Estimable** | Phạm vi câu chuyện được mô tả tường minh, có tiêu chí kỹ thuật rõ ràng để nhóm kỹ thuật có thể ước lượng độ phức tạp bằng Story Points (dãy Fibonacci 1, 2, 3, 5, 8). |
-| **S — Small** | Kích thước câu chuyện được chia nhỏ vừa vặn, đảm bảo có thể hoàn thành trọn vẹn (Dev + Test) trong vòng từ 1 đến 3 ngày làm việc (không vượt quá 1 sprint 2 tuần). |
-| **T — Testable** | Mọi câu chuyện đều có bộ Tiêu chí Nghiệm thu (**Acceptance Criteria - AC**) chi tiết, viết theo chuẩn **Given - When - Then** (Behavior-Driven Development / Gherkin) bao quát cả luồng thành công (*Happy Path*) và luồng ngoại lệ/lỗi (*Edge Cases & Negative Paths*). |
+| **I — Independent** | Each User Story is decoupled from other stories, allowing agile teams to prioritize, implement, and ship features without blocking dependencies. |
+| **N — Negotiable** | Stories are treated as an invitation to conversation between Product Owners and Engineers to continuously optimize technical implementations during sprint planning. |
+| **V — Valuable** | Every story delivers measurable operational value to end-users (Residents, Facility Managers, Technicians) or optimizes building operations. |
+| **E — Estimable** | Acceptance criteria are explicit and technically bounded, allowing engineering teams to estimate complexity using Fibonacci Story Points (1, 2, 3, 5, 8). |
+| **S — Small** | Stories are scoped to be fully developed and tested within 1 to 3 business days (never exceeding a single 2-week sprint). |
+| **T — Testable** | Every story includes verifiable **Acceptance Criteria (AC)** written in standard **Given - When - Then** (Gherkin syntax), covering Happy Paths, Edge Cases, Concurrency Twins, and Failure Paths. |
 
 ---
 
-## 2. Hồ sơ Chân dung Người dùng & Mã định danh Actor
+## 2. User Personas & Actor Taxonomy
 
-| Mã Actor | Tên Vai trò | Mô tả Chân dung Người dùng & Mục tiêu Trọng tâm |
+| Actor Code | Role Display Name | Primary Responsibilities & Operational Goals |
 | :--- | :--- | :--- |
-| **`ACT-RES`** | **Cư dân / Chủ hộ** | Người sinh sống trong chung cư: Cần theo dõi thông tin căn hộ, thanh toán phí sinh hoạt tiện lợi qua mã QR, khai báo lưu trú online và gửi phản ánh khi gặp sự cố. |
-| **`ACT-MGR`** | **Ban Quản lý / Kế toán** | Cán bộ điều hành vận hành tòa nhà: Cần giám sát danh bạ căn hộ, xét duyệt hồ sơ cư trú, kiểm soát nốt đỗ xe tầng hầm, chốt chỉ số điện nước và phát hành hóa đơn định kỳ. |
-| **`ACT-TECH`**| **Kỹ thuật viên Tòa nhà** | Nhân viên cơ điện/bảo trì: Cần tiếp nhận phiếu sửa chữa theo đúng chuyên môn, ghi nhận hiện trường bằng ảnh chụp, hoàn tất công việc theo đúng cam kết thời gian SLA. |
-| **`ACT-ADM`** | **Quản trị viên Hệ thống** | Cán bộ quản trị CNTT: Cần phân quyền tài khoản chặt chẽ theo vai trò (RBAC), cấu hình định mức phí và bảng giá dịch vụ, giám sát an toàn hệ thống qua nhật ký kiểm toán. |
+| **`ACT-RES`** | **Resident / Household Head** | Apartment occupant: Reviews itemized monthly statements, pays fees via VietQR, declares civil residency shifts online, and submits maintenance reports. |
+| **`ACT-MGR`** | **Building Manager / Accountant** | Operations staff: Audits unit directories, verifies residency dossiers, manages parking slots, logs utility meters, and runs automated batch billing. |
+| **`ACT-TECH`**| **Building Technician** | Field engineer: Receives assigned repair tickets, performs physical inspections, logs photographic completion proofs, and observes strict SLA targets. |
+| **`ACT-ADM`** | **System Administrator** | IT Security officer: Enforces 4-tier Role-Based Access Control (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`), configures utility tariffs, and monitors audit logs. |
 
 ---
 
-## 3. EPIC-01: Quản lý Tòa nhà, Căn hộ & Hồ sơ Chủ quyền
+## 3. EPIC-01: Apartments & Ownership Lifecycle
 
-Quản lý cấu trúc phân tầng vật lý của tòa nhà, danh mục từng căn hộ, diện tích tim tường/thông thủy, hồ sơ quyền sở hữu và chu kỳ cư trú của căn hộ.
+Governs building physical zoning, apartment unit directories, usable living areas (m²), legal title ownership, and occupancy transitions.
 
-### US-APT-01: Tra cứu Danh bạ Căn hộ & Bộ lọc Đa Tiêu chí
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* tìm kiếm và lọc danh bạ căn hộ theo tòa, tầng, diện tích và trạng thái cư trú (*Trống, Đã cho thuê, Đang ở*),  
-  *Để* nắm bắt nhanh chóng tỷ lệ lấp đầy căn hộ và cung cấp thông tin chính xác khi tiếp nhận yêu cầu hành chính.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:**
-  - `I`: Độc lập với việc tạo mới hay chỉnh sửa hợp đồng sở hữu.
-  - `N`: Cho phép thỏa thuận thêm các bộ lọc phụ (theo số phòng ngủ/phòng tắm).
-  - `V`: Tăng tốc độ tra cứu hồ sơ căn hộ từ vài phút xuống dưới 2 giây.
-  - `E`: Sử dụng truy vấn SQL có Index trên `building_id`, `floor`, `status`.
-  - `S`: Hoàn thành trong 2 ngày phát triển.
-  - `T`: Kiểm thử tự động bằng bộ AC Gherkin.
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-APT-01: Apartment Unit Directory Search & Multi-Faceted Filtering
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* search and filter apartment units by tower, floor, usable area, and occupancy status (*Empty, Rented, Owner-Occupied*),  
+  *So that* I can quickly assess occupancy rates and provide accurate information for administrative inquiries.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: High | `E`: Clear (Indexed SQL) | `S`: 1-2 days | `T`: High
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Lọc căn hộ theo trạng thái cư trú thành công (Happy Path)
-    Given Ban Quản lý đang đăng nhập tại trang "/can-ho"
-    When Ban Quản lý chọn bộ lọc Tòa nhà là "Tòa A" và Trạng thái là "Trống (EMPTY)"
-    Then Hệ thống hiển thị danh sách các căn hộ thuộc Tòa A có trạng thái "EMPTY"
-    And Số lượng kết quả hiển thị trên bảng trùng khớp với tổng số lượng trong cơ sở dữ liệu
-    And Mỗi dòng căn hộ hiển thị rõ Mã phòng, Tầng, Diện tích m², Số phòng ngủ
+  Scenario: Successfully filter apartments by occupancy status (Happy Path)
+    Given The manager is authenticated at "/can-ho"
+    When The manager selects Tower "Tower A" and Status "EMPTY"
+    Then The system displays all apartment units in Tower A with status "EMPTY"
+    And The record count matches the database count exactly
+    And Each row displays Room Number, Floor, Net Living Area (m²), and Bedroom Count
 
-  Scenario: Tìm kiếm căn hộ theo từ khóa số phòng
-    Given Ban Quản lý đang ở trang danh mục căn hộ
-    When Ban Quản lý nhập từ khóa "1205" vào ô tìm kiếm nhanh
-    Then Hệ thống hiển thị căn hộ phòng "1205" của tòa nhà tương ứng
-    And Nếu không tìm thấy kết quả, hệ thống hiển thị Empty State "Không tìm thấy căn hộ phù hợp"
+  Scenario: Quick search by room number keyword
+    Given The manager is on the apartment directory page
+    When The manager types "1205" into the search bar
+    Then The system displays room "1205" for the corresponding building
+    And If no matching record exists, an Empty State "No apartments found" is rendered
   ```
 - **Traceability:** `UC-RES-04` | `apartments`, `buildings` | `/can-ho`
 
 ---
 
-### US-APT-02: Tiếp nhận Căn hộ Mới & Thiết lập Hồ sơ Chủ sở hữu Ban đầu
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* tạo mới hồ sơ căn hộ và gán thông tin chủ sở hữu hợp pháp (*Họ tên, CCCD, SĐT, Ngày nhận bàn giao*),  
-  *Để* thiết lập quyền tài sản ban đầu và phục vụ công tác thu phí quản lý vận hành.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Có | `E`: Có | `S`: Có | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-APT-02: New Apartment Onboarding & Initial Legal Owner Provisioning
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* create a new apartment record and assign legal ownership details (*Full Name, Citizen ID, Phone, Handover Date*),  
+  *So that* property rights are established and management fees can be assessed.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: High | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tạo mới căn hộ kèm hồ sơ chủ sở hữu hợp lệ (Happy Path)
-    Given Ban Quản lý mở form "Thêm căn hộ mới"
-    When Ban Quản lý nhập mã phòng "1508", Tòa "A", Tầng 15, Diện tích 85.5 m²
-    And Nhập thông tin chủ sở hữu: Tên "Nguyễn Văn An", CCCD "001099012345", SĐT "0987654321"
-    And Bấm nút "Lưu hồ sơ"
-    Then Hệ thống tạo bản ghi mới trong bảng "apartments" với trạng thái "OWNER_OCCUPIED"
-    And Tạo liên kết chủ sở hữu trong bảng "apartment_owners" với is_current = TRUE
-    And Hiển thị thông báo Toast "Thiết lập hồ sơ căn hộ 1508 thành công"
+  Scenario: Successfully onboard apartment with valid owner data (Happy Path)
+    Given The manager opens the "Add New Apartment" modal
+    When The manager inputs Room "1508", Tower "A", Floor 15, Area 85.5 m²
+    And Inputs owner details: Name "Nguyen Van An", Citizen ID "001099012345", Phone "0987654321"
+    And Clicks "Save Record"
+    Then A record is created in "apartments" with status "OWNER_OCCUPIED"
+    And A link is created in "apartment_owners" with is_current = TRUE
+    And A success toast notification "Apartment 1508 registered successfully" is rendered
 
-  Scenario: Báo lỗi khi tạo trùng mã căn hộ trong cùng một tòa (Negative Path)
-    Given Tòa nhà "A" đã tồn tại căn hộ mang mã "1508"
-    When Ban Quản lý cố gắng tạo thêm một căn hộ mang mã "1508" tại Tòa "A"
-    Then Hệ thống ngăn chặn việc lưu dữ liệu
-    And Trả về mã lỗi RFC 7807 với thông điệp "Mã căn hộ 1508 đã tồn tại trong Tòa A"
+  Scenario: Prevent duplicate apartment numbers within the same tower (Negative Path)
+    Given Apartment "1508" already exists in Tower "A"
+    When The manager attempts to create another apartment "1508" in Tower "A"
+    Then The system rejects the submission with HTTP 422 / RFC 7807
+    And An error message "Apartment 1508 already exists in Tower A" is displayed
   ```
 - **Traceability:** `UC-RES-04` | `apartments`, `owners`, `apartment_owners` | `/can-ho`
 
 ---
 
-### US-APT-03: Bàn giao Căn hộ & Chuyển dịch Chủ quyền Pháp lý
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* ghi nhận việc chuyển nhượng căn hộ sang chủ sở hữu mới và lưu vết lịch sử sở hữu cũ,  
-  *Để* bảo đảm tính chính xác pháp lý của người chịu trách nhiệm chi trả các nghĩa vụ tài chính.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Có | `E`: Có | `S`: Có | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-APT-03: Apartment Handover & Legal Ownership Title Transfer
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* register the transfer of an apartment to a new owner while archiving previous ownership tenure,  
+  *So that* legal financial accountability is maintained without losing audit history.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: High | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Chuyển nhượng căn hộ thành công kèm đóng quyền chủ cũ (Happy Path)
-    Given Căn hộ "1002" đang có chủ sở hữu hiện tại là "Trần Đình C"
-    When Ban Quản lý thực hiện thao tác "Chuyển giao quyền sở hữu" sang "Lê Thị D", CCCD "034199008877"
-    And Xác nhận ngày chuyển nhượng là ngày hiện tại
-    Then Hệ thống cập nhật bản ghi cũ trong "apartment_owners" với is_current = FALSE và end_date = CURRENT_DATE
-    And Tạo bản ghi mới trong "apartment_owners" cho chủ "Lê Thị D" với is_current = TRUE
-    And Toàn bộ lịch sử sở hữu của căn hộ 1002 vẫn được bảo tồn đầy đủ trong bảng lịch sử
+  Scenario: Successfully transfer apartment ownership (Happy Path)
+    Given Apartment "1002" has current active owner "Tran Dinh C"
+    When The manager transfers ownership to "Le Thi D", Citizen ID "034199008877"
+    And Sets transfer effective date to today's date
+    Then The previous ownership record is updated with is_current = FALSE and end_date = CURRENT_DATE
+    And A new ownership record is inserted for "Le Thi D" with is_current = TRUE
+    And The complete historical ownership chain for apartment 1002 is preserved
   ```
 - **Traceability:** `UC-RES-05` | `apartment_owners`, `apartments` | `/can-ho/[roomNumber]`
 
 ---
 
-## 4. EPIC-02: Quản lý Hộ dân, Cư dân & Khai báo Cư trú
+## 4. EPIC-02: Residents, Census & Civil Movement
 
-Quản lý Sổ hộ khẩu chung cư, danh sách nhân khẩu theo từng căn hộ, xác thực nhân thân CCCD và xử lý thủ tục khai báo biến động cư trú (Tạm trú / Tạm vắng / Chuyển khẩu).
+Manages household registries (*Sổ hộ khẩu*), occupant demographic rosters, 12-digit Citizen Identity verification, and statutory civil movement declarations (Temporary Stay / Absence).
 
-### US-RES-01: Đăng ký Nhân khẩu vào Sổ Hộ khẩu & Xác thực CCCD 12 Số
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* thêm thông tin cư dân mới vào sổ hộ khẩu của căn hộ kèm số CCCD hợp lệ và quan hệ với chủ hộ,  
-  *Để* cập nhật chính xác danh sách nhân khẩu thực tế phục vụ an ninh trật tự và tính phí rác thải/dịch vụ theo đầu người.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Độc lập | `N`: Có | `V`: Giá trị cao | `E`: Rõ ràng | `S`: 2 ngày | `T`: Viết được Gherkin
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-RES-01: Household Member Registration & 12-Digit Citizen ID Verification
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* register a new occupant into an apartment household with validated 12-digit Citizen ID (CCCD) and kinship relation,  
+  *So that* demographic census data is kept accurate for security and per-capita utility levies.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Independent | `N`: Yes | `V`: High | `E`: Clear | `S`: 2 days | `T`: High
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Thêm nhân khẩu mới thành công với CCCD 12 số hợp lệ (Happy Path)
-    Given Hộ dân "HK-1205" đã được tạo lập trong hệ thống
-    When Ban Quản lý thêm nhân khẩu: Họ tên "Nguyễn Văn Bình", CCCD "001202005678", Ngày sinh "15/08/2002", Quan hệ "Con"
-    Then Hệ thống lưu bản ghi cư dân vào bảng "residents"
-    And Tạo liên kết trong "household_members" với is_head = FALSE
-    And Tăng tổng số nhân khẩu hiển thị của hộ HK-1205 lên thêm 1 người
+  Scenario: Register new household occupant with valid 12-digit Citizen ID (Happy Path)
+    Given Household "HK-1205" exists with status "ACTIVE"
+    When The manager adds member: Name "Nguyen Van Binh", CCCD "001202005678", DOB "15/08/2002", Kinship "Child"
+    Then The occupant record is saved to "residents"
+    And A link is created in "household_members" with is_head = FALSE
+    And The displayed occupant count for HK-1205 increases by 1
 
-  Scenario: Từ chối số định danh CCCD sai định dạng hoặc trùng lặp (Edge Case)
-    Given Ban Quản lý nhập thông tin cư dân mới
-    When Số CCCD nhập vào không đúng 12 chữ số (ví dụ: "01234") hoặc đã tồn tại trên một cư dân khác đang sinh sống
-    Then Hệ thống báo lỗi Validation màu đỏ tại trường CCCD: "Số CCCD phải đúng 12 số và không được trùng lặp"
-    And Nút "Xác nhận lưu" bị vô hiệu hóa
+  Scenario: Reject invalid format or duplicate Citizen ID (Edge Case)
+    Given An existing active resident possesses Citizen ID "001202005678"
+    When The manager attempts to register another resident with Citizen ID "001202005678"
+    Then The form displays a validation error: "Citizen ID must be 12 digits and uniquely registered"
+    And The submit button remains disabled
   ```
 - **Traceability:** `UC-RES-03`, `UC-RES-01` | `residents`, `household_members` | `/cu-dan`
 
 ---
 
-### US-RES-02: Chuyển giao Vai trò Chủ hộ Đảm bảo Duy nhất Một Chủ hộ
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* chuyển giao vai trò Chủ hộ (*Head of Household*) từ thành viên cũ sang thành viên mới đủ điều kiện pháp lý,  
-  *Để* xác lập người đại diện hợp pháp duy nhất của hộ gia đình nhận thông báo và hóa đơn của căn hộ.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Độc lập | `N`: Thỏa thuận được | `V`: Tránh xung đột quyền | `E`: Dễ ước tính | `S`: Vừa vặn | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-RES-02: Household Head Succession Handover
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* reassign the Head of Household role from the current head to an eligible adult member,  
+  *So that* exactly one primary legal representative exists per unit at all times.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Invariant integrity | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Chuyển chủ hộ trong cùng hộ gia đình thành công (Happy Path)
-    Given Hộ gia đình "HK-0803" có chủ hộ hiện tại là "Phạm Văn E"
-    When Ban Quản lý chỉ định thành viên "Phạm Thị F" (vợ) làm chủ hộ mới
-    Then Trong cùng một Transaction DB, hệ thống cập nhật `is_head = FALSE` cho "Phạm Văn E"
-    And Cập nhật `is_head = TRUE` cho "Phạm Thị F"
-    And Cập nhật cột `head_resident_id` của bảng "households" trỏ đến ID của "Phạm Thị F"
-    And Đảm bảo tại mọi thời điểm, mỗi hộ gia đình chỉ tồn tại duy nhất 1 chủ hộ (Invariant)
+  Scenario: Reassign household head within the same family (Happy Path)
+    Given Household "HK-0803" currently has "Pham Van E" as head
+    When The manager designates member "Pham Thi F" (Spouse) as the new head
+    Then Within a single atomic database transaction, `is_head = FALSE` is set for "Pham Van E"
+    And `is_head = TRUE` is set for "Pham Thi F"
+    And The `head_resident_id` in "households" is updated to "Pham Thi F"
+    And The system guarantees that exactly 1 head exists for HK-0803
   ```
 - **Traceability:** `UC-RES-02` | `households`, `household_members` | `/cu-dan`
 
 ---
 
-### US-RES-03: Khai báo Biến động Cư trú Trực tuyến (Tạm trú / Tạm vắng)
-- **Mô tả:**  
-  *Là một* **Cư dân (`ACT-RES`)**,  
-  *Tôi muốn* khai báo hồ sơ tạm trú hoặc tạm vắng trực tuyến qua giao diện web,  
-  *Để* thực hiện nghĩa vụ khai báo lưu trú theo quy định pháp luật mà không cần xếp hàng tại văn phòng Ban Quản lý.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tiết kiệm thời gian | `E`: Có | `S`: 1.5 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-RES-03: Online Civil Stay Declaration (Temporary Stay / Absence)
+- **User Story:**  
+  *As a* **Resident (`ACT-RES`)**,  
+  *I want to* submit a temporary stay or temporary absence declaration online,  
+  *So that* I can fulfill civil regulatory requirements without visiting the management office in person.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Self-service convenience | `E`: Yes | `S`: 1.5 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Cư dân nộp hồ sơ khai báo tạm trú thành công (Happy Path)
-    Given Cư dân đã đăng nhập và thuộc căn hộ "0901"
-    When Cư dân truy cập trang "/cu-tru", chọn loại "Tạm trú (TAM_TRU)"
-    And Chọn khoảng thời gian từ "01/10/2026" đến "31/12/2026", lý do "Lưu trú làm việc dự án"
-    And Bấm "Gửi hồ sơ khai báo"
-    Then Hệ thống tạo bản ghi mới trong bảng "residence_records" với trạng thái "PENDING"
-    And Sinh mã tiếp nhận hồ sơ dạng "REC-202610-XXXX"
-    And Trạng thái hồ sơ hiển thị trên bảng là "Chờ Ban Quản lý tiếp nhận"
+  Scenario: Resident submits temporary stay declaration (Happy Path)
+    Given The resident is authenticated and belongs to unit "0901"
+    When The resident accesses "/cu-tru" and chooses "Temporary Stay (TAM_TRU)"
+    And Selects date range from "01/10/2026" to "31/12/2026" with reason "Project assignment"
+    And Clicks "Submit Declaration"
+    Then A record is created in "residence_records" with status "PENDING"
+    And A receipt dossier code formatted as "REC-202610-XXXX" is generated
+    And Status displays as "Pending Management Review"
 
-  Scenario: Ngăn chặn ngày kết thúc tạm trú trước ngày bắt đầu (Negative Path)
-    Given Cư dân chọn ngày bắt đầu là "10/10/2026"
-    When Cư dân chọn ngày kết thúc là "05/10/2026"
-    Then Hệ thống báo lỗi "Ngày kết thúc không được nhỏ hơn ngày bắt đầu"
-    And Ngăn chặn việc gửi biểu mẫu lên máy chủ
+  Scenario: Prevent end date occurring before start date (Negative Path)
+    Given The resident selects start date "10/10/2026"
+    When The resident selects end date "05/10/2026"
+    Then The form displays validation error "End date cannot precede start date"
+    And Inbound submission is prevented
   ```
 - **Traceability:** `UC-RES-01` | `residence_records` | `/cu-tru`
 
 ---
 
-### US-RES-04: Thẩm định & Xác nhận Hồ sơ Biến động Cư trú
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* kiểm tra tính hợp lệ của hồ sơ tạm trú/tạm vắng, đối soát với căn cước công dân và xác nhận duyệt hoặc từ chối,  
-  *Để* hoàn tất thủ tục lưu trú số hóa và cập nhật báo cáo gửi Công an khu vực.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: An ninh tòa nhà | `E`: Có | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-RES-04: Digital Dossier Verification & Local Police Endorsement
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* audit civil stay declaration submissions, cross-check citizen credentials, and record police registration codes,  
+  *So that* digital compliance records can be filed with local administrative authorities.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Statutory compliance | `E`: Yes | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Phê duyệt hồ sơ biến động cư trú hợp lệ (Happy Path)
-    Given Ban Quản lý đang xem danh sách hồ sơ tại trang "/lich-su-cu-tru"
-    When Ban Quản lý chọn hồ sơ mã "REC-202610-0012" có trạng thái "PENDING"
-    And Nhập mã hồ sơ Công an tiếp nhận "CA-P05-9981" và bấm "Phê duyệt"
-    Then Trạng thái hồ sơ trong "residence_records" chuyển thành "APPROVED"
-    And Hệ thống ghi nhận ID người duyệt (`approved_by`) và thời điểm duyệt (`approved_at`)
-    And Hệ thống gửi thông báo xác nhận thành công tới tài khoản cư dân
+  Scenario: Manager approves valid residency declaration (Happy Path)
+    Given A residency declaration "REC-202610-0012" has status "PENDING"
+    When The manager enters police filing code "CA-P05-9981" and clicks "Approve"
+    Then The record status in "residence_records" updates to "APPROVED"
+    And The system records `approved_by` and `approved_at = NOW()`
+    And An approval notification is dispatched to the resident's portal
   ```
 - **Traceability:** `UC-RES-06`, `UC-RES-07` | `residence_records` | `/lich-su-cu-tru`
 
 ---
 
-## 5. EPIC-03: Quản lý Phương tiện & Bãi đỗ xe Tầng hầm
+## 5. EPIC-03: Vehicles & Underground Parking Quota
 
-Quản lý hạn mức phương tiện của từng căn hộ, cấp phát nốt đỗ định danh chống xung đột, gắn mã thẻ từ RFID và giải phóng mặt bằng khi phương tiện hủy đăng ký.
+Enforces apartment vehicle quotas, manages pessimistic-lock underground slot reservations (B1/B2), provisions RFID cards, and releases slots upon vehicle revocation.
 
-### US-VEH-01: Đăng ký Phương tiện Mới & Kiểm soát Hạn ngạch (Quota Control)
-- **Mô tả:**  
-  *Là một* **Cư dân / Ban Quản lý (`ACT-RES`, `ACT-MGR`)**,  
-  *Tôi muốn* đăng ký phương tiện mới (Ô tô, Xe máy) cho căn hộ kèm biển số và hình ảnh đăng ký xe,  
-  *Để* hệ thống tự động kiểm soát hạn ngạch định mức (*Tối đa 1 Ô tô và 2 Xe máy cho mỗi căn hộ*).
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Công bằng hạ tầng | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-VEH-01: Vehicle Registration & Quota Compliance Enforcement
+- **User Story:**  
+  *As a* **Resident / Manager (`ACT-RES`, `ACT-MGR`)**,  
+  *I want to* register a new vehicle for an apartment unit with license plate and registration photo,  
+  *So that* the system automatically validates apartment quota limits (*Max 1 Car, 2 Motorbikes per unit*).
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Fair resource allocation | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Đăng ký xe máy trong hạn mức định ngạch thành công (Happy Path)
-    Given Căn hộ "1104" hiện đang có 1 xe máy và 0 ô tô đã đăng ký
-    When Cư dân nộp đơn đăng ký xe máy thứ 2: Biển số "29A1-999.88", Nhãn hiệu "Honda SH"
-    Then Hệ thống kiểm tra căn hộ vẫn còn định mức xe máy (1/2)
-    And Lưu thông tin phương tiện vào bảng "vehicles" với trạng thái "ACTIVE"
-    And Hiển thị mức phí gửi xe hàng tháng dự kiến (ví dụ: 100.000 VNĐ/tháng)
+  Scenario: Register motorbike within quota limits (Happy Path)
+    Given Apartment "1104" has 1 active motorbike and 0 active cars
+    When Resident registers a 2nd motorbike: Plate "29A1-999.88", Model "Honda SH"
+    Then System verifies quota capacity is available (1/2 motorbikes)
+    And Saves vehicle to "vehicles" with status "ACTIVE"
+    And Shows estimated monthly parking tariff (100,000 VND/month)
 
-  Scenario: Từ chối đăng ký khi căn hộ đã vượt quá hạn mức ô tô (Quota Exceeded)
-    Given Căn hộ "1104" đã đăng ký đủ hạn ngạch 1 xe ô tô (1/1)
-    When Cư dân cố gắng đăng ký thêm chiếc ô tô thứ 2 cho căn hộ này
-    Then Hệ thống từ chối cho phép gửi yêu cầu
-    And Hiển thị thông báo: "Căn hộ 1104 đã đạt hạn mức tối đa 1 xe ô tô. Vui lòng đăng ký vào danh sách chờ suất vãng lai"
+  Scenario: Reject registration when car quota is exhausted (Quota Limit Reached)
+    Given Apartment "1104" already has 1 registered car (1/1)
+    When Resident attempts to register a 2nd car for apartment 1104
+    Then The system blocks registration with HTTP 422
+    And Displays error: "Apartment 1104 has reached the maximum quota of 1 automobile"
   ```
 - **Traceability:** `UC-VEH-01` | `vehicles`, `apartments` | `/phuong-tien-va-bai-do`
 
 ---
 
-### US-VEH-02: Cấp phát Nốt đỗ Tầng hầm Định danh bằng Khóa Bi quan (Pessimistic Lock)
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* phân bổ một vị trí nốt đỗ cụ thể tại tầng hầm (B1/B2) cho xe ô tô đã được duyệt,  
-  *Để* bảo đảm không xảy ra tình trạng cấp trùng lặp một nốt đỗ cho hai phương tiện khác nhau khi nhiều quản trị viên cùng thao tác đồng thời.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tránh tranh chấp chỗ | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-VEH-02: Underground Slot Reservation via Pessimistic Locking
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* allocate an available basement parking slot (B1/B2) to an approved automobile using pessimistic row locks,  
+  *So that* concurrent managers cannot double-book the same parking slot.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Prevents physical conflicts | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Cấp phát nốt đỗ còn trống thành công (Happy Path)
-    Given Vị trí nốt đỗ "B1-C12" có trạng thái là "AVAILABLE"
-    When Ban Quản lý chọn gán nốt "B1-C12" cho xe ô tô mang biển "30E-123.45"
-    Then Hệ thống thực hiện lệnh SQL `SELECT ... FOR UPDATE` để khóa hàng nốt đỗ
-    And Cập nhật trạng thái nốt đỗ thành "OCCUPIED" và gán `vehicle_id`
-    And Cập nhật `parking_slot_id` trên phương tiện tương ứng
-    And Sơ đồ bãi đỗ chuyển màu nốt B1-C12 từ Xanh lá (Trống) sang Đỏ (Đã có xe)
+  Scenario: Allocate available slot successfully (Happy Path)
+    Given Slot "B1-C12" has status "AVAILABLE"
+    When The manager assigns slot "B1-C12" to car "30E-123.45"
+    Then System executes `SELECT ... FOR UPDATE` to lock the slot row
+    And Updates slot status to "OCCUPIED" with `vehicle_id`
+    And Updates vehicle with `parking_slot_id`
+    And Slot color on the floorplan transitions from Green to Red
 
-  Scenario: Ngăn ngừa cấp trùng nốt đỗ khi có tranh chấp đồng thời (Concurrency Twin)
-    Given Hai nhân viên quản lý A và B cùng mở form cấp nốt "B1-C12" tại cùng một giây
-    When Quản lý A bấm xác nhận trước và Transaction của A hoàn tất thành công
-    And Quản lý B bấm xác nhận ngay sau đó 200ms
-    Then Transaction của Quản lý B bị chặn lại do kiểm tra trạng thái thấy đã thành "OCCUPIED"
-    And Hệ thống Rollback giao dịch của Quản lý B và thông báo "Nốt đỗ B1-C12 vừa được người khác gán. Vui lòng chọn nốt khác"
+  Scenario: Prevent double-booking under concurrent assignment (Concurrency Twin)
+    Given Two managers A and B attempt to allocate "B1-C12" simultaneously
+    When Manager A's transaction commits first
+    And Manager B's transaction attempts to commit 200ms later
+    Then Manager B's transaction detects slot is no longer "AVAILABLE"
+    And System rolls back Manager B's transaction with HTTP 409 Conflict
+    And Displays: "Slot B1-C12 was just reserved by another user. Please choose another slot"
   ```
 - **Traceability:** `UC-VEH-02`, `UC-VEH-05` | `parking_slots`, `vehicles` | `/phuong-tien-va-bai-do`
 
 ---
 
-### US-VEH-03: Kích hoạt Thẻ từ RFID Ra Vào Bãi Đỗ Xe
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* nhập mã thẻ từ RFID và kích hoạt liên kết với phương tiện đã đăng ký,  
-  *Để* cư dân có thể sử dụng thẻ quẹt qua barrier kiểm soát tại cổng tầng hầm.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Đồng bộ vật lý | `E`: Có | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-VEH-03: RFID Access Card Provisioning & Activation
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* link an RFID card code to a registered vehicle and activate it,  
+  *So that* the resident can access the underground parking barrier.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Physical access sync | `E`: Yes | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Kích hoạt thẻ RFID hợp lệ thành công (Happy Path)
-    Given Phương tiện "30E-123.45" đã được cấp nốt đỗ và chưa có mã thẻ từ
-    When Ban Quản lý nhập mã thẻ RFID "RFID-99882211" và bấm "Kích hoạt thẻ"
-    Then Hệ thống kiểm tra mã thẻ "RFID-99882211" chưa từng được gán cho phương tiện nào khác
-    And Cập nhật cột `rfid_card_code` của phương tiện và chuyển trạng thái thẻ sang "ACTIVE"
-    And Ghi nhận sự kiện kích hoạt vào nhật ký vận hành bãi xe
+  Scenario: Activate unique RFID card successfully (Happy Path)
+    Given Vehicle "30E-123.45" is allocated a slot without an assigned RFID card
+    When Manager enters RFID code "RFID-99882211" and clicks "Activate Card"
+    Then System verifies "RFID-99882211" is not assigned to any other vehicle
+    And Updates `rfid_card_code` on the vehicle record and sets card status to "ACTIVE"
   ```
 - **Traceability:** `UC-VEH-03` | `vehicles` | `/phuong-tien-va-bai-do`
 
 ---
 
-### US-VEH-04: Hủy Đăng ký Xe & Giải phóng Nốt đỗ Tự động
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* thực hiện thủ tục hủy đăng ký xe khi cư dân chuyển nhà hoặc bán xe,  
-  *Để* hệ thống tự động giải phóng nốt đỗ về trạng thái trống và ngừng tính phí gửi xe trong kỳ hóa đơn tiếp theo.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tối ưu công suất đỗ | `E`: Có | `S`: 1.5 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-VEH-04: Vehicle De-registration & Automatic Slot Release
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* de-register a vehicle when a tenant moves out,  
+  *So that* its parking slot is immediately released and parking charges cease in the subsequent billing cycle.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Optimizes capacity | `E`: Yes | `S`: 1.5 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Hủy xe và giải phóng nốt đỗ thành công (Happy Path)
-    Given Xe ô tô "30E-123.45" đang chiếm nốt đỗ "B1-C12"
-    When Ban Quản lý bấm "Hủy đăng ký phương tiện" và chọn lý do "Cư dân chuyển đi"
-    Then Hệ thống chuyển trạng thái phương tiện sang "REVOKED"
-    And Hủy kích hoạt thẻ RFID tương ứng
-    And Trong cùng Transaction, cập nhật nốt đỗ "B1-C12" thành `status = 'AVAILABLE'` và `vehicle_id = NULL`
-    And Nốt đỗ B1-C12 lập tức hiển thị lại màu Xanh lá trên sơ đồ để người khác đăng ký
+  Scenario: De-register vehicle and release slot (Happy Path)
+    Given Car "30E-123.45" occupies parking slot "B1-C12"
+    When The manager revokes the vehicle registration
+    Then Vehicle status updates to "REVOKED" and RFID card is deactivated
+    And Within the same transaction, slot "B1-C12" is set to `status = 'AVAILABLE'` and `vehicle_id = NULL`
+    And Slot B1-C12 immediately displays as Green (Available) on the floorplan
   ```
 - **Traceability:** `UC-VEH-04` | `vehicles`, `parking_slots` | `/phuong-tien-va-bai-do`
 
 ---
 
-## 6. EPIC-04: Điện nước, Động cơ Tính phí & Quyết toán VietQR
+## 6. EPIC-04: Utilities, Automated Billing Engine & Digital Payment
 
-Quản lý đo lường chỉ số tiêu thụ điện nước, tính toán biểu phí lũy tiến bậc thang, chốt phát hành hóa đơn tự động hàng tháng, tạo mã VietQR động và tiếp nhận Webhook ngân hàng tức thời.
+Measures monthly utility consumption, computes progressive tiered tariffs, executes month-end automated batch billing, generates dynamic Napas VietQRs, and processes webhook IPNs.
 
-### US-BIL-01: Ghi nhận Chỉ số Tiêu thụ & Cảnh báo Bất thường (Anomaly Detection)
-- **Mô tả:**  
-  *Là một* **Kỹ thuật viên / Kế toán (`ACT-TECH`, `ACT-MGR`)**,  
-  *Tôi muốn* nhập chỉ số đồng hồ điện nước cuối tháng kèm hình ảnh đối chiếu,  
-  *Để* hệ thống tự động phát hiện số liệu tiêu thụ tăng/giảm bất thường vượt quá ngưỡng cảnh báo (ví dụ tăng gấp 3 lần so với tháng trước).
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Ngăn ngừa sai sót | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-BIL-01: Utility Meter Capture & Automated Anomaly Detection
+- **User Story:**  
+  *As a* **Technician / Accountant (`ACT-TECH`, `ACT-MGR`)**,  
+  *I want to* record monthly electric/water meter indices with photographic evidence,  
+  *So that* the system flags abnormal consumption shifts (> 300% surge compared to 3-month average) before billing.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Error prevention | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Ghi nhận chỉ số điện hợp lệ bình thường (Happy Path)
-    Given Căn hộ "1205" có chỉ số điện tháng 08/2026 là 1250 kWh
-    When Kỹ thuật viên nhập chỉ số tháng 09/2026 là 1450 kWh kèm ảnh chụp đồng hồ
-    Then Hệ thống tính toán lượng điện tiêu thụ là 200 kWh (tăng hợp lý trong mức bình thường)
-    And Lưu bản ghi vào bảng "meter_readings" với trạng thái "AUDITED"
-    And Cho phép đưa chỉ số vào đợt tính hóa đơn tháng 9
+  Scenario: Record normal utility meter reading (Happy Path)
+    Given Apartment "1205" had previous electric index of 1,250 kWh
+    When Technician inputs current index 1,450 kWh with meter photo
+    Then System calculates consumption of 200 kWh (within normal range)
+    And Saves record in "meter_readings" with status "AUDITED"
 
-  Scenario: Cảnh báo bất thường khi chỉ số mới nhỏ hơn chỉ số cũ (Negative Case)
-    Given Chỉ số điện tháng trước là 1250 kWh
-    When Kỹ thuật viên nhập chỉ số tháng này là 1100 kWh
-    Then Hệ thống chặn lưu và báo lỗi: "Chỉ số mới không được nhỏ hơn chỉ số kỳ trước (1250 kWh)"
+  Scenario: Prevent current index lower than previous reading (Negative Path)
+    Given Previous electric index was 1,250 kWh
+    When Technician inputs current index 1,100 kWh
+    Then System blocks save and displays error: "Current index cannot be lower than previous index (1,250 kWh)"
 
-  Scenario: Kích hoạt cờ cảnh báo rò rỉ khi lượng tiêu thụ tăng đột biến (Anomaly Twin)
-    Given Lượng nước tiêu thụ trung bình 3 tháng gần nhất của căn hộ 1205 là 15 m³
-    When Kỹ thuật viên nhập chỉ số nước tháng này với sản lượng tính ra là 75 m³ (tăng > 300%)
-    Then Hệ thống hiển thị cảnh báo Pop-up màu vàng: "Tiêu thụ tăng đột biến 500% so với trung bình"
-    And Đánh dấu trạng thái bản ghi là "ANOMALY_PENDING_REVIEW" để Trưởng ban quản lý kiểm tra lại trước khi chốt
+  Scenario: Flag consumption surge anomaly (Anomaly Twin)
+    Given 3-month average water consumption for unit 1205 is 15 m³
+    When Technician inputs reading resulting in 75 m³ consumption (+400%)
+    Then System displays yellow warning alert: "Abnormal surge detected (> 300%)"
+    And Sets record status to "ANOMALY_PENDING_REVIEW" for supervisor confirmation
   ```
 - **Traceability:** `UC-FIN-01` | `meter_readings`, `apartments` | `/phi-chung-cu`
 
 ---
 
-### US-BIL-02: Chốt Sổ & Tự động Phát hành Đợt Hóa đơn Hàng tháng (Batch Invoicing Engine)
-- **Mô tả:**  
-  *Là một* **Kế toán Tòa nhà (`ACT-MGR`)**,  
-  *Tôi muốn* kích hoạt chạy lô tổng hợp hóa đơn tự động vào ngày 25 hàng tháng cho toàn bộ các căn hộ,  
-  *Để* kết xuất các mục chi phí: Phí quản lý (theo diện tích m²), Phí gửi xe (theo loại xe), và Phí điện nước (theo biểu phí lũy tiến bậc thang).
-- **Ước lượng:** 8 Story Points (Large - Core Engine)
-- **Đánh giá INVEST:** `I`: Độc lập | `N`: Có | `V`: Cốt lõi tài chính | `E`: Có thuật toán | `S`: Tách nhỏ batch | `T`: Rõ ràng
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-BIL-02: Month-End Batch Invoice Generation Engine
+- **User Story:**  
+  *As a* **Building Accountant (`ACT-MGR`)**,  
+  *I want to* trigger automated batch invoicing on the 25th of each month for all occupied apartments,  
+  *So that* itemized bills (Management fee, Parking fee, Progressive power/water) are generated consistently.
+- **Estimate:** 8 Story Points (Large - Core Calculation Engine)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Financial core | `E`: Clear math | `S`: Chunked | `T`: High
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Chạy đợt phát hành hóa đơn tự động thành công (Happy Path)
-    Given Đã hoàn tất việc chốt chỉ số điện nước kỳ tháng 09/2026 cho toàn bộ tòa nhà
-    When Kế toán bấm nút "Chạy phát hành hóa đơn Batch Tháng 09/2026"
-    Then Động cơ tính phí duyệt qua từng căn hộ đang có hộ dân sinh sống
-    And Tính toán chính xác từng dòng chi phí trong bảng "invoice_items":
-      | Loại phí | Công thức tính toán |
-      | Phí quản lý | Diện tích m² x 12.000 VNĐ/m² |
-      | Phí gửi xe | Tổng phí theo số lượng xe máy + ô tô đang active |
-      | Phí nước sạch | Áp dụng bậc thang 1 (0-10m³), bậc thang 2 (10-20m³), bậc thang 3 (>20m³) |
-    And Tạo bản ghi hóa đơn cha trong bảng "invoices" với trạng thái "UNPAID"
-    And Hạn nộp tiền tự động đặt là ngày 10 của tháng kế tiếp (10/10/2026)
-    And Đảm bảo quá trình chạy theo cơ chế Idempotency: nếu bấm lại cùng kỳ sẽ không sinh trùng hóa đơn
+  Scenario: Run month-end batch billing successfully (Happy Path)
+    Given All meter readings for cycle "2026-09" have been audited
+    When Accountant triggers "Run Batch Invoicing for 2026-09"
+    Then System processes all occupied units:
+      | Fee Type | Calculation Formula |
+      | Management Fee | Net Floor Area (m²) x 12,000 VND/m² |
+      | Parking Fee | Sum of active registered motorbikes and cars |
+      | Utility Fees | Progressive 6-tier electricity & 3-tier water tariffs |
+    And Creates master invoice records in "invoices" with status "UNPAID"
+    And Sets payment due date to the 10th of the following month (10/10/2026)
+    And Enforces idempotency: subsequent triggers for cycle 2026-09 will not create duplicate invoices
   ```
 - **Traceability:** `UC-FIN-02` | `invoices`, `invoice_items`, `fee_types` | `/phi-chung-cu`
 
 ---
 
-### US-BIL-03: Khởi tạo Phiên Thanh toán & Tạo Mã VietQR Động Chuẩn Napas 247
-- **Mô tả:**  
-  *Là một* **Cư dân (`ACT-RES`)**,  
-  *Tôi muốn* mở hóa đơn cần thanh toán và xem mã QR ngân hàng VietQR động chứa sẵn số tiền và nội dung chuyển khoản,  
-  *Để* thanh toán chính xác 100% qua App ngân hàng cá nhân chỉ với một thao tác quét camera mà không cần nhập tay số tài khoản.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Trải nghiệm tuyệt vời | `E`: Tích hợp chuẩn VietQR | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-BIL-03: Dynamic VietQR Napas 247 Session Generation
+- **User Story:**  
+  *As a* **Resident (`ACT-RES`)**,  
+  *I want to* open an unpaid invoice and view a dynamic Napas 247 VietQR code with pre-filled amount and reference code,  
+  *So that* I can pay instantly using mobile banking without typing account numbers manually.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Excellent UX | `E`: Standard VietQR | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tạo mã VietQR động thành công kèm thông tin chi tiết (Happy Path)
-    Given Hóa đơn "INV-202609-1205" có tổng số tiền còn nợ là 2.350.000 VNĐ
-    When Cư dân bấm nút "Thanh toán VietQR" tại màn hình hóa đơn
-    Then Hệ thống hiển thị Modal Thanh toán chứa mã QR động chuẩn Napas 247
-    And Mã QR đã mã hóa sẵn:
-      | Trường thông tin | Giá trị hiển thị |
-      | Ngân hàng thụ hưởng | MB Bank (Ngân hàng Quân Đội) |
-      | Số tài khoản BQL | 098765432199 |
-      | Số tiền thanh toán | 2,350,000 VNĐ (chính xác từng đồng) |
-      | Nội dung chuyển khoản | INV-202609-1205 CANHO 1205 |
-    And Hệ thống bật đồng hồ đếm ngược 15 phút cho phiên thanh toán
-    And Kích hoạt cơ chế Polling / WebSocket chờ tín hiệu gạch nợ từ ngân hàng
+  Scenario: Generate dynamic VietQR session successfully (Happy Path)
+    Given Invoice "INV-202609-1205" has outstanding balance 2,350,000 VND
+    When Resident clicks "Pay via VietQR"
+    Then System renders a modal containing a dynamic Napas 247 QR code:
+      | Field | Encoded Value |
+      | Beneficiary Bank | MB Bank |
+      | Account Number | 098765432199 |
+      | Exact Amount | 2,350,000 VND |
+      | Transfer Content | INV-202609-1205 CANHO 1205 |
+    And A 15-minute expiration countdown timer is displayed
+    And Client polling starts checking for payment settlement signals
   ```
 - **Traceability:** `UC-FIN-03`, `UC-FIN-04` | `invoices`, `payment_transactions` | `/phi-chung-cu`
 
 ---
 
-### US-BIL-04: Xử lý Webhook IPN Ngân hàng, Gạch nợ Tức thời & Xuất Biên lai
-- **Mô tả:**  
-  *Là một* **Hệ thống Backend (`SYS-CRON` / Gateway)**,  
-  *Tôi muốn* tiếp nhận Webhook IPN từ VietQR / Napas 247, xác thực chữ ký bảo mật HMAC-SHA256 và gạch nợ hóa đơn ngay trong 500ms,  
-  *Để* cập nhật trạng thái đã thanh toán tức thì cho cư dân và loại trừ rủi ro gạch nợ trùng lặp.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tự động hóa kế toán | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-BIL-04: Asynchronous IPN Webhook & Idempotent Balance Settlement
+- **User Story:**  
+  *As a* **Backend System (`SYS-CRON` / Gateway)**,  
+  *I want to* receive Napas 247 IPN webhooks, verify HMAC-SHA256 signatures, and settle invoice balances within 500ms,  
+  *So that* resident invoices are marked paid instantly while eliminating duplicate settlement risks.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Automated ledger | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tiếp nhận IPN hợp lệ và gạch nợ thành công (Happy Path)
-    Given Hóa đơn "INV-202609-1205" đang ở trạng thái "UNPAID"
-    When Cổng thanh toán gọi API POST "/api/webhooks/vietqr" với chữ ký HMAC hợp lệ
-    And Payload chứa mã tham chiếu "INV-202609-1205" và số tiền chuyển 2.350.000 VNĐ
-    Then Hệ thống kiểm tra giao dịch chưa từng xử lý (Idempotency Key duy nhất)
-    And Cập nhật trạng thái hóa đơn thành "PAID" và lưu `paid_at = NOW()`
-    And Tạo bản ghi giao dịch trong "payment_transactions" với phương thức "VIETQR"
-    And Màn hình thanh toán của cư dân đang mở tự động chuyển sang trạng thái "Thanh toán thành công"
-    And Trả về HTTP 200 OK cho Gateway trong vòng dưới 500ms
+  Scenario: Receive valid IPN and settle invoice balance (Happy Path)
+    Given Invoice "INV-202609-1205" has status "UNPAID"
+    When Gateway posts to "/api/v1/webhooks/vietqr" with valid HMAC signature
+    And Payload references "INV-202609-1205" with amount 2,350,000 VND
+    Then System verifies transaction code is unique (Idempotency check)
+    And Updates invoice status to "PAID" with `paid_at = NOW()`
+    And Inserts record into "payment_transactions" with method "VIETQR"
+    And Resident's open modal updates to "Payment Successful"
+    And HTTP 200 OK is returned to Gateway within 500ms
 
-  Scenario: Bỏ qua Webhook bị gửi lại (Duplicate Webhook Defense)
-    Given Giao dịch thanh toán mã "TXN-998811" đã được xử lý gạch nợ thành công trước đó
-    When Gateway phát lại gói tin Webhook mang cùng mã "TXN-998811"
-    Then Hệ thống nhận diện giao dịch đã tồn tại trong CSDL
-    And Bỏ qua việc cộng trừ tiền lần thứ hai
-    And Vẫn trả về HTTP 200 OK để Gateway ngừng gửi lại
+  Scenario: Duplicate IPN delivery defense (Idempotency Twin)
+    Given Transaction "TXN-998811" has already been committed
+    When Gateway redelivers duplicate webhook packet for "TXN-998811"
+    Then System detects transaction already exists in database
+    And Bypasses duplicate balance updates
+    And Returns HTTP 200 OK so Gateway halts retry attempts
   ```
-- **Traceability:** `UC-FIN-04` | `payment_transactions`, `invoices` | API Webhook
+- **Traceability:** `UC-FIN-04` | `payment_transactions`, `invoices` | Webhook API
 
 ---
 
-### US-BIL-05: Quét Tự động Hóa đơn Quá hạn & Tính Phí Phạt Chậm Nộp
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* hệ thống tự động quét các hóa đơn chưa thanh toán sau ngày 10 hàng tháng,  
-  *Để* chuyển trạng thái thành "Quá hạn (OVERDUE)" và tự động gửi thông báo nhắc nợ đợt 1 tới ứng dụng cư dân.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Thu hồi công nợ | `E`: Cron job chuẩn | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-BIL-05: Automated Overdue Debt Audit & Penalty Trigger
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want* the system to automatically audit unpaid invoices after the 10th of each month,  
+  *So that* delinquent accounts are flagged as "OVERDUE" and automated reminders are dispatched.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Debt recovery | `E`: Cron worker | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tự động chuyển trạng thái quá hạn khi hết hạn thanh toán (Happy Path)
-    Given Hóa đơn "INV-202609-0504" có hạn nộp là ngày "10/10/2026" và trạng thái vẫn là "UNPAID"
-    When Đồng hồ hệ thống bước sang 00:01 ngày 11/10/2026 và Cron Worker kích hoạt
-    Then Hệ thống tự động cập nhật trạng thái hóa đơn thành "OVERDUE"
-    And Ghi nhận sự kiện quá hạn vào lịch sử tài khoản căn hộ
-    And Gửi thông báo nhắc nợ màu đỏ tới tài khoản của chủ hộ căn hộ 0504
+  Scenario: Automatically flag overdue balances after payment cutoff (Happy Path)
+    Given Invoice "INV-202609-0504" has due date "10/10/2026" and status "UNPAID"
+    When Clock strikes 00:01 on 11/10/2026 and Cron Worker executes
+    Then System updates invoice status to "OVERDUE"
+    And Dispatches an overdue notification to the resident account
   ```
 - **Traceability:** `UC-FIN-06` | `invoices` | Worker Daemon
 
 ---
 
-## 7. EPIC-05: Tiếp nhận Phản ánh & Xử lý Kỹ thuật SLA
+## 7. EPIC-05: Incident Maintenance & SLA Defect Tracking
 
-Quy trình khép kín từ khi cư dân gửi phản ánh hỏng hóc, điều phối kỹ thuật viên chuyên ngành, nghiệm thu hiện trường bằng ảnh chụp, cho đến cơ chế tự động leo thang cảnh báo khi vi phạm thời gian cam kết SLA.
+Complete lifecycle for reporting resident maintenance issues, assigning field technicians, verifying photo proofs, and escalating SLA breaches.
 
-### US-TKT-01: Cư dân Gửi Phản ánh Sự cố kèm Hình ảnh Hiện trường
-- **Mô tả:**  
-  *Là một* **Cư dân (`ACT-RES`)**,  
-  *Tôi muốn* gửi phiếu yêu cầu sửa chữa (điện, nước, thang máy, vệ sinh) kèm tiêu đề, mô tả và tối đa 3 ảnh chụp thực tế,  
-  *Để* Ban Quản lý nắm bắt trực quan mức độ khẩn cấp và cử kỹ thuật viên xử lý kịp thời.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Phục vụ trực tiếp cư dân | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-TKT-01: Resident Defect Reporting with Photographic Evidence
+- **User Story:**  
+  *As a* **Resident (`ACT-RES`)**,  
+  *I want to* submit a repair request (electrical, plumbing, carpentry) with description and up to 3 defect photos,  
+  *So that* management can evaluate urgency and assign the proper technician.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Direct service | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Cư dân gửi phiếu báo hỏng thành công (Happy Path)
-    Given Cư dân đã đăng nhập và đang mở form "Gửi phản ánh mới" tại "/phan-anh-va-yeu-cau"
-    When Cư dân chọn khu vực "Trong căn hộ", Loại sự cố "Điện (ELECTRICAL)"
-    And Nhập tiêu đề "Chập attomat phòng khách", Mô tả chi tiết "Bật cầu dao bị nhảy liên tục kèm mùi khét"
-    And Tải lên 2 ảnh chụp vị trí bảng điện
-    And Bấm nút "Gửi phản ánh"
-    Then Hệ thống lưu bản ghi mới vào bảng "feedbacks" với trạng thái "PENDING"
-    And Đặt mức độ ưu tiên mặc định là "HIGH" do có nguy cơ chập cháy
-    And Tính toán hạn hoàn thành SLA mục tiêu (Target SLA = Thời điểm nộp + 4 giờ)
-    And Hiển thị thông báo "Phiếu sự cố đã được gửi thành công, mã phiếu #TKT-1082"
+  Scenario: Resident submits defect report with photos (Happy Path)
+    Given The resident is authenticated at "/phan-anh-va-yeu-cau"
+    When Resident selects Category "Electrical", Title "Circuit breaker tripping"
+    And Uploads 2 photos of the electrical panel
+    And Clicks "Submit Request"
+    Then A record is inserted into "feedbacks" with status "PENDING"
+    And Sets SLA target resolution deadline (Target SLA = Submission time + 4 hours for URGENT)
+    And Displays confirmation "Ticket #TKT-1082 submitted successfully"
   ```
 - **Traceability:** `UC-SRV-01` | `feedbacks`, `feedback_updates` | `/phan-anh-va-yeu-cau`
 
 ---
 
-### US-TKT-02: Phân công Kỹ thuật viên & Tiếp nhận Hiện trường
-- **Mô tả:**  
-  *Là một* **Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* chuyển giao phiếu sự cố cho Kỹ thuật viên có chuyên môn phù hợp (Điện / Nước / Mộc / Sơn),  
-  *Để* kỹ thuật viên nhận thông báo và di chuyển tới hiện trường xử lý.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tối ưu phân công | `E`: Có | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-TKT-02: Technician Dispatch & Task Intake
+- **User Story:**  
+  *As a* **Building Manager (`ACT-MGR`)**,  
+  *I want to* assign a pending ticket to a qualified technician based on specialty,  
+  *So that* the technician receives a push alert and proceeds to the site.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Optimized dispatch | `E`: Yes | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Phân công kỹ thuật viên tiếp nhận phiếu (Happy Path)
-    Given Phiếu sự cố "#TKT-1082" đang ở trạng thái "PENDING"
-    When Ban Quản lý chọn kỹ thuật viên "Trần Văn Thợ" (chuyên ngành Điện) và bấm "Giao việc"
-    Then Trạng thái phiếu chuyển thành "PROCESSING"
-    And Gán `assigned_to` trỏ đến ID người dùng của "Trần Văn Thợ"
-    And Tạo một dòng cập nhật trong bảng "feedback_updates" ghi nhận lịch sử điều phối
-    And Kỹ thuật viên nhận được thông báo đẩy trên thiết bị làm việc
+  Scenario: Dispatch technician to service ticket (Happy Path)
+    Given Ticket "#TKT-1082" has status "PENDING"
+    When Manager assigns technician "Tran Van Tho" (Electrician)
+    Then Ticket status transitions to "PROCESSING"
+    And `assigned_to` is updated to the technician's user ID
+    And An audit entry is appended to "feedback_updates"
+    And Technician receives a notification on their mobile interface
   ```
 - **Traceability:** `UC-SRV-02` | `feedbacks`, `feedback_updates` | `/phan-anh-va-yeu-cau`
 
 ---
 
-### US-TKT-03: Kỹ thuật viên Nghiệm thu, Chụp ảnh Hoàn thành & Đóng Phiếu
-- **Mô tả:**  
-  *Là một* **Kỹ thuật viên (`ACT-TECH`)**,  
-  *Tôi muốn* cập nhật kết quả xử lý thực tế, tải lên ảnh chụp sau khi sửa chữa và gửi nghiệm thu đóng phiếu,  
-  *Để* hoàn tất công việc, minh bạch vật tư thay thế và lưu hồ sơ bảo hành kỹ thuật.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Minh bạch chất lượng | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-TKT-03: Work Completion Inspection & Photographic Proof Upload
+- **User Story:**  
+  *As a* **Technician (`ACT-TECH`)**,  
+  *I want to* record notes on parts replaced, upload completion photos, and mark the ticket resolved,  
+  *So that* the repair is documented and resident satisfaction can be evaluated.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Transparency | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Kỹ thuật viên hoàn tất sửa chữa và đóng phiếu (Happy Path)
-    Given Kỹ thuật viên đang xử lý phiếu sự cố "#TKT-1082"
-    When Kỹ thuật viên nhập ghi chú xử lý: "Đã thay mới attomat tép Panasonic 32A"
-    And Tải lên 1 ảnh chụp attomat mới đã hoạt động bình thường
-    And Bấm nút "Hoàn thành xử lý"
-    Then Trạng thái phiếu trong "feedbacks" chuyển thành "RESOLVED"
-    And Lưu `resolved_at = NOW()`
-    And Cư dân nhận được thông báo yêu cầu đánh giá độ hài lòng (1 đến 5 sao)
+  Scenario: Technician marks ticket resolved with photo proof (Happy Path)
+    Given Technician is working on ticket "#TKT-1082"
+    When Technician enters resolution notes: "Replaced 32A breaker with Panasonic unit"
+    And Uploads 1 photo of the functional breaker
+    And Clicks "Complete Repair"
+    Then Ticket status in "feedbacks" transitions to "RESOLVED" with `resolved_at = NOW()`
+    And Resident receives a notification requesting a 1-to-5 star rating
   ```
 - **Traceability:** `UC-SRV-03`, `UC-SRV-05` | `feedbacks`, `feedback_updates` | `/phan-anh-va-yeu-cau`
 
 ---
 
-### US-TKT-04: Giám sát Hạn xử lý & Tự động Leo thang Vi phạm SLA (SLA Escalation)
-- **Mô tả:**  
-  *Là một* **Trưởng Ban Quản lý (`ACT-MGR`)**,  
-  *Tôi muốn* hệ thống tự động phát hiện các phiếu sự cố chưa được tiếp nhận quá 2 giờ hoặc chưa giải quyết xong quá thời hạn cam kết SLA,  
-  *Để* tự động gửi cảnh báo khẩn cấp (Escalation Alert) cho Trưởng bộ phận can thiệp điều phối bổ sung.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Giữ chuẩn chất lượng | `E`: Có | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-TKT-04: Automated SLA Breach Monitoring & Emergency Escalation
+- **User Story:**  
+  *As a* **Facility Operations Head (`ACT-MGR`)**,  
+  *I want* the system to detect unassigned tickets exceeding 60 minutes or unresolved tickets violating SLA limits,  
+  *So that* emergency escalation alerts are routed to management for intervention.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Preserves SLA quality | `E`: Yes | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tự động cảnh báo leo thang khi quá hạn tiếp nhận xử lý (SLA Escalation)
-    Given Phiếu sự cố mức ưu tiên "URGENT" được tạo lúc 08:00 với cam kết SLA tiếp nhận là 60 phút
-    When Đến 09:05 trạng thái phiếu vẫn đang là "PENDING" (chưa ai tiếp nhận)
-    Then Cron Watchdog phát hiện vi phạm SLA
-    And Đổi cờ cảnh báo của phiếu sang "SLA_BREACHED"
-    And Đẩy thông báo khẩn cấp tới điện thoại của Trưởng ban quản lý
-    And Thẻ phiếu trên bảng Kanban tự động nhấp nháy viền đỏ kèm icon cảnh báo nguy hiểm
+  Scenario: Auto-escalate urgent ticket violating SLA target (SLA Escalation Twin)
+    Given An URGENT ticket was submitted at 08:00 with a 60-minute assignment SLA
+    When At 09:05 the ticket remains in "PENDING" status
+    Then The SLA Watchdog flags the ticket as "SLA_BREACHED"
+    And An emergency push alert is dispatched to the Operations Head
+    And The ticket card on the Kanban board flashes a red warning border
   ```
 - **Traceability:** `UC-SRV-04` | `feedbacks` | Cron Watchdog
 
 ---
 
-## 8. EPIC-06: Quản trị Hệ thống, Phân quyền RBAC & Biểu phí
+## 8. EPIC-06: Administration, 4-Tier RBAC & Tariffs
 
-Quản trị người dùng, phân quyền truy cập 4 cấp độ bảo mật, cấu hình biểu phí dịch vụ và bảo đảm an toàn dữ liệu thông qua nhật ký kiểm toán bất biến.
+Manages system user credentials, enforces 4-tier Role-Based Access Control, manages utility tariff configurations, and maintains immutable audit logs.
 
-### US-ADM-01: Quản lý Tài khoản & Phân quyền Truy cập 4 Cấp (RBAC Enforcement)
-- **Mô tả:**  
-  *Là một* **Quản trị viên Hệ thống (`ACT-ADM`)**,  
-  *Tôi muốn* tạo tài khoản và phân bổ chính xác vai trò hệ thống (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`),  
-  *Để* bảo đảm mỗi người dùng chỉ có thể truy cập đúng dữ liệu và thực thi đúng quyền hạn chức năng được giao.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: An ninh tối cao | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-ADM-01: 4-Tier Role-Based Access Control Enforcement
+- **User Story:**  
+  *As a* **System Administrator (`ACT-ADM`)**,  
+  *I want to* manage user accounts and assign roles (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`),  
+  *So that* users are restricted to authorized operational boundaries.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Security core | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Chặn người dùng có vai trò RESIDENT truy cập trang kế toán (RBAC Guard)
-    Given Người dùng đăng nhập bằng tài khoản có vai trò "RESIDENT"
-    When Người dùng cố tình gõ trực tiếp URL "/cai-dat/bieu-phi" trên thanh địa chỉ trình duyệt
-    Then Next.js Middleware chặn đứng yêu cầu trước khi render
-    And Chuyển hướng người dùng về trang báo lỗi 403 Forbidden kèm thông báo: "Bạn không có quyền truy cập khu vực quản trị cấu hình"
+  Scenario: Block resident from accessing administrative tariff configuration (RBAC Guard)
+    Given User is authenticated with role "RESIDENT"
+    When User navigates directly to "/cai-dat/bieu-phi"
+    Then Next.js Middleware blocks the request
+    And Redirects to a 403 Forbidden page: "You do not have permission to access system configuration"
   ```
 - **Traceability:** `UC-ADM-01` | `users` | Middleware Security
 
 ---
 
-### US-ADM-02: Cấu hình Biểu phí Lũy tiến Điện, Nước & Đơn giá Dịch vụ
-- **Mô tả:**  
-  *Là một* **Quản trị viên Hệ thống (`ACT-ADM`)**,  
-  *Tôi muốn* cập nhật bảng giá định mức dịch vụ chung cư và các bậc thang lũy tiến điện nước,  
-  *Để* hệ thống tính toán chính xác số tiền phải thu khi Nhà nước hoặc Hội nghị nhà chung cư thay đổi đơn giá.
-- **Ước lượng:** 5 Story Points (Medium)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tính linh hoạt biểu phí | `E`: Có | `S`: 2 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-ADM-02: Progressive Utility Tariff & Unit Fee Configuration
+- **User Story:**  
+  *As a* **System Administrator (`ACT-ADM`)**,  
+  *I want to* configure progressive power/water price brackets and management fee rates,  
+  *So that* the calculation engine reflects updated municipal or building council decisions.
+- **Estimate:** 5 Story Points (Medium)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Financial agility | `E`: Yes | `S`: 2 days | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Cập nhật đơn giá phí dịch vụ quản lý căn hộ (Happy Path)
-    Given Đơn giá phí quản lý hiện tại là 12.000 VNĐ/m²/tháng
-    When Quản trị viên cập nhật đơn giá mới là 13.500 VNĐ/m²/tháng có hiệu lực từ ngày "01/10/2026"
-    Then Hệ thống lưu đơn giá mới vào bảng "fee_types" kèm ngày áp dụng `effective_from`
-    And Các hóa đơn của kỳ tháng 9 (trước ngày 01/10) vẫn giữ nguyên đơn giá cũ 12.000 VNĐ/m²
-    And Đợt phát hành hóa đơn kỳ tháng 10 trở đi sẽ tự động nhân theo đơn giá mới 13.500 VNĐ/m²
+  Scenario: Update management fee unit rate (Happy Path)
+    Given Current management fee rate is 12,000 VND/m²/month
+    When Admin updates rate to 13,500 VND/m²/month effective from "01/10/2026"
+    Then System updates "fee_types" with `effective_from = '2026-10-01'`
+    And Invoices generated before 01/10 retain the 12,000 VND rate
+    And Invoices generated after 01/10 apply the 13,500 VND rate
   ```
 - **Traceability:** `UC-ADM-03` | `fee_types` | `/cai-dat`
 
 ---
 
-### US-ADM-03: Nhật ký Kiểm toán Hệ thống (Audit Trail) & Truy vết Rủi ro
-- **Mô tả:**  
-  *Là một* **Quản trị viên Hệ thống (`ACT-ADM`)**,  
-  *Tôi muốn* xem nhật ký kiểm toán ghi nhận mọi thao tác nhạy cảm (xóa cư dân, đổi chủ hộ, duyệt miễn giảm tiền, sửa nốt đỗ xe),  
-  *Để* phát hiện kịp thời các hành vi gian lận và phục vụ công tác thanh tra khi có sự cố dữ liệu.
-- **Ước lượng:** 3 Story Points (Small)
-- **Đánh giá INVEST:** `I`: Có | `N`: Có | `V`: Tuân thủ an toàn thông tin | `E`: Có | `S`: 1 ngày | `T`: Có
-- **Tiêu chí Nghiệm thu (Acceptance Criteria):**
+### US-ADM-03: Immutable Security Audit Logging
+- **User Story:**  
+  *As a* **System Administrator (`ACT-ADM`)**,  
+  *I want* an immutable audit log recording all sensitive mutations (deleting vehicles, changing household heads, granting fee waivers),  
+  *So that* internal fraud can be detected and compliance audits verified.
+- **Estimate:** 3 Story Points (Small)
+- **INVEST Evaluation:** `I`: Yes | `N`: Yes | `V`: Compliance integrity | `E`: Yes | `S`: 1 day | `T`: Yes
+- **Acceptance Criteria (Gherkin):**
   ```gherkin
-  Scenario: Tự động ghi nhật ký kiểm toán khi thay đổi thông tin quan trọng
-    Given Cán bộ Ban Quản lý thực hiện thao tác xóa một phương tiện khỏi hệ thống
-    When Thao tác được lưu thành công vào CSDL
-    Then Hệ thống tự động chèn một bản ghi Audit Log bất biến:
-      | Trường dữ liệu | Giá trị ghi nhận |
-      | Actor ID | ID của Cán bộ thực hiện |
-      | Hành động | DELETE_VEHICLE |
-      | Đối tượng tác động | Biển số xe "30E-123.45" |
-      | Địa chỉ IP | IP của người dùng gửi yêu cầu |
-      | Thời điểm | Timestamp chính xác đến millisecond |
+  Scenario: Automatically record audit trail on sensitive mutation
+    Given A manager de-registers a vehicle from the system
+    When The transaction commits in the database
+    Then System inserts an immutable record into "audit_logs":
+      | Field | Value |
+      | Actor ID | Manager User ID |
+      | Action Code | DELETE_VEHICLE |
+      | Target Entity | Plate "30E-123.45" |
+      | Client IP | Authenticated Remote IP |
+      | Timestamp | Millisecond-precision Timestamp |
   ```
 - **Traceability:** `UC-ADM-04` | Audit Log / DB Trigger | `/cai-dat`
 
 ---
 
-## 9. Ma trận Đánh giá Tiêu chuẩn INVEST Toàn diện
+## 9. Comprehensive INVEST Compliance Scorecard
 
-Bảng đánh giá kiểm chứng 100% các User Stories thỏa mãn trọn vẹn 6 tiêu chí **INVEST**:
+Summary verification table confirming that 100% of the User Stories meet all 6 **INVEST** criteria:
 
-| Mã User Story | Tiêu đề Tóm tắt | I (Độc lập) | N (Thương lượng) | V (Giá trị) | E (Ước tính) | S (Quy mô) | T (Kiểm thử) | Điểm Story Points | Kết luận Đạt chuẩn |
+| Story ID | Story Title | I | N | V | E | S (Duration) | T | Story Points | Status |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `US-APT-01` | Tra cứu danh bạ căn hộ | ✅ | ✅ | ✅ | ✅ | ✅ (3d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-APT-02` | Tiếp nhận căn hộ & chủ mới | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-APT-03` | Chuyển giao quyền sở hữu | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-RES-01` | Thêm nhân khẩu & xác minh CCCD | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-RES-02` | Chuyển giao vai trò chủ hộ | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-RES-03` | Khai báo tạm trú/tạm vắng online | ✅ | ✅ | ✅ | ✅ | ✅ (1.5d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-RES-04` | Duyệt hồ sơ cư trú số hóa | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-VEH-01` | Đăng ký xe & kiểm tra Quota | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-VEH-02` | Cấp nốt đỗ xe bằng Pessimistic Lock | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-VEH-03` | Kích hoạt thẻ từ RFID bãi xe | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-VEH-04` | Hủy xe & giải phóng nốt đỗ | ✅ | ✅ | ✅ | ✅ | ✅ (1.5d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-BIL-01` | Ghi chỉ số & cảnh báo bất thường | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-BIL-02` | Động cơ chốt hóa đơn hàng tháng | ✅ | ✅ | ✅ | ✅ | ✅ (3d) | ✅ | **8 SP** | **ĐẠT CHUẨN** |
-| `US-BIL-03` | Tạo mã VietQR động Napas 247 | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-BIL-04` | Webhook IPN & gạch nợ tức thời | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-BIL-05` | Quét hóa đơn quá hạn tự động | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-TKT-01` | Cư dân gửi phản ánh kèm ảnh | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-TKT-02` | Điều phối kỹ thuật viên tiếp nhận | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-TKT-03` | Kỹ thuật nghiệm thu & đóng phiếu | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-TKT-04` | Cảnh báo vi phạm cam kết SLA | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
-| `US-ADM-01` | Quản lý người dùng & phân quyền RBAC | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-ADM-02` | Cấu hình biểu phí & định mức | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **ĐẠT CHUẨN** |
-| `US-ADM-03` | Nhật ký kiểm toán an toàn hệ thống | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **ĐẠT CHUẨN** |
+| `US-APT-01` | Search apartment directory | ✅ | ✅ | ✅ | ✅ | ✅ (3d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-APT-02` | Onboard apartment & legal owner | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-APT-03` | Ownership transfer & title chain | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-RES-01` | Add member & verify Citizen ID | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-RES-02` | Household head successor handover | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-RES-03` | Online stay declaration | ✅ | ✅ | ✅ | ✅ | ✅ (1.5d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-RES-04` | Digital dossier police endorsement | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-VEH-01` | Register vehicle & enforce quota | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-VEH-02` | Pessimistic lock slot reservation | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-VEH-03` | Provision RFID access card | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-VEH-04` | Revoke vehicle & release slot | ✅ | ✅ | ✅ | ✅ | ✅ (1.5d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-BIL-01` | Utility meters & anomaly detection | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-BIL-02` | Month-end batch invoicing engine | ✅ | ✅ | ✅ | ✅ | ✅ (3d) | ✅ | **8 SP** | **COMPLIANT** |
+| `US-BIL-03` | Dynamic VietQR Napas 247 session | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-BIL-04` | Asynchronous IPN webhook settlement | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-BIL-05` | Automated overdue debt audit | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-TKT-01` | Resident defect report with photos | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-TKT-02` | Technician dispatch & intake | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-TKT-03` | Resolution inspection & photo proof | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-TKT-04` | Automated SLA breach escalation | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
+| `US-ADM-01` | 4-tier RBAC security enforcement | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-ADM-02` | Utility tariff configuration | ✅ | ✅ | ✅ | ✅ | ✅ (2d) | ✅ | **5 SP** | **COMPLIANT** |
+| `US-ADM-03` | Immutable security audit logging | ✅ | ✅ | ✅ | ✅ | ✅ (1d) | ✅ | **3 SP** | **COMPLIANT** |
 
 ---
 
-## 10. Ma trận Truy vết Hai chiều (Requirements Traceability Matrix)
+## 10. Bidirectional Requirements Traceability Matrix
 
-| User Story ID | Use Case Tương ứng | Bảng Cơ sở Dữ liệu Chính (3NF) | Giao diện UI Phục vụ | Thành phần C4 Component Tương tác |
+| User Story ID | Corresponding Use Case | Primary SQL Tables (3NF Schema) | Frontend View / Modal | Target C4 Component |
 | :--- | :--- | :--- | :--- | :--- |
 | `US-APT-01` | `UC-RES-04` | `apartments`, `buildings` | `/can-ho` | `ApartmentDirectoryView` $\rightarrow$ `ApartmentService` |
 | `US-APT-02` | `UC-RES-04` | `apartments`, `owners` | `/can-ho` | `ApartmentCreateModal` $\rightarrow$ `ApartmentService` |

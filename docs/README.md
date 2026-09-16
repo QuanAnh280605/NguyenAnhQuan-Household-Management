@@ -8,6 +8,8 @@ flowchart TD
     
     Invest["📋 REQUIREMENTS_INVEST.md<br/><b>Agile Requirements (INVEST)</b><br/><i>6 Epics, 22 Stories & BDD Gherkin</i>"]
     UIUX["🖥️ UI_UX_SPECIFICATION.md<br/><b>UI/UX & IA Specifications</b><br/><i>IA Tree, Screens Hierarchy & Tokens</i>"]
+    Folder["📂 FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md<br/><b>3-Tier Layering & Folders</b><br/><i>Clean Architecture, Boundaries & Boilerplate</i>"]
+    UML["🧩 DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md<br/><b>Detailed Class & Sequences</b><br/><i>3-Tier UML Classes & Method Calls</i>"]
     Arc42["📘 ARCHITECTURE_ARC42.md<br/><b>arc42 Architecture Dossier</b><br/><i>12-Section IEEE Specification</i>"]
     C4["🏛️ ARCHITECTURE_C4.md<br/><b>C4 Visual Architecture</b><br/><i>Standard Mermaid L1-L3 & Quad-Trace</i>"]
     UseCases["📋 USE_CASES.md<br/><b>Use Cases & E2E Journeys</b><br/><i>UML & Fully-Dressed Specs</i>"]
@@ -19,6 +21,8 @@ flowchart TD
 
     Hub --> Invest
     Hub --> UIUX
+    Hub --> Folder
+    Hub --> UML
     Hub --> Arc42
     Hub --> C4
     Hub --> UseCases
@@ -30,6 +34,9 @@ flowchart TD
     Invest <--> UIUX
     Invest <--> C4
     Invest <--> UseCases
+    Folder <--> UML
+    Folder <--> C4
+    UML <--> Api
     Arc42 <--> C4
     UseCases <--> Specs
     Api <--> Specs
@@ -42,6 +49,8 @@ flowchart TD
     style Hub fill:#1e293b,stroke:#0f172a,color:#f8fafc
     style Invest fill:#059669,stroke:#047857,color:#ecfdf5
     style UIUX fill:#0284c7,stroke:#0369a1,color:#f0f9ff
+    style Folder fill:#d97706,stroke:#b45309,color:#fffbeb
+    style UML fill:#7c3aed,stroke:#6d28d9,color:#f5f3ff
     style Arc42 fill:#1e40af,stroke:#1d4ed8,color:#eff6ff
     style C4 fill:#1e40af,stroke:#1d4ed8,color:#eff6ff
     style UseCases fill:#0d9488,stroke:#0f766e,color:#f0fdfa
@@ -71,9 +80,9 @@ Select the reading path tailored to your role, perspective, and available time:
 > **Goal:** Master the codebase layout, folder organization, architectural layering, and engineering conventions.
 
 - ➡️ **[../README.md](../README.md)**: Local development setup with Next.js and Docker.
+- ➡️ **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)**: 3-Tier Layering architecture, physical folder layout, strict boundary rules, and boilerplate code skeletons.
+- ➡️ **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)**: UML class diagrams and method-level sequence diagrams across the 3 tiers.
 - ➡️ **[UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md)**: Information Architecture tree, screens hierarchy, and reusable component tokens.
-- ➡️ **[ARCHITECTURE_ARC42.md §5.3](ARCHITECTURE_ARC42.md#53-target-code-structure)**: Physical source code structure (`src/app`, `src/lib/services`, `src/lib/db`).
-- ➡️ **[ARCHITECTURE_C4.md §3](ARCHITECTURE_C4.md#3-c4-component-diagram---level-3)**: Level 3 Frontend Presentation components and Backend domain services.
 - ➡️ **[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**: Standard REST endpoints, Next.js Server Actions, RFC 7807 error catalog, and RBAC matrix.
 - ➡️ **[UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md)**: Field-by-field UI-to-database mapping and query contracts.
 
@@ -83,6 +92,7 @@ Select the reading path tailored to your role, perspective, and available time:
 
 - ➡️ **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**: Complete 12-section IEEE 42010 architectural dossier.
 - ➡️ **[ARCHITECTURE_C4.md §4 & §7](ARCHITECTURE_C4.md#4-c4-dynamic-diagrams---runtime-view--failure-twins)**: Real-time runtime sequences, Failure Twins, and Quad-Traceability Matrix.
+- ➡️ **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)**: In-depth UML class models, method signatures, and concurrency pessimistic locking sequences.
 - ➡️ **[API_DOCUMENTATION.md §5 & §6](API_DOCUMENTATION.md#5-external-ingress--webhook-specifications)**: VietQR IPN Webhooks, idempotency checks, and API failure twins.
 - ➡️ **[ARCHITECTURE_ARC42.md §9 & §12](ARCHITECTURE_ARC42.md#9-architecture-decisions-adr-index)**: Architectural Decision Records (ADR Index) and automated CI Fitness Functions.
 
@@ -117,6 +127,8 @@ Select the reading path tailored to your role, perspective, and available time:
 
 | Document | Focus Area | Target Audience | Primary Contents |
 | :--- | :--- | :--- | :--- |
+| **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | **3-Tier Layering & Folder Architecture** | Fullstack & Backend Devs | • Physical folder breakdown (Frontend & Backend)<br/>• 4 Strict Layer Boundary Rules<br/>• Pipeline data flow & RFC 7807 error mapper<br/>• Complete boilerplate code skeleton (VietQR flow) |
+| **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)** | **Detailed UML Class & Sequence Models** | Backend Devs, Architects, QA | • 4 Subsystem UML Class Diagrams across 3 Tiers<br/>• Method signatures & parameter types<br/>• **4 Method-level Sequence Diagrams (VietQR, Lock, CCCD, Batch)**<br/>• Method Traceability Matrix |
 | **[REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md)** | **Agile Requirements (INVEST & BDD)** | POs, BAs, QA, Developers | • 6 Epics covering 100% of business domains<br/>• 22 User Stories with INVEST scorecards<br/>• BDD Acceptance Criteria (*Given-When-Then*)<br/>• Requirements Traceability Matrix |
 | **[UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md)** | **Information Architecture & UI/UX** | UI/UX Designers, Frontend Devs, POs | • 4 IA systems (Organization, Labeling, Nav, Search)<br/>• Comprehensive Mermaid IA Tree diagram<br/>• 4-level Screens Hierarchy & Transition Matrix<br/>• Design Tokens & 5 Core UI States |
 | **[USE_CASES.md](USE_CASES.md)** | **Use Cases & E2E Journeys** | POs, BAs, QA, Fullstack | • Actor & Trigger taxonomy (HTTP, Cron, Webhook)<br/>• 4 UML Subsystem Use Case Diagrams<br/>• **4 End-to-End Journeys (Move-in, Billing, SLA, Move-out)**<br/>• 6 Fully-Dressed Use Case Specs with Failure Twins<br/>• Use Case $\leftrightarrow$ UI $\leftrightarrow$ Service $\leftrightarrow$ DB Traceability |

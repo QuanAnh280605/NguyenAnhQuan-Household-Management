@@ -86,9 +86,11 @@ For the visual System Context diagram and catalog, refer to **[ARCHITECTURE_C4.m
 
 Detailed visual specification and catalog in **[ARCHITECTURE_C4.md §2](ARCHITECTURE_C4.md#2-c4-container-diagram---level-2)**.
 
-### 5.2. C4 Level 3 — Components
+### 5.2. C4 Level 3 — Components & 3-Tier Layering
 
-Modular breakdown of the Next.js 16 application server in **[ARCHITECTURE_C4.md §3](ARCHITECTURE_C4.md#3-c4-component-diagram---level-3)**.
+- **C4 Component Specification**: Modular breakdown of Frontend SPA and Next.js 16 application server in **[ARCHITECTURE_C4.md §3](ARCHITECTURE_C4.md#3-c4-component-diagram---level-3)**.
+- **Physical 3-Tier Folder Architecture**: Strict layer boundaries, repository patterns, and code skeletons in **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)**.
+- **Detailed UML Class & Sequence Models**: Class diagrams and method-level runtime call flows across Presentation, Business Logic, and Data Access tiers in **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)**.
 
 ### 5.3. Target Code Structure
 
