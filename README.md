@@ -8,7 +8,9 @@
 [![Tech Stack](https://img.shields.io/badge/Stack-Next.js%2019%20%7C%20TypeScript%20%7C%20Tailwind-blue)](README.md)
 [![Architecture: Arc42](https://img.shields.io/badge/Architecture-Arc42%20Standard-indigo)](docs/ARCHITECTURE_ARC42.md)
 [![Visualisation: C4 Model](https://img.shields.io/badge/Visualisation-C4%20Model-teal)](docs/ARCHITECTURE_C4.md)
-[![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](database/schema.dbml)
+[![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
+[![OpenAPI 3.0](https://img.shields.io/badge/OpenAPI-3.0.3%20Swagger-green)](docs/openapi.yaml)
+[![Swagger UI](https://img.shields.io/badge/Swagger%20UI-Interactive%20Console-blue)](/api-docs)
 [![API Specs](https://img.shields.io/badge/API-REST%20%2B%20Server%20Actions-purple)](docs/API_DOCUMENTATION.md)
 [![Architecture](https://img.shields.io/badge/Specs-RBAC%20%2B%20State%20Machines-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
 [![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20Aligned-brightgreen)](docs/UI_DATABASE_MAPPING.md)
@@ -46,8 +48,9 @@ flowchart LR
 | Dimension | Specification | Notes |
 | :--- | :--- | :--- |
 | **Functional Scope** | **7 Core Modules** | Buildings, Households, Residents, Stay Tracking, Vehicles, Invoices, Feedbacks |
-| **Database Architecture** | **14 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
-| **Data Definition** | **DBML + SQL DDL** | [`database/schema.dbml`](database/schema.dbml) and [`schema.sql`](schema.sql) |
+| **Database Architecture** | **18 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
+| **Data Definition** | **DBML + SQL DDL + ERD** | [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md), [`database/schema.dbml`](database/schema.dbml) and [`schema.sql`](schema.sql) |
+| **API Specifications** | **OpenAPI 3.0.3 + Swagger UI** | [`docs/openapi.yaml`](docs/openapi.yaml) and interactive console at [`/api-docs`](/api-docs) |
 | **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level data isolation |
 | **Frontend Stack** | **Next.js (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS |
 | **Traceability** | **100% UI to Database Alignment** | Every UI field is explicitly mapped to database columns in [`docs/UI_DATABASE_MAPPING.md`](docs/UI_DATABASE_MAPPING.md) |
@@ -223,7 +226,8 @@ ResidentHub guarantees architectural cohesion between the user interface and the
 
 ## 🗄️ Database Architecture & Normalized ERD
 
-The database schema is modeled in 3NF across 14 relational tables. Inspect the interactive schema definitions:
+The database schema is modeled in 3NF across 18 relational tables. Inspect the interactive schema definitions and diagrams:
+- **Comprehensive ERD & Data Dictionary:** [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
 - **DBML Schema:** [`database/schema.dbml`](database/schema.dbml)
 - **PostgreSQL DDL:** [`schema.sql`](schema.sql)
 

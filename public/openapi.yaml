@@ -1,0 +1,1513 @@
+openapi: 3.0.3
+info:
+  title: ResidentHub REST API
+  description: |
+    # ResidentHub API Specification (OpenAPI 3.0.3)
+    Comprehensive RESTful API for building management, civil registry demographics, 
+    underground parking allocation, automated meter billing, and maintenance SLA.
+    
+    ### Architectural Standards:
+    - **Envelope & Pagination:** Standard paginated envelope (`data`, `pagination`, `correlation_id`, `timestamp`).
+    - **Error Protocol:** RFC 7807 Problem Details (`application/problem+json`).
+    - **Access Control:** 4-Tier RBAC (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`).
+    - **Concurrency & Idempotency:** Header `Idempotency-Key` for mutations and pessimistic DB locking for physical slots.
+  version: 1.0.0
+  contact:
+    name: ResidentHub Engineering Team
+    email: dev@residenthub.internal
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local Development Next.js API Server
+  - url: https://staging-api.residenthub.internal/api/v1
+    description: Staging Integration Testing Server
+  - url: https://api.residenthub.internal/api/v1
+    description: Production Cluster Gateway
+
+tags:
+  - name: Authentication
+    description: Session token issuance, JWT verification, and credential lifecycle
+  - name: Apartments
+    description: Building zoning, apartment directory, floorplans, and property ownership
+  - name: Households
+    description: Family registry (Sổ hộ khẩu) and civil demographics
+  - name: Residents
+    description: Master citizen identities, CCCD validation, and occupant directory
+  - name: ResidenceRecords
+    description: Civil movement tracking (Tạm trú, Tạm vắng, Nhập hộ, Chuyển đi)
+  - name: ParkingSlots
+    description: Basement B1/B2 parking bay reservation and RFID card allocation
+  - name: UtilityMeters
+    description: Periodic electricity and water index capture
+  - name: BillingInvoices
+    description: Month-end batch invoicing, VietQR dynamic payment sessions, and ledger auditing
+  - name: FeedbacksMaintenance
+    description: Incident reports, technician work orders, and SLA watchdog
+  - name: ExternalWebhooks
+    description: Napas 247 / VietQR asynchronous IPN callback receivers
+  - name: MediaStorage
+    description: S3 / Cloudflare R2 pre-signed upload URL generator for SLA evidence
+
+paths:
+  # ==============================================================================
+  # AUTHENTICATION
+  # ==============================================================================
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user credentials
+      description: Issues a signed JWT bearer token and sets HttpOnly session cookies.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current authenticated user profile
+      operationId: getMe
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+
+  # ==============================================================================
+  # APARTMENTS
+  # ==============================================================================
+  /apartments:
+    get:
+      tags:
+        - Apartments
+      summary: List apartments with filtering and pagination
+      operationId: listApartments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: building_id
+          in: query
+          description: Filter by building UUID
+          schema:
+            type: string
+            format: uuid
+        - name: floor
+          in: query
+          description: Filter by floor number
+          schema:
+            type: integer
+        - name: status
+          in: query
+          description: Occupancy status
+          schema:
+            type: string
+            enum: [EMPTY, RENTED, OWNER_OCCUPIED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of apartment units
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApartmentListResponse'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '403':
+          $ref: '#/components/responses/403Forbidden'
+
+  /apartments/{roomNumber}:
+    get:
+      tags:
+        - Apartments
+      summary: Get deep-dive apartment dossier
+      description: Returns ownership contracts, active household, parking slots, and billing balance.
+      operationId: getApartmentByRoom
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: roomNumber
+          in: path
+          required: true
+          description: Formatted room code (e.g., A-1205)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detailed apartment dossier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApartmentDossier'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+
+  # ==============================================================================
+  # HOUSEHOLDS & RESIDENTS
+  # ==============================================================================
+  /households:
+    post:
+      tags:
+        - Households
+      summary: Register a new household book (Sổ hộ khẩu)
+      operationId: createHousehold
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateHouseholdRequest'
+      responses:
+        '201':
+          description: Household book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseholdResponse'
+        '409':
+          description: Household already exists for apartment
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '422':
+          description: Head resident is not permanent
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /residents:
+    post:
+      tags:
+        - Residents
+      summary: Register citizen identity profile
+      operationId: createResident
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResidentRequest'
+      responses:
+        '201':
+          description: Resident profile registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidentResponse'
+        '409':
+          description: Citizen ID (CCCD) already exists
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  # ==============================================================================
+  # RESIDENCE RECORDS
+  # ==============================================================================
+  /residence-records:
+    post:
+      tags:
+        - ResidenceRecords
+      summary: Declare civil stay transition (Tạm trú, Tạm vắng, Nhập hộ)
+      operationId: createResidenceRecord
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResidenceRecordRequest'
+      responses:
+        '201':
+          description: Residence shift recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidenceRecordResponse'
+        '409':
+          description: Resident has unsettled debt or active conflicting declaration
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  # ==============================================================================
+  # PARKING & VEHICLES
+  # ==============================================================================
+  /parking-slots:
+    get:
+      tags:
+        - ParkingSlots
+      summary: Query parking slots by floor and availability
+      operationId: listParkingSlots
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: building_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: floor
+          in: query
+          description: Basement level
+          schema:
+            type: string
+            enum: [B1, B2]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [AVAILABLE, OCCUPIED, RESERVED]
+      responses:
+        '200':
+          description: List of parking slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSlotItem'
+
+  /parking-slots/{id}/reserve:
+    post:
+      tags:
+        - ParkingSlots
+      summary: Reserve parking slot and allocate RFID badge
+      description: Atomically reserves a slot via pessimistic locking (`SELECT ... FOR UPDATE`) and checks vehicle quotas.
+      operationId: reserveParkingSlot
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Parking slot UUID
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Transaction UUID preventing double allocations
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReserveParkingSlotRequest'
+      responses:
+        '200':
+          description: Parking slot allocated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveParkingSlotResponse'
+        '409':
+          description: Slot already occupied or quota exceeded
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  # ==============================================================================
+  # METERS & BILLING
+  # ==============================================================================
+  /meters/readings:
+    post:
+      tags:
+        - UtilityMeters
+      summary: Log monthly electricity or water meter readings
+      operationId: recordMeterReading
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeterReadingRequest'
+      responses:
+        '201':
+          description: Reading recorded and consumption auto-calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeterReadingResponse'
+        '422':
+          description: Negative consumption detected (current < previous)
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /billing/batch-generate:
+    post:
+      tags:
+        - BillingInvoices
+      summary: Trigger month-end batch invoice generation
+      description: Computes tiered electricity, water, management rates, and vehicle fees for all active units.
+      operationId: generateBatchInvoices
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchBillingRequest'
+      responses:
+        '200':
+          description: Batch execution summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchBillingResponse'
+        '422':
+          description: Missing meter inputs without override flag
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /invoices:
+    get:
+      tags:
+        - BillingInvoices
+      summary: List billing invoices with search and status filters
+      operationId: listInvoices
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: apartment_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: billing_month
+          in: query
+          schema:
+            type: string
+            example: '09/2026'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated invoices list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+
+  /invoices/{id}:
+    get:
+      tags:
+        - BillingInvoices
+      summary: Get invoice details with itemized charges and transactions
+      operationId: getInvoiceDetail
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detailed invoice
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDetail'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+
+  /invoices/{id}/pay-session:
+    post:
+      tags:
+        - BillingInvoices
+      summary: Generate dynamic VietQR checkout payment session
+      operationId: createPaySession
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Active VietQR payment session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VietQrPaySessionResponse'
+        '404':
+          $ref: '#/components/responses/404NotFound'
+
+  # ==============================================================================
+  # FEEDBACKS & MAINTENANCE
+  # ==============================================================================
+  /feedbacks:
+    get:
+      tags:
+        - FeedbacksMaintenance
+      summary: List resident service and maintenance tickets
+      operationId: listFeedbacks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH, URGENT]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [NOISE, REPAIR, CLEANING, SECURITY, OTHER]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of feedback tickets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackListResponse'
+
+    post:
+      tags:
+        - FeedbacksMaintenance
+      summary: Submit a new repair ticket or resident complaint
+      operationId: createFeedback
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackItem'
+
+  /feedbacks/{id}/status:
+    patch:
+      tags:
+        - FeedbacksMaintenance
+      summary: Update ticket status and append technician progress log
+      operationId: updateFeedbackStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeedbackStatusRequest'
+      responses:
+        '200':
+          description: Ticket status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackUpdateResponse'
+
+  # ==============================================================================
+  # EXTERNAL INGRESS & WEBHOOKS
+  # ==============================================================================
+  /webhooks/vietqr:
+    post:
+      tags:
+        - ExternalWebhooks
+      summary: Asynchronous Napas 247 Instant Payment Notification (IPN)
+      description: Verified via HMAC-SHA256 signature in `X-Signature-SHA256` header.
+      operationId: handleVietQrWebhook
+      security:
+        - WebhookSignature: []
+      parameters:
+        - name: X-Signature-SHA256
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VietQRWebhookPayload'
+      responses:
+        '200':
+          description: Webhook acknowledged and ledger updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookAcknowledgeResponse'
+        '400':
+          description: Invalid payload or signature mismatch
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /media/pre-signed-url:
+    post:
+      tags:
+        - MediaStorage
+      summary: Request pre-signed S3 / Cloudflare R2 upload URL
+      operationId: getPreSignedUrl
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreSignedUrlRequest'
+      responses:
+        '200':
+          description: Upload endpoint generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreSignedUrlResponse'
+
+# ==============================================================================
+# COMPONENTS & SCHEMAS
+# ==============================================================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter standard JWT token issued by `/auth/login`.
+    WebhookSignature:
+      type: apiKey
+      in: header
+      name: X-Signature-SHA256
+      description: HMAC-SHA256 signature generated with the shared webhook secret.
+
+  responses:
+    400BadRequest:
+      description: Invalid request payload or parameters
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    401Unauthorized:
+      description: Missing or expired authentication token
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    403Forbidden:
+      description: Insufficient privileges under RBAC policy
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    404NotFound:
+      description: Requested resource was not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+  schemas:
+    # RFC 7807 Error Envelope
+    ProblemDetails:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - code
+        - timestamp
+      properties:
+        type:
+          type: string
+          format: uri
+          example: 'https://residenthub.internal/errors/invalid-payload'
+        title:
+          type: string
+          example: 'Validation Failed'
+        status:
+          type: integer
+          example: 400
+        detail:
+          type: string
+          example: 'The submitted request payload failed schema validation.'
+        instance:
+          type: string
+          example: '/api/v1/apartments'
+        code:
+          type: string
+          example: 'INVALID_PAYLOAD_SCHEMA'
+        invalid_params:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              reason:
+                type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      required:
+        - page
+        - limit
+        - total_records
+        - total_pages
+        - has_next
+        - has_prev
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total_records:
+          type: integer
+          example: 120
+        total_pages:
+          type: integer
+          example: 6
+        has_next:
+          type: boolean
+          example: true
+        has_prev:
+          type: boolean
+          example: false
+
+    # Auth DTOs
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: 'admin'
+        password:
+          type: string
+          format: password
+          example: 'SecretPassword123!'
+
+    LoginResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - user
+      properties:
+        access_token:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsIn...'
+        token_type:
+          type: string
+          example: 'Bearer'
+        expires_in:
+          type: integer
+          example: 86400
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    UserProfile:
+      type: object
+      required:
+        - id
+        - username
+        - role
+        - full_name
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: 'admin'
+        role:
+          type: string
+          enum: [ADMIN, MANAGER, TECHNICIAN, RESIDENT]
+          example: 'ADMIN'
+        full_name:
+          type: string
+          example: 'Nguyễn Quản Trị'
+        email:
+          type: string
+          format: email
+          example: 'admin@residenthub.internal'
+        resident_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Apartment DTOs
+    ApartmentItem:
+      type: object
+      required:
+        - id
+        - room_number
+        - floor
+        - area
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        building_code:
+          type: string
+          example: 'TOWER_A'
+        room_number:
+          type: string
+          example: 'A-1205'
+        floor:
+          type: integer
+          example: 12
+        area:
+          type: number
+          format: float
+          example: 85.5
+        bedroom_count:
+          type: integer
+          example: 2
+        bathroom_count:
+          type: integer
+          example: 2
+        status:
+          type: string
+          enum: [EMPTY, RENTED, OWNER_OCCUPIED]
+        owner_name:
+          type: string
+          nullable: true
+          example: 'Nguyễn Văn An'
+        active_residents_count:
+          type: integer
+          example: 3
+
+    ApartmentListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApartmentItem'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    ApartmentDossier:
+      type: object
+      required:
+        - id
+        - room_number
+        - floor
+        - area
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        room_number:
+          type: string
+          example: 'A-1205'
+        floor:
+          type: integer
+          example: 12
+        area:
+          type: number
+          example: 85.5
+        status:
+          type: string
+          enum: [EMPTY, RENTED, OWNER_OCCUPIED]
+        ownership:
+          type: object
+          properties:
+            owner_id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+              example: 'Nguyễn Văn An'
+            citizen_id:
+              type: string
+              example: '001095012345'
+            ownership_type:
+              type: string
+              example: 'SOLE'
+            start_date:
+              type: string
+              format: date
+        household:
+          type: object
+          nullable: true
+          properties:
+            household_code:
+              type: string
+              example: 'HK-A1205'
+            head_name:
+              type: string
+              example: 'Nguyễn Văn An'
+            member_count:
+              type: integer
+              example: 3
+        allocated_parking_slots:
+          type: array
+          items:
+            type: string
+          example: ['B1-04']
+        unpaid_invoices_count:
+          type: integer
+          example: 0
+        outstanding_balance_vnd:
+          type: number
+          example: 0
+
+    # Household & Resident DTOs
+    CreateHouseholdRequest:
+      type: object
+      required:
+        - apartment_id
+        - head_resident_id
+        - household_code
+        - registration_date
+      properties:
+        apartment_id:
+          type: string
+          format: uuid
+        head_resident_id:
+          type: string
+          format: uuid
+        household_code:
+          type: string
+          example: 'HK-A1205'
+        registration_date:
+          type: string
+          format: date
+          example: '2026-09-01'
+
+    HouseholdResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        household_code:
+          type: string
+        apartment_id:
+          type: string
+          format: uuid
+        head_resident_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: 'ACTIVE'
+        created_at:
+          type: string
+          format: date-time
+
+    CreateResidentRequest:
+      type: object
+      required:
+        - full_name
+        - citizen_id
+        - resident_status
+      properties:
+        full_name:
+          type: string
+          example: 'Trần Thị Mai'
+        citizen_id:
+          type: string
+          example: '001198054321'
+        date_of_birth:
+          type: string
+          format: date
+          example: '1998-04-20'
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+        phone:
+          type: string
+          example: '0987654321'
+        email:
+          type: string
+          format: email
+          example: 'mai.tran@example.com'
+        hometown:
+          type: string
+          example: 'Hà Nội'
+        resident_status:
+          type: string
+          enum: [PERMANENT, TEMPORARY, ABSENT, MOVED]
+        household_id:
+          type: string
+          format: uuid
+        relationship_to_head:
+          type: string
+          example: 'VỢ'
+
+    ResidentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        citizen_id:
+          type: string
+        resident_status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Residence Record DTOs
+    CreateResidenceRecordRequest:
+      type: object
+      required:
+        - resident_id
+        - apartment_id
+        - record_type
+        - start_date
+      properties:
+        resident_id:
+          type: string
+          format: uuid
+        apartment_id:
+          type: string
+          format: uuid
+        record_type:
+          type: string
+          enum: [TAM_TRU, TAM_VANG, NHAP_HO, CHUYEN_DI]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        reason:
+          type: string
+          example: 'Thuê nhà công tác dài hạn'
+        police_verified_code:
+          type: string
+          example: 'CA-P04-2026/892'
+
+    ResidenceRecordResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: 'APPROVED'
+        record_type:
+          type: string
+          example: 'TAM_TRU'
+        created_at:
+          type: string
+          format: date-time
+
+    # Parking DTOs
+    ParkingSlotItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slot_code:
+          type: string
+          example: 'B1-04'
+        floor:
+          type: string
+          example: 'B1'
+        allowed_type:
+          type: string
+          enum: [CAR, MOTORBIKE]
+        status:
+          type: string
+          enum: [AVAILABLE, OCCUPIED, RESERVED]
+
+    ReserveParkingSlotRequest:
+      type: object
+      required:
+        - apartment_id
+        - resident_id
+        - license_plate
+        - vehicle_type
+      properties:
+        apartment_id:
+          type: string
+          format: uuid
+        resident_id:
+          type: string
+          format: uuid
+        license_plate:
+          type: string
+          example: '30K-998.89'
+        vehicle_type:
+          type: string
+          enum: [CAR, MOTORBIKE, ELECTRIC_BIKE]
+        brand_model:
+          type: string
+          example: 'Mazda CX-5'
+        color:
+          type: string
+          example: 'Trắng'
+        rfid_card_number:
+          type: string
+          example: 'RFID-B1-99889'
+
+    ReserveParkingSlotResponse:
+      type: object
+      properties:
+        vehicle_id:
+          type: string
+          format: uuid
+        allocated_slot:
+          $ref: '#/components/schemas/ParkingSlotItem'
+        rfid_card_status:
+          type: string
+          example: 'ACTIVE'
+
+    # Meter Readings DTOs
+    MeterReadingRequest:
+      type: object
+      required:
+        - apartment_id
+        - meter_type
+        - billing_period
+        - previous_reading
+        - current_reading
+      properties:
+        apartment_id:
+          type: string
+          format: uuid
+        meter_type:
+          type: string
+          enum: [WATER, ELECTRICITY]
+        billing_period:
+          type: string
+          example: '09-2026'
+        previous_reading:
+          type: number
+          example: 142.5
+        current_reading:
+          type: number
+          example: 158.0
+
+    MeterReadingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        consumption:
+          type: number
+          example: 15.5
+        recorded_at:
+          type: string
+          format: date-time
+
+    # Billing DTOs
+    BatchBillingRequest:
+      type: object
+      required:
+        - billing_month
+        - due_date
+      properties:
+        billing_month:
+          type: string
+          example: '09/2026'
+        due_date:
+          type: string
+          format: date
+          example: '2026-10-10'
+        apply_tariffs:
+          type: object
+          properties:
+            electricity_tiered:
+              type: boolean
+              default: true
+            water_tiered:
+              type: boolean
+              default: true
+            management_rate_per_sqm:
+              type: number
+              example: 12000
+
+    BatchBillingResponse:
+      type: object
+      properties:
+        billing_month:
+          type: string
+          example: '09/2026'
+        total_units_audited:
+          type: integer
+          example: 1200
+        invoices_generated:
+          type: integer
+          example: 1188
+        isolated_to_dead_letter:
+          type: integer
+          example: 12
+        total_billed_amount_vnd:
+          type: number
+          example: 2450000000
+        execution_duration_ms:
+          type: integer
+          example: 1420
+
+    InvoiceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        item_name:
+          type: string
+          example: 'Phí quản lý vận hành (85.5m² x 12.000đ)'
+        quantity:
+          type: number
+          example: 85.5
+        unit_price:
+          type: number
+          example: 12000
+        amount:
+          type: number
+          example: 1026000
+
+    InvoiceDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoice_code:
+          type: string
+          example: 'INV-202609-A1205'
+        billing_month:
+          type: string
+          example: '09/2026'
+        total_amount:
+          type: number
+          example: 2350000
+        paid_amount:
+          type: number
+          example: 0
+        due_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED]
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+
+    InvoiceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceDetail'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    VietQrPaySessionResponse:
+      type: object
+      properties:
+        invoice_id:
+          type: string
+          example: 'INV-202609-A1205'
+        qr_url:
+          type: string
+          format: uri
+          example: 'https://img.vietqr.io/image/970422-1903678999-compact2.png?amount=2350000&addInfo=INV202609A1205'
+        amount_vnd:
+          type: number
+          example: 2350000
+        bank_code:
+          type: string
+          example: '970422'
+        account_number:
+          type: string
+          example: '1903678999'
+        transfer_content:
+          type: string
+          example: 'INV202609A1205'
+        expires_at:
+          type: string
+          format: date-time
+        ttl_seconds:
+          type: integer
+          example: 900
+
+    # Feedbacks DTOs
+    CreateFeedbackRequest:
+      type: object
+      required:
+        - resident_id
+        - apartment_id
+        - title
+        - content
+      properties:
+        resident_id:
+          type: string
+          format: uuid
+        apartment_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: 'Áp lực nước yếu tại phòng vệ sinh số 2'
+        category:
+          type: string
+          enum: [NOISE, REPAIR, CLEANING, SECURITY, OTHER]
+          default: REPAIR
+        content:
+          type: string
+          example: 'Nước chảy rất yếu vào các giờ cao điểm sáng 7h-8h.'
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH, URGENT]
+          default: MEDIUM
+
+    FeedbackItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+        created_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    FeedbackListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeedbackItem'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    UpdateFeedbackStatusRequest:
+      type: object
+      required:
+        - new_status
+        - message
+      properties:
+        new_status:
+          type: string
+          enum: [OPEN, IN_PROGRESS, RESOLVED, CLOSED]
+        message:
+          type: string
+          example: 'Đã thay van giảm áp đường ống kỹ thuật tầng 12, áp lực nước đạt 2.5 bar.'
+
+    FeedbackUpdateResponse:
+      type: object
+      properties:
+        feedback_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: 'RESOLVED'
+        updated_at:
+          type: string
+          format: date-time
+
+    # Webhook & Media DTOs
+    VietQRWebhookPayload:
+      type: object
+      required:
+        - transaction_id
+        - transfer_content
+        - amount
+        - transaction_time
+      properties:
+        transaction_id:
+          type: string
+          example: 'FT26258998129031'
+        transfer_content:
+          type: string
+          example: 'INV202609A1205'
+        amount:
+          type: number
+          example: 2350000
+        bank_account:
+          type: string
+          example: '1903678999'
+        transaction_time:
+          type: string
+          format: date-time
+
+    WebhookAcknowledgeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: 'SUCCESS'
+        invoice_id:
+          type: string
+          format: uuid
+        message:
+          type: string
+          example: 'Payment reconciled and ledger settled.'
+
+    PreSignedUrlRequest:
+      type: object
+      required:
+        - file_name
+        - mime_type
+        - file_size_bytes
+      properties:
+        file_name:
+          type: string
+          example: 'proof_leak_repair.jpg'
+        mime_type:
+          type: string
+          example: 'image/jpeg'
+        file_size_bytes:
+          type: integer
+          example: 2048500
+
+    PreSignedUrlResponse:
+      type: object
+      properties:
+        upload_url:
+          type: string
+          format: uri
+        public_read_url:
+          type: string
+          format: uri
+        expires_in_seconds:
+          type: integer
+          example: 300

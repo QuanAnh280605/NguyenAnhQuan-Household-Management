@@ -2,8 +2,11 @@
 
 > **Status:** Production Specification & Living Blueprint  
 > **Audience:** Backend Engineers, Frontend Engineers, QA/SDET, Security Auditors, External Integrators  
-> **Standard:** REST/JSON, RFC 7807 Problem Details, Next.js 16 App Router Server Actions, OpenAPI 3.0 Compatible  
-> **Traceability:** Aligned with [USE_CASES.md](USE_CASES.md), [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md), and [schema.sql](../schema.sql)
+> **Standard:** REST/JSON, RFC 7807 Problem Details, Next.js 16 App Router Server Actions, OpenAPI 3.0.3  
+> **Interactive Swagger UI:** [http://localhost:3000/api-docs](/api-docs)  
+> **OpenAPI 3.0 Spec:** [docs/openapi.yaml](openapi.yaml) (or download at [/openapi.yaml](/openapi.yaml))  
+> **Database ERD & Specs:** [docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md](DATABASE_SPECIFICATION_AND_DIAGRAMS.md)  
+> **Traceability:** Aligned with [USE_CASES.md](USE_CASES.md), [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md), and [schema.sql](../schema.sql)  
 
 ---
 
