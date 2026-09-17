@@ -4,27 +4,27 @@ export default function NguoiDungPage() {
   const users = [
     {
       id: 'usr-1',
-      name: 'Nguyễn Văn An',
+      name: 'Nguyen Van An',
       email: 'an.nguyen@residenthub.vn',
-      role: 'Trưởng ban Quản lý',
-      status: 'Đang hoạt động',
-      lastLogin: 'Hôm nay, 08:15',
+      role: 'Operations Director',
+      status: 'Active',
+      lastLogin: 'Today, 08:15',
     },
     {
       id: 'usr-2',
-      name: 'Lê Thị Thu',
+      name: 'Le Thi Thu',
       email: 'thu.le@residenthub.vn',
-      role: 'Kế toán trưởng',
-      status: 'Đang hoạt động',
-      lastLogin: 'Hôm nay, 08:30',
+      role: 'Chief Accountant',
+      status: 'Active',
+      lastLogin: 'Today, 08:30',
     },
     {
       id: 'usr-3',
-      name: 'Trần Văn Mạnh',
+      name: 'Tran Van Manh',
       email: 'manh.tran@residenthub.vn',
-      role: 'Kỹ thuật viên tòa nhà',
-      status: 'Đang hoạt động',
-      lastLogin: 'Hôm qua, 17:40',
+      role: 'Facility Technician',
+      status: 'Active',
+      lastLogin: 'Yesterday, 17:40',
     },
   ];
 
@@ -33,20 +33,20 @@ export default function NguoiDungPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-space-md">
         <div className="space-y-1">
           <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-            Tài khoản Người dùng Hệ thống
+            System User Management
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Phân quyền ban quản lý, kế toán, kỹ thuật viên và nhân viên an ninh.
+            Role-based access control for building management, accounting, technicians, and security staff.
           </p>
         </div>
 
         <button
-          onClick={() => alert('Thêm người dùng mới')}
+          onClick={() => alert('Add New User Account')}
           className="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary-container text-white shadow-sm hover:bg-primary transition-colors font-label-md text-label-md font-semibold self-start sm:self-auto"
           type="button"
         >
           <span className="material-symbols-outlined text-[18px]">person_add</span>
-          <span>Tạo tài khoản mới</span>
+          <span>Create User Account</span>
         </button>
       </div>
 
@@ -55,11 +55,11 @@ export default function NguoiDungPage() {
           <table className="w-full text-left border-collapse text-sm">
             <thead>
               <tr className="bg-surface-container-low/60 border-b border-outline-variant/20 text-xs font-semibold uppercase tracking-wider text-outline">
-                <th className="py-3.5 px-4">Tên nhân sự</th>
-                <th className="py-3.5 px-4">Email đăng nhập</th>
-                <th className="py-3.5 px-4">Vai trò / Bộ phận</th>
-                <th className="py-3.5 px-4">Đăng nhập gần nhất</th>
-                <th className="py-3.5 px-4 text-right">Trạng thái</th>
+                <th className="py-3.5 px-4">Staff Name</th>
+                <th className="py-3.5 px-4">Login Email</th>
+                <th className="py-3.5 px-4">Role / Department</th>
+                <th className="py-3.5 px-4">Last Login</th>
+                <th className="py-3.5 px-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/15">

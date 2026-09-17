@@ -31,8 +31,8 @@ export default function HoDanPage() {
 
     const matchesType =
       filterType === 'ALL' ||
-      (filterType === 'PERMANENT' && hh.residenceType === 'Thường trú') ||
-      (filterType === 'TEMPORARY' && hh.residenceType === 'Tạm trú');
+      (filterType === 'PERMANENT' && (hh.residenceType === 'Permanent' || hh.residenceType === 'Thường trú')) ||
+      (filterType === 'TEMPORARY' && (hh.residenceType === 'Temporary' || hh.residenceType === 'Tạm trú'));
 
     return matchesSearch && matchesBuilding && matchesSize && matchesType;
   });
@@ -44,25 +44,25 @@ export default function HoDanPage() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-space-sm">
             <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-              Hộ dân
+              Household Records
             </h1>
             <span className="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-primary-fixed text-primary font-bold">
-              306 Hộ
+              306 Households
             </span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Quản lý danh sách các hộ gia đình gắn liền với từng căn hộ và cơ cấu nhân khẩu.
+            Comprehensive registry of residential households, family structures, and demographic records.
           </p>
         </div>
 
         <div className="flex items-center gap-space-sm self-start md:self-auto flex-wrap">
           <button
-            onClick={() => alert('Xuất báo cáo nhân khẩu Excel')}
+            onClick={() => alert('Export Demographics (Excel)')}
             className="flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface border border-outline-variant/30 shadow-sm hover:bg-surface-container-high transition-all text-body-sm font-medium"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px] text-on-surface-variant">file_download</span>
-            <span>Export báo cáo nhân khẩu</span>
+            <span>Export Demographics</span>
           </button>
           <button
             onClick={() => setShowRegisterModal(true)}
@@ -70,7 +70,7 @@ export default function HoDanPage() {
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">add_circle</span>
-            <span>Đăng ký hộ dân mới</span>
+            <span>Register Household</span>
           </button>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function HoDanPage() {
           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-primary-fixed/20 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
           <div className="flex items-center justify-between">
             <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              Tổng số hộ dân
+              Total Households
             </span>
             <span className="p-2 rounded-lg bg-surface-container text-primary material-symbols-outlined text-[20px]">
               family_restroom
@@ -90,14 +90,14 @@ export default function HoDanPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-space-sm">
             <span className="font-metric-display text-metric-display text-on-surface font-bold">306</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">hộ dân</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">households</span>
           </div>
           <div className="mt-3 flex items-center gap-2">
             <span className="inline-flex items-center gap-1 font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold">
               <span className="material-symbols-outlined text-[14px]">check_circle</span>
               95.6%
             </span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant">Tỷ lệ phủ căn hộ</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant">Occupancy Rate</span>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ export default function HoDanPage() {
           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-secondary-fixed/20 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
           <div className="flex items-center justify-between">
             <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              Quy mô trung bình
+              Average Household Size
             </span>
             <span className="p-2 rounded-lg bg-surface-container text-secondary material-symbols-outlined text-[20px]">
               groups
@@ -114,10 +114,10 @@ export default function HoDanPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-space-sm">
             <span className="font-metric-display text-metric-display text-on-surface font-bold">3.4</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">người / hộ</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">members / unit</span>
           </div>
           <div className="mt-3 flex items-center gap-2 text-on-surface-variant font-body-sm text-body-sm">
-            <span className="font-bold text-on-surface">1,040</span> cư dân thường trú hiện hành
+            <span className="font-bold text-on-surface">1,040</span> registered permanent residents
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export default function HoDanPage() {
           <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-surface-variant/40 rounded-full blur-xl pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
           <div className="flex items-center justify-between">
             <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">
-              Biến động trong tháng
+              Monthly Variations
             </span>
             <span className="p-2 rounded-lg bg-surface-container text-primary material-symbols-outlined text-[20px]">
               sync_alt
@@ -134,14 +134,14 @@ export default function HoDanPage() {
           </div>
           <div className="mt-4 flex items-baseline gap-space-sm">
             <span className="font-metric-display text-metric-display text-on-surface font-bold">7</span>
-            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">hộ phát sinh</span>
+            <span className="font-body-sm text-body-sm text-on-surface-variant font-medium">adjustments</span>
           </div>
           <div className="mt-3 flex items-center gap-3 font-label-sm text-label-sm font-semibold">
             <span className="text-secondary flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">arrow_upward</span> 4 đăng ký mới
+              <span className="material-symbols-outlined text-[14px]">arrow_upward</span> 4 new registrations
             </span>
             <span className="text-error flex items-center gap-1">
-              <span className="material-symbols-outlined text-[14px]">arrow_downward</span> 3 chuyển đi
+              <span className="material-symbols-outlined text-[14px]">arrow_downward</span> 3 departures
             </span>
           </div>
         </div>
@@ -157,55 +157,55 @@ export default function HoDanPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-surface-container-low pl-10 pr-4 py-2 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary-container transition-colors border border-transparent"
-            placeholder="Tìm theo tên chủ hộ, mã căn, số điện thoại..."
+            placeholder="Search by head of household, unit, phone number..."
             type="text"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-space-sm">
-          {/* Tòa */}
+          {/* Building */}
           <div className="relative">
             <select
               value={filterBuilding}
               onChange={(e) => setFilterBuilding(e.target.value)}
               className="appearance-none bg-surface-container-low text-on-surface font-body-sm text-body-sm px-3.5 py-2 pr-8 rounded-lg cursor-pointer outline-none hover:bg-surface-container border border-transparent"
             >
-              <option value="ALL">Tất cả Tòa</option>
-              <option value="A">Tòa Parkview A</option>
-              <option value="B">Tòa Parkview B</option>
+              <option value="ALL">All Towers</option>
+              <option value="A">Tower Parkview A</option>
+              <option value="B">Tower Parkview B</option>
             </select>
             <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">
               expand_more
             </span>
           </div>
 
-          {/* Quy mô nhân khẩu */}
+          {/* Household Size */}
           <div className="relative">
             <select
               value={filterSize}
               onChange={(e) => setFilterSize(e.target.value)}
               className="appearance-none bg-surface-container-low text-on-surface font-body-sm text-body-sm px-3.5 py-2 pr-8 rounded-lg cursor-pointer outline-none hover:bg-surface-container border border-transparent"
             >
-              <option value="ALL">Quy mô nhân khẩu</option>
-              <option value="1-2">1 - 2 người</option>
-              <option value="3-4">3 - 4 người</option>
-              <option value="5+">5+ người</option>
+              <option value="ALL">Household Size</option>
+              <option value="1-2">1 - 2 Members</option>
+              <option value="3-4">3 - 4 Members</option>
+              <option value="5+">5+ Members</option>
             </select>
             <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">
               expand_more
             </span>
           </div>
 
-          {/* Loại cư trú */}
+          {/* Stay Type */}
           <div className="relative">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
               className="appearance-none bg-surface-container-low text-on-surface font-body-sm text-body-sm px-3.5 py-2 pr-8 rounded-lg cursor-pointer outline-none hover:bg-surface-container border border-transparent"
             >
-              <option value="ALL">Loại cư trú</option>
-              <option value="PERMANENT">Thường trú</option>
-              <option value="TEMPORARY">Tạm trú</option>
+              <option value="ALL">Residence Type</option>
+              <option value="PERMANENT">Permanent</option>
+              <option value="TEMPORARY">Temporary</option>
             </select>
             <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline text-[18px] pointer-events-none">
               expand_more
@@ -220,14 +220,14 @@ export default function HoDanPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low/60 border-b border-outline-variant/20 text-xs font-semibold uppercase tracking-wider text-outline">
-                <th className="py-3.5 px-4">Mã sổ hộ khẩu</th>
-                <th className="py-3.5 px-4">Căn hộ</th>
-                <th className="py-3.5 px-4">Chủ hộ</th>
-                <th className="py-3.5 px-4">Số nhân khẩu</th>
-                <th className="py-3.5 px-4">Phương tiện</th>
-                <th className="py-3.5 px-4">Loại cư trú</th>
-                <th className="py-3.5 px-4">Ngày đăng ký</th>
-                <th className="py-3.5 px-4 text-right">Thao tác</th>
+                <th className="py-3.5 px-4">Household Book ID</th>
+                <th className="py-3.5 px-4">Unit</th>
+                <th className="py-3.5 px-4">Head of Household</th>
+                <th className="py-3.5 px-4">Members</th>
+                <th className="py-3.5 px-4">Vehicles</th>
+                <th className="py-3.5 px-4">Residence Type</th>
+                <th className="py-3.5 px-4">Registration Date</th>
+                <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/15 text-sm">
@@ -252,24 +252,24 @@ export default function HoDanPage() {
                   <td className="py-3.5 px-4">
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container font-semibold text-xs text-on-surface">
                       <span className="material-symbols-outlined text-[14px]">person</span>
-                      {hh.memberCount} người
+                      {hh.memberCount} members
                     </span>
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="inline-flex items-center gap-1 text-xs text-on-surface-variant">
                       <span className="material-symbols-outlined text-[16px] text-outline">directions_car</span>
-                      {hh.vehicleCount} xe
+                      {hh.vehicleCount} vehicles
                     </span>
                   </td>
                   <td className="py-3.5 px-4">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        hh.residenceType === 'Thường trú'
+                        hh.residenceType === 'Permanent' || hh.residenceType === 'Thường trú'
                           ? 'bg-secondary-fixed text-on-secondary-container'
                           : 'bg-blue-100 text-blue-800'
                       }`}
                     >
-                      {hh.residenceType}
+                      {hh.residenceType === 'Thường trú' ? 'Permanent' : hh.residenceType === 'Tạm trú' ? 'Temporary' : hh.residenceType}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-xs text-on-surface-variant">
@@ -280,7 +280,7 @@ export default function HoDanPage() {
                       href={`/can-ho/${hh.roomNumber}`}
                       className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-surface-container-low hover:bg-surface-container text-primary transition-colors inline-block"
                     >
-                      Xem hộ
+                      View Unit
                     </Link>
                   </td>
                 </tr>
@@ -290,7 +290,7 @@ export default function HoDanPage() {
         </div>
       </div>
 
-      {/* Modal: Đăng ký hộ dân mới */}
+      {/* Modal: Register Household */}
       {showRegisterModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest rounded-2xl max-w-lg w-full p-6 shadow-xl border border-outline-variant/30 space-y-4 animate-in fade-in zoom-in-95">
@@ -298,7 +298,7 @@ export default function HoDanPage() {
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-[24px]">family_restroom</span>
                 <h3 className="font-headline-sm text-lg font-bold text-on-surface">
-                  Đăng ký hộ gia đình mới
+                  Register New Household
                 </h3>
               </div>
               <button
@@ -312,7 +312,7 @@ export default function HoDanPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                alert('Đăng ký hộ dân thành công!');
+                alert('Household registered successfully!');
                 setShowRegisterModal(false);
               }}
               className="space-y-3"
@@ -320,7 +320,7 @@ export default function HoDanPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Căn hộ tiếp nhận *
+                    Assigned Unit *
                   </label>
                   <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none">
                     <option>A-1205</option>
@@ -332,7 +332,7 @@ export default function HoDanPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Mã sổ hộ khẩu *
+                    Household Book Code *
                   </label>
                   <input
                     required
@@ -344,11 +344,11 @@ export default function HoDanPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                  Họ tên chủ hộ *
+                  Head of Household Full Name *
                 </label>
                 <input
                   required
-                  placeholder="VD: Trần Văn Bình"
+                  placeholder="e.g. Tran Van Binh"
                   className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none"
                 />
               </div>
@@ -356,17 +356,17 @@ export default function HoDanPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số CCCD chủ hộ *
+                    Citizen ID / Passport *
                   </label>
                   <input
                     required
-                    placeholder="12 chữ số"
+                    placeholder="12 digits"
                     className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none font-mono"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số điện thoại
+                    Phone Number
                   </label>
                   <input
                     placeholder="09xx xxx xxx"
@@ -378,7 +378,7 @@ export default function HoDanPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số nhân khẩu ban đầu *
+                    Initial Member Count *
                   </label>
                   <input
                     type="number"
@@ -389,11 +389,11 @@ export default function HoDanPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Loại cư trú *
+                    Residence Type *
                   </label>
                   <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none">
-                    <option>Thường trú</option>
-                    <option>Tạm trú</option>
+                    <option>Permanent</option>
+                    <option>Temporary</option>
                   </select>
                 </div>
               </div>
@@ -404,13 +404,13 @@ export default function HoDanPage() {
                   onClick={() => setShowRegisterModal(false)}
                   className="px-4 py-2 text-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high font-medium"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm rounded-lg bg-primary-container text-white hover:bg-primary font-semibold shadow-sm"
                 >
-                  Tạo hồ sơ hộ dân
+                  Create Household Record
                 </button>
               </div>
             </form>

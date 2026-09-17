@@ -48,7 +48,7 @@ export const apartmentApi = {
     return {
       success: res.success,
       data: res.data,
-      message: res.error?.detail || 'Thực hiện thành công',
+      message: res.error?.detail || 'Operation completed successfully',
     };
   },
 };

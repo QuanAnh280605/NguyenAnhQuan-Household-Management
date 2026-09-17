@@ -31,92 +31,92 @@ export function Sidebar() {
           </div>
           <div className="flex flex-col justify-center min-w-0">
             <span className="text-sm text-slate-900 leading-tight tracking-tight truncate font-bold uppercase">
-              BQL Parkview Tower
+              Parkview Operations
             </span>
             <span className="text-[11px] text-slate-500 leading-tight truncate mt-0.5">
-              Hệ thống Vận hành Chung cư
+              Apartment Management Hub
             </span>
           </div>
         </Link>
 
         {/* Navigation Sections */}
         <div className="px-3 py-3 space-y-4">
-          {/* TỔNG QUAN */}
+          {/* OVERVIEW */}
           <div className="space-y-1">
             <div className="px-3 py-1 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-              TỔNG QUAN
+              OVERVIEW
             </div>
             <nav className="space-y-0.5">
               <Link href="/" className={navItemClass('/')}>
                 <span className="material-symbols-outlined text-[19px]">dashboard</span>
-                <span>Bảng điều khiển</span>
+                <span>Operations Console</span>
               </Link>
             </nav>
           </div>
 
-          {/* QUẢN LÝ CĂN HỘ & CƯ DÂN */}
+          {/* PROPERTIES & DEMOGRAPHICS */}
           <div className="space-y-1">
             <div className="px-3 py-1 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-              CĂN HỘ & NHÂN KHẨU
+              PROPERTIES & DEMOGRAPHICS
             </div>
             <nav className="space-y-0.5">
               <Link href="/can-ho" className={navItemClass('/can-ho')}>
                 <span className="material-symbols-outlined text-[19px]">apartment</span>
-                <span>Quản lý Căn hộ</span>
+                <span>Apartments Directory</span>
               </Link>
               <Link href="/ho-dan" className={navItemClass('/ho-dan')}>
                 <span className="material-symbols-outlined text-[19px]">family_restroom</span>
-                <span>Hồ sơ Hộ dân</span>
+                <span>Household Dossiers</span>
               </Link>
               <Link href="/cu-dan" className={navItemClass('/cu-dan')}>
                 <span className="material-symbols-outlined text-[19px]">group</span>
-                <span>Danh bạ Cư dân</span>
+                <span>Resident Registry</span>
               </Link>
               <Link href="/cu-tru" className={navItemClass('/cu-tru')}>
                 <span className="material-symbols-outlined text-[19px]">badge</span>
-                <span>Biến động Cư trú</span>
+                <span>Residence Tracking</span>
               </Link>
             </nav>
           </div>
 
-          {/* TÀI CHÍNH & VẬN HÀNH */}
+          {/* FINANCE & OPERATIONS */}
           <div className="space-y-1">
             <div className="px-3 py-1 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-              TÀI CHÍNH & VẬN HÀNH
+              FINANCE & OPERATIONS
             </div>
             <nav className="space-y-0.5">
               <Link href="/phi-chung-cu" className={navItemClass('/phi-chung-cu')}>
                 <span className="material-symbols-outlined text-[19px]">payments</span>
-                <span>Thu phí & Hóa đơn</span>
+                <span>Billing & Invoices</span>
               </Link>
               <Link href="/phuong-tien-va-bai-do" className={navItemClass('/phuong-tien-va-bai-do')}>
                 <span className="material-symbols-outlined text-[19px]">directions_car</span>
-                <span>Phương tiện & Vé xe</span>
+                <span>Vehicles & Parking</span>
               </Link>
               <Link href="/phan-anh-va-yeu-cau" className={navItemClass('/phan-anh-va-yeu-cau')}>
                 <span className="material-symbols-outlined text-[19px]">support_agent</span>
-                <span>Phản ánh & Sự cố</span>
+                <span>Tickets & SLA</span>
               </Link>
             </nav>
           </div>
 
-          {/* HỆ THỐNG & CẤU HÌNH */}
+          {/* SYSTEM & SETTINGS */}
           <div className="space-y-1">
             <div className="px-3 py-1 text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-              HỆ THỐNG
+              SYSTEM & GOVERNANCE
             </div>
             <nav className="space-y-0.5">
               <Link href="/lich-su-cu-tru" className={navItemClass('/lich-su-cu-tru')}>
                 <span className="material-symbols-outlined text-[19px]">history</span>
-                <span>Nhật ký & Lịch sử</span>
+                <span>Audit Log & History</span>
               </Link>
               <Link href="/nguoi-dung" className={navItemClass('/nguoi-dung')}>
                 <span className="material-symbols-outlined text-[19px]">manage_accounts</span>
-                <span>Tài khoản & Phân quyền</span>
+                <span>Users & Access Roles</span>
               </Link>
               <Link href="/cai-dat" className={navItemClass('/cai-dat')}>
                 <span className="material-symbols-outlined text-[19px]">settings</span>
-                <span>Cấu hình Tòa nhà</span>
+                <span>Building Settings</span>
               </Link>
             </nav>
           </div>
@@ -133,15 +133,15 @@ export function Sidebar() {
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-xs text-slate-900 font-bold truncate">
-              Nguyễn Văn An
+              Alex Nguyen
             </span>
             <span className="text-[11px] text-slate-500 truncate">
-              Trưởng ca trực BQL
+              Operations Supervisor
             </span>
           </div>
           <button
             type="button"
-            title="Đổi ca trực / Tùy chọn"
+            title="Switch Shift / Options"
             className="text-slate-400 hover:text-slate-600 p-0.5 rounded"
           >
             <span className="material-symbols-outlined text-[18px]">more_vert</span>

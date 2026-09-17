@@ -28,7 +28,7 @@ export const feedbackApi = {
     return {
       success: res.success,
       data: res.data,
-      message: res.error?.detail || 'Gửi phản ánh thành công',
+      message: res.error?.detail || 'Feedback submitted successfully',
     };
   },
 
@@ -37,7 +37,7 @@ export const feedbackApi = {
     return {
       success: res.success,
       data: res.data,
-      message: res.error?.detail || 'Cập nhật tiến độ thành công',
+      message: res.error?.detail || 'Status updated successfully',
     };
   },
 };

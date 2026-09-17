@@ -11,7 +11,7 @@ export interface Resident {
   fullName: string;
   citizenId: string;
   dateOfBirth: string;
-  gender: 'Nam' | 'Nữ';
+  gender: 'Nam' | 'Nữ' | 'Male' | 'Female' | 'Other';
   phone: string;
   email?: string;
   apartmentId: string;
@@ -38,7 +38,7 @@ export interface Household {
   memberCount: number;
   vehicleCount: number;
   status: 'ACTIVE' | 'MOVED_OUT';
-  residenceType: 'Thường trú' | 'Tạm trú';
+  residenceType: 'Thường trú' | 'Tạm trú' | 'Permanent' | 'Temporary';
   registrationDate: string;
 }
 

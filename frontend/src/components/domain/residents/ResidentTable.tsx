@@ -12,7 +12,7 @@ export default function ResidentTable({ residents }: ResidentTableProps) {
   if (residents.length === 0) {
     return (
       <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500 text-xs">
-        Không tìm thấy cư dân nào phù hợp với điều kiện lọc.
+        No residents match the current search or filter criteria.
       </div>
     );
   }
@@ -23,15 +23,15 @@ export default function ResidentTable({ residents }: ResidentTableProps) {
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-              <th className="py-2.5 px-3.5">Họ và tên</th>
-              <th className="py-2.5 px-3.5">Căn hộ</th>
-              <th className="py-2.5 px-3.5">Số CCCD</th>
-              <th className="py-2.5 px-3.5">Ngày sinh</th>
-              <th className="py-2.5 px-3.5">Giới tính</th>
-              <th className="py-2.5 px-3.5">Quan hệ chủ hộ</th>
-              <th className="py-2.5 px-3.5">Diện cư trú</th>
-              <th className="py-2.5 px-3.5">Số điện thoại</th>
-              <th className="py-2.5 px-3.5 text-right">Thao tác</th>
+              <th className="py-2.5 px-3.5">Full Name</th>
+              <th className="py-2.5 px-3.5">Unit</th>
+              <th className="py-2.5 px-3.5">Citizen ID (CCCD)</th>
+              <th className="py-2.5 px-3.5">Date of Birth</th>
+              <th className="py-2.5 px-3.5">Gender</th>
+              <th className="py-2.5 px-3.5">Kinship Relation</th>
+              <th className="py-2.5 px-3.5">Residency Status</th>
+              <th className="py-2.5 px-3.5">Phone Number</th>
+              <th className="py-2.5 px-3.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -44,7 +44,7 @@ export default function ResidentTable({ residents }: ResidentTableProps) {
                   <span>{r.fullName}</span>
                   {r.isHead && (
                     <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200/60">
-                      Chủ hộ
+                      Head
                     </span>
                   )}
                 </td>
@@ -65,7 +65,7 @@ export default function ResidentTable({ residents }: ResidentTableProps) {
                         : 'bg-sky-50 text-sky-800 border border-sky-200/60'
                     }`}
                   >
-                    {r.residentStatus === 'PERMANENT' ? 'Thường trú' : 'Tạm trú'}
+                    {r.residentStatus === 'PERMANENT' ? 'Permanent' : 'Temporary'}
                   </span>
                 </td>
                 <td className="py-2.5 px-3.5 font-mono text-slate-500">{r.phone}</td>
@@ -74,7 +74,7 @@ export default function ResidentTable({ residents }: ResidentTableProps) {
                     href={`/can-ho/${r.roomNumber}`}
                     className="px-2 py-1 text-[11px] font-semibold rounded bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-800 transition-colors"
                   >
-                    Hồ sơ hộ
+                    Unit Dossier
                   </Link>
                 </td>
               </tr>

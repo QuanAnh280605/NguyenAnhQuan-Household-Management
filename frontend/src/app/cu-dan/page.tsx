@@ -42,10 +42,10 @@ export default function CuDanPage() {
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
             <h1 className="text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
-              Sổ Bộ Cư Dân & Nhân Khẩu
+              Civil Registry & Resident Demographics
             </h1>
             <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">
-              {residents.length} Cư dân
+              {residents.length} Residents
             </span>
             {isLiveApi ? (
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
@@ -59,32 +59,32 @@ export default function CuDanPage() {
             )}
           </div>
           <p className="text-xs text-slate-500">
-            Quản lý hồ sơ định danh công dân (CCCD 12 số), quan hệ thân nhân chủ hộ và tình trạng thường trú/tạm trú
+            Civil profiles (12-digit Citizen ID), kinship relationships, and statutory residency classifications
           </p>
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
           <button
             onClick={() => {
-              setToastMessage('Đang kết xuất sổ nhân khẩu thành file Excel...');
+              setToastMessage('Exporting resident demographics to Excel file...');
               setTimeout(() => setToastMessage(null), 3000);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition-colors"
             type="button"
           >
             <span className="material-symbols-outlined text-[17px] text-slate-600">download</span>
-            <span>Xuất Excel</span>
+            <span>Export Excel</span>
           </button>
           <button
             onClick={() => {
-              setToastMessage('Chức năng thêm hồ sơ cư dân đã được đồng bộ với API backend.');
+              setToastMessage('New resident registration synchronized with backend API.');
               setTimeout(() => setToastMessage(null), 3000);
             }}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-blue-700 text-white shadow-sm hover:bg-blue-800 text-xs font-semibold transition-colors"
             type="button"
           >
             <span className="material-symbols-outlined text-[17px]">person_add</span>
-            <span>Đăng ký cư dân mới</span>
+            <span>Register New Resident</span>
           </button>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function CuDanPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm theo họ tên, số CCCD, phòng, SĐT..."
+              placeholder="Search by full name, citizen ID, room, phone..."
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 text-slate-800"
             />
           </div>
@@ -109,21 +109,21 @@ export default function CuDanPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 text-slate-700 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 font-medium cursor-pointer"
           >
-            <option value="ALL">Tất cả diện cư trú</option>
-            <option value="PERMANENT">Thường trú</option>
-            <option value="TEMPORARY">Tạm trú</option>
+            <option value="ALL">All Residency Types</option>
+            <option value="PERMANENT">Permanent Residency</option>
+            <option value="TEMPORARY">Temporary Residency</option>
           </select>
         </div>
 
         <div className="text-xs text-slate-500">
-          Hiển thị <strong>{residents.length}</strong> cư dân
+          Showing <strong>{residents.length}</strong> residents
         </div>
       </div>
 
       {/* Extracted Table Component */}
       {loading ? (
         <div className="bg-white rounded-lg border border-slate-200 p-12 text-center text-slate-400 text-xs">
-          Đang nạp dữ liệu nhân khẩu...
+          Loading resident demographics...
         </div>
       ) : (
         <ResidentTable residents={residents} />

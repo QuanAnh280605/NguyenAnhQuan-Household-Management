@@ -10,11 +10,11 @@ export default function PhuongTienPage() {
       id: 'veh-3',
       apartmentId: 'apt-a1207',
       roomNumber: 'A-1207',
-      residentName: 'Nguyễn Tiến Dũng',
+      residentName: 'Nguyen Tien Dung',
       licensePlate: '30E-123.45',
       vehicleType: 'CAR' as const,
-      parkingSlot: 'B2-A02 (Ô tô)',
-      brand: 'Toyota Camry (Đen)',
+      parkingSlot: 'B2-A02 (Car)',
+      brand: 'Toyota Camry (Black)',
       registeredDate: '22/03/2023',
       status: 'ACTIVE' as const,
     },
@@ -22,11 +22,11 @@ export default function PhuongTienPage() {
       id: 'veh-4',
       apartmentId: 'apt-b0802',
       roomNumber: 'B-0802',
-      residentName: 'Vũ Đức Thành',
+      residentName: 'Vu Duc Thanh',
       licensePlate: '29K1-987.65',
       vehicleType: 'MOTORBIKE' as const,
-      parkingSlot: 'B1-XM-110 (Xe máy)',
-      brand: 'Honda Airblade (Xám)',
+      parkingSlot: 'B1-XM-110 (Motorbike)',
+      brand: 'Honda Airblade (Grey)',
       registeredDate: '25/06/2023',
       status: 'ACTIVE' as const,
     },
@@ -38,42 +38,42 @@ export default function PhuongTienPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-space-xs">
             <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-              Phương tiện & Bãi đỗ xe
+              Vehicles & Parking Facility Management
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-bold">
-              Hầm B1 & B2
+              Basements B1 & B2
             </span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Quản lý thẻ RFID, biển số xe đăng ký và kiểm soát slot đỗ ô tô/xe máy.
+            RFID access smart cards, license plate registry, and basement car/motorbike slot quotas.
           </p>
         </div>
 
         <button
-          onClick={() => alert('Cấp thẻ đỗ xe mới')}
+          onClick={() => alert('Issue new RFID parking badge')}
           className="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary-container text-white shadow-sm hover:bg-primary transition-colors font-label-md text-label-md font-semibold self-start sm:self-auto"
           type="button"
         >
           <span className="material-symbols-outlined text-[18px]">add_card</span>
-          <span>Cấp thẻ đỗ xe mới</span>
+          <span>Issue Parking Badge</span>
         </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
         <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-outline-variant/20">
-          <span className="text-xs text-outline uppercase font-semibold">Tổng số ô tô đã đăng ký</span>
-          <div className="font-metric-display text-2xl font-bold text-on-surface mt-1">186 xe</div>
-          <p className="text-xs text-secondary font-semibold mt-1">Còn trống 24 vị trí tầng B2</p>
+          <span className="text-xs text-outline uppercase font-semibold">Registered Automobiles</span>
+          <div className="font-metric-display text-2xl font-bold text-on-surface mt-1">186 cars</div>
+          <p className="text-xs text-secondary font-semibold mt-1">24 slots available on Level B2</p>
         </div>
         <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-outline-variant/20">
-          <span className="text-xs text-outline uppercase font-semibold">Tổng xe máy & xe điện</span>
-          <div className="font-metric-display text-2xl font-bold text-on-surface mt-1">542 xe</div>
-          <p className="text-xs text-secondary font-semibold mt-1">Tỷ lệ lấp đầy 78% tầng B1</p>
+          <span className="text-xs text-outline uppercase font-semibold">Motorbikes & E-Scooters</span>
+          <div className="font-metric-display text-2xl font-bold text-on-surface mt-1">542 vehicles</div>
+          <p className="text-xs text-secondary font-semibold mt-1">78% occupancy on Level B1</p>
         </div>
         <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm border border-outline-variant/20">
-          <span className="text-xs text-outline uppercase font-semibold">Thẻ xe quá hạn / Tạm khóa</span>
-          <div className="font-metric-display text-2xl font-bold text-error mt-1">8 thẻ</div>
-          <p className="text-xs text-error font-semibold mt-1">Cần đối soát và gia hạn</p>
+          <span className="text-xs text-outline uppercase font-semibold">Expired / Suspended Badges</span>
+          <div className="font-metric-display text-2xl font-bold text-error mt-1">8 badges</div>
+          <p className="text-xs text-error font-semibold mt-1">Pending audit and renewal</p>
         </div>
       </div>
 
@@ -82,14 +82,14 @@ export default function PhuongTienPage() {
           <table className="w-full text-left border-collapse text-sm">
             <thead>
               <tr className="bg-surface-container-low/60 border-b border-outline-variant/20 text-xs font-semibold uppercase tracking-wider text-outline">
-                <th className="py-3.5 px-4">Biển số xe</th>
-                <th className="py-3.5 px-4">Loại xe</th>
-                <th className="py-3.5 px-4">Hãng xe & Màu</th>
-                <th className="py-3.5 px-4">Căn hộ</th>
-                <th className="py-3.5 px-4">Chủ phương tiện</th>
-                <th className="py-3.5 px-4">Vị trí đỗ</th>
-                <th className="py-3.5 px-4">Ngày đăng ký</th>
-                <th className="py-3.5 px-4 text-right">Trạng thái</th>
+                <th className="py-3.5 px-4">License Plate</th>
+                <th className="py-3.5 px-4">Type</th>
+                <th className="py-3.5 px-4">Make & Model</th>
+                <th className="py-3.5 px-4">Unit</th>
+                <th className="py-3.5 px-4">Registered Owner</th>
+                <th className="py-3.5 px-4">Allocated Slot</th>
+                <th className="py-3.5 px-4">Registration Date</th>
+                <th className="py-3.5 px-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/15">
@@ -101,7 +101,7 @@ export default function PhuongTienPage() {
                       <span className="material-symbols-outlined text-[16px] text-outline">
                         {v.vehicleType === 'CAR' ? 'directions_car' : 'two_wheeler'}
                       </span>
-                      {v.vehicleType === 'CAR' ? 'Ô tô' : 'Xe máy'}
+                      {v.vehicleType === 'CAR' ? 'Car' : 'Motorbike'}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-on-surface-variant font-medium">{v.brand}</td>
@@ -115,7 +115,7 @@ export default function PhuongTienPage() {
                   <td className="py-3.5 px-4 text-xs text-on-surface-variant">{v.registeredDate}</td>
                   <td className="py-3.5 px-4 text-right">
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed/40 text-tertiary">
-                      Hoạt động
+                      Active
                     </span>
                   </td>
                 </tr>

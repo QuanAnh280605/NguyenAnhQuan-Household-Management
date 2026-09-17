@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export function Header() {
-  const [selectedBuilding, setSelectedBuilding] = useState('Tòa Parkview Tower (Tháp A & B)');
+  const [selectedBuilding, setSelectedBuilding] = useState('Parkview Complex (Towers A & B)');
   const [showBuildingMenu, setShowBuildingMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -15,7 +15,7 @@ export function Header() {
           <span className="material-symbols-outlined text-slate-400 text-[19px]">search</span>
           <input
             className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-slate-800 placeholder:text-slate-400"
-            placeholder="Tìm theo số căn hộ, tên cư dân, số CCCD, biển số xe..."
+            placeholder="Search by unit number, resident name, citizen ID, license plate..."
             type="text"
           />
         </div>
@@ -39,7 +39,7 @@ export function Header() {
 
           {showBuildingMenu && (
             <div className="absolute right-0 mt-1.5 w-64 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 animate-in fade-in">
-              {['Tòa Parkview Tower (Tháp A & B)', 'Tháp Parkview A (Tầng 1 - 25)', 'Tháp Parkview B (Tầng 1 - 25)'].map((b) => (
+              {['Parkview Complex (Towers A & B)', 'Parkview Tower A (Floors 1 - 25)', 'Parkview Tower B (Floors 1 - 25)'].map((b) => (
                 <button
                   key={b}
                   onClick={() => {
@@ -63,7 +63,7 @@ export function Header() {
         {/* Operational Shift Info */}
         <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs border border-slate-200">
           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span className="font-medium">Ca trực: <strong>07h00 - 15h00</strong></span>
+          <span className="font-medium">Duty Shift: <strong>07:00 - 15:00</strong></span>
         </div>
 
         {/* Hotline */}
@@ -80,7 +80,7 @@ export function Header() {
             onClick={() => setShowNotifications(!showNotifications)}
             className="relative p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
             type="button"
-            title="Thông báo vận hành"
+            title="Operational Notifications"
           >
             <span className="material-symbols-outlined text-[21px]">notifications</span>
             <span className="absolute top-0.5 right-0.5 flex items-center justify-center w-4 h-4 bg-red-600 text-white text-[10px] rounded-full font-bold">
@@ -92,33 +92,33 @@ export function Header() {
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-slate-200 p-3 z-50 animate-in fade-in">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-2">
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                  Thông báo vận hành mới
+                  Operational Alerts
                 </span>
                 <span className="text-[11px] text-blue-700 font-semibold cursor-pointer hover:underline">
-                  Đã đọc tất cả
+                  Mark all read
                 </span>
               </div>
               <div className="space-y-1.5 text-xs">
                 <div className="p-2 rounded bg-slate-50 hover:bg-slate-100/80 transition-colors border border-slate-100">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Căn A-1205 thanh toán phí</span>
-                    <span className="text-[10px] text-slate-400">5 phút trước</span>
+                    <span className="font-bold text-slate-900">Unit A-1205 Payment Recorded</span>
+                    <span className="text-[10px] text-slate-400">5m ago</span>
                   </div>
-                  <p className="text-slate-600 mt-0.5">Hóa đơn T10/2025: 4.035.000 đ qua VietQR</p>
+                  <p className="text-slate-600 mt-0.5">Oct 2025 Statement: 4,035,000 VND via VietQR</p>
                 </div>
                 <div className="p-2 rounded bg-amber-50/60 hover:bg-amber-50 transition-colors border border-amber-200/50">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-amber-900">Sự cố kỹ thuật: B-0802</span>
-                    <span className="text-[10px] text-amber-600 font-semibold">Khẩn</span>
+                    <span className="font-bold text-amber-900">Incident Alert: B-0802</span>
+                    <span className="text-[10px] text-amber-600 font-semibold">Urgent</span>
                   </div>
-                  <p className="text-amber-800 mt-0.5">Báo rung lắc thang máy Tháp B</p>
+                  <p className="text-amber-800 mt-0.5">Elevator vibration reported in Tower B</p>
                 </div>
                 <div className="p-2 rounded bg-slate-50 hover:bg-slate-100/80 transition-colors border border-slate-100">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Bàn giao căn hộ A-0501</span>
-                    <span className="text-[10px] text-slate-400">2 giờ trước</span>
+                    <span className="font-bold text-slate-900">Unit Handover: A-0501</span>
+                    <span className="text-[10px] text-slate-400">2h ago</span>
                   </div>
-                  <p className="text-slate-600 mt-0.5">Hoàn tất kiểm kê chìa khóa & thẻ từ</p>
+                  <p className="text-slate-600 mt-0.5">Key & RFID access card checklist completed</p>
                 </div>
               </div>
             </div>

@@ -6,30 +6,30 @@ export default function CuTruPage() {
   const records = [
     {
       id: 'rec-1',
-      name: 'Nguyễn Tiến Dũng',
+      name: 'Nguyen Tien Dung',
       room: 'A-1207',
-      type: 'Đăng ký Tạm trú',
+      type: 'Temporary Stay',
       startDate: '20/03/2023',
       endDate: '20/03/2025',
-      status: 'Hợp lệ',
+      status: 'Valid',
     },
     {
       id: 'rec-2',
-      name: 'Trần Hoàng Nam',
+      name: 'Tran Hoang Nam',
       room: 'A-1205',
-      type: 'Nhập hộ Thường trú',
+      type: 'Permanent Residence',
       startDate: '20/01/2023',
-      endDate: 'Vô thời hạn',
-      status: 'Đã duyệt',
+      endDate: 'Indefinite',
+      status: 'Approved',
     },
     {
       id: 'rec-3',
-      name: 'Vũ Đức Thành',
+      name: 'Vu Duc Thanh',
       room: 'B-0802',
-      type: 'Khai báo Tạm vắng',
+      type: 'Declared Absence',
       startDate: '01/10/2025',
       endDate: '01/11/2025',
-      status: 'Đang theo dõi',
+      status: 'Monitoring',
     },
   ];
 
@@ -39,24 +39,24 @@ export default function CuTruPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-space-xs">
             <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">
-              Biến động Cư trú
+              Residence Registrations & Stays
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm text-label-sm font-bold">
-              Tạm trú & Tạm vắng
+              Temporary Stay & Absence
             </span>
           </div>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Đăng ký tạm trú, thông báo lưu trú và khai báo tạm vắng theo quy định của công an phường.
+            Temporary stay registration, stay notifications, and declared absence according to local municipal regulations.
           </p>
         </div>
 
         <button
-          onClick={() => alert('Thêm hồ sơ cư trú mới')}
+          onClick={() => alert('Register New Residence Record')}
           className="inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-primary-container text-white shadow-sm hover:bg-primary transition-colors font-label-md text-label-md font-semibold self-start sm:self-auto"
           type="button"
         >
           <span className="material-symbols-outlined text-[18px]">post_add</span>
-          <span>Đăng ký biến động mới</span>
+          <span>New Stay Registration</span>
         </button>
       </div>
 
@@ -65,12 +65,12 @@ export default function CuTruPage() {
           <table className="w-full text-left border-collapse text-sm">
             <thead>
               <tr className="bg-surface-container-low/60 border-b border-outline-variant/20 text-xs font-semibold uppercase tracking-wider text-outline">
-                <th className="py-3.5 px-4">Cư dân</th>
-                <th className="py-3.5 px-4">Căn hộ</th>
-                <th className="py-3.5 px-4">Loại biến động</th>
-                <th className="py-3.5 px-4">Ngày bắt đầu</th>
-                <th className="py-3.5 px-4">Ngày kết thúc</th>
-                <th className="py-3.5 px-4 text-right">Trạng thái hồ sơ</th>
+                <th className="py-3.5 px-4">Resident Name</th>
+                <th className="py-3.5 px-4">Apartment Unit</th>
+                <th className="py-3.5 px-4">Stay Type</th>
+                <th className="py-3.5 px-4">Start Date</th>
+                <th className="py-3.5 px-4">End Date</th>
+                <th className="py-3.5 px-4 text-right">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/15">

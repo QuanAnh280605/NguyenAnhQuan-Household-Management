@@ -51,12 +51,12 @@ export default function CanHoPage() {
       floor: data.floor,
       area: data.area,
       status: 'OWNER_OCCUPIED',
-      roomType: `${data.area > 80 ? '3PN' : '2PN'} tiêu chuẩn`,
-      direction: 'Hướng Đông Nam',
+      roomType: `${data.area > 80 ? '3BR' : '2BR'} Standard`,
+      direction: 'Southeast',
       ownerName: data.ownerName,
       ownerPhone: data.ownerPhone,
       ownerCitizenId: '001090000000',
-      handoverDate: new Date().toLocaleDateString('vi-VN'),
+      handoverDate: new Date().toLocaleDateString('en-US'),
       feeStatus: 'PAID',
       residents: [],
       vehicles: [],
@@ -77,7 +77,7 @@ export default function CanHoPage() {
       },
     });
 
-    setToastMessage(`Đã thêm căn hộ ${data.roomNumber} thành công vào hệ thống!`);
+    setToastMessage(`Apartment unit ${data.roomNumber} successfully registered!`);
     setTimeout(() => setToastMessage(null), 4000);
   };
 
@@ -87,28 +87,28 @@ export default function CanHoPage() {
         return (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-700"></span>
-            Chính chủ ở
+            Owner Occupied
           </span>
         );
       case 'RENTED':
         return (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-sky-600"></span>
-            Cho thuê
+            Rented
           </span>
         );
       case 'EMPTY':
         return (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            Còn trống
+            Vacant
           </span>
         );
       case 'REPAIRING':
         return (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-            Đang sửa chữa
+            Renovating
           </span>
         );
     }
@@ -120,21 +120,27 @@ export default function CanHoPage() {
         return (
           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
-            Đã thanh toán
+            Paid
           </span>
         );
       case 'UNPAID':
         return (
           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-700">
             <span className="w-1.5 h-1.5 rounded-full bg-red-700"></span>
-            Chưa đóng
+            Unpaid
           </span>
         );
       case 'EXEMPT':
         return (
           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            Miễn trừ
+            Exempt
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600">
+            {status}
           </span>
         );
     }
@@ -155,10 +161,10 @@ export default function CanHoPage() {
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
             <h1 className="text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
-              Quản Lý Danh Mục Căn Hộ
+              Apartment Units Directory
             </h1>
             <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">
-              {apartments.length} Căn hộ
+              {apartments.length} Units
             </span>
             {isLiveApi ? (
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
@@ -172,21 +178,21 @@ export default function CanHoPage() {
             )}
           </div>
           <p className="text-xs text-slate-500">
-            Theo dõi chi tiết số phòng, diện tích thông thủy, chủ sở hữu và tình trạng pháp lý căn hộ
+            Monitor room specifications, usable floor area, legal ownership tenure, and occupancy statuses
           </p>
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
           <button
             onClick={() => {
-              setToastMessage('Đang kết xuất danh sách căn hộ thành file Excel...');
+              setToastMessage('Exporting apartment roster to Excel file...');
               setTimeout(() => setToastMessage(null), 3000);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition-colors"
             type="button"
           >
             <span className="material-symbols-outlined text-[17px] text-slate-600">file_download</span>
-            <span>Xuất Excel</span>
+            <span>Export Excel</span>
           </button>
           <button
             onClick={() => setShowAddModal(true)}
@@ -194,7 +200,7 @@ export default function CanHoPage() {
             type="button"
           >
             <span className="material-symbols-outlined text-[17px]">add_circle</span>
-            <span>Thêm căn hộ mới</span>
+            <span>Add New Apartment</span>
           </button>
         </div>
       </div>
@@ -210,7 +216,7 @@ export default function CanHoPage() {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm theo số phòng, chủ hộ, SĐT..."
+              placeholder="Search by room number, owner, phone..."
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 text-slate-800"
             />
           </div>
@@ -221,9 +227,9 @@ export default function CanHoPage() {
             onChange={(e) => setFilterBuilding(e.target.value)}
             className="px-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 text-slate-700 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 font-medium cursor-pointer"
           >
-            <option value="ALL">Tất cả các tòa</option>
-            <option value="A">Tòa Tháp A</option>
-            <option value="B">Tòa Tháp B</option>
+            <option value="ALL">All Towers</option>
+            <option value="A">Tower Parkview A</option>
+            <option value="B">Tower Parkview B</option>
           </select>
 
           {/* Status Select */}
@@ -232,27 +238,27 @@ export default function CanHoPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 text-slate-700 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 font-medium cursor-pointer"
           >
-            <option value="ALL">Tất cả tình trạng</option>
-            <option value="OWNER_OCCUPIED">Chính chủ ở</option>
-            <option value="RENTED">Cho thuê</option>
-            <option value="EMPTY">Còn trống</option>
-            <option value="REPAIRING">Đang sửa chữa</option>
+            <option value="ALL">All Occupancy Statuses</option>
+            <option value="OWNER_OCCUPIED">Owner Occupied</option>
+            <option value="RENTED">Rented</option>
+            <option value="EMPTY">Vacant</option>
+            <option value="REPAIRING">Renovating</option>
           </select>
         </div>
 
         <div className="text-xs text-slate-500 font-medium">
-          Hiển thị <strong>{apartments.length}</strong> căn hộ
+          Showing <strong>{apartments.length}</strong> units
         </div>
       </div>
 
       {/* Apartments Grid */}
       {loading ? (
         <div className="bg-white rounded-lg border border-slate-200 p-12 text-center text-slate-400 text-xs">
-          Đang nạp danh sách căn hộ từ hệ thống...
+          Loading apartment directory from server...
         </div>
       ) : apartments.length === 0 ? (
         <div className="bg-white rounded-lg border border-slate-200 p-12 text-center text-slate-400 text-xs">
-          Không tìm thấy căn hộ nào thỏa mãn bộ lọc.
+          No apartments match the selected criteria.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
@@ -276,7 +282,7 @@ export default function CanHoPage() {
                       </span>
                     </div>
                     <div className="text-xs text-slate-500 mt-0.5">
-                      Tầng {apt.floor} • {apt.roomType}
+                      Floor {apt.floor} • {apt.roomType}
                     </div>
                   </div>
                   {getStatusBadge(apt.status)}
@@ -286,7 +292,7 @@ export default function CanHoPage() {
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="flex items-center gap-1.5 text-slate-500">
                       <span className="material-symbols-outlined text-[16px] text-slate-400">square_foot</span>
-                      Diện tích thông thủy:
+                      Usable Floor Area:
                     </span>
                     <span className="font-semibold text-slate-800">{apt.area} m²</span>
                   </div>
@@ -294,7 +300,7 @@ export default function CanHoPage() {
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="flex items-center gap-1.5 text-slate-500">
                       <span className="material-symbols-outlined text-[16px] text-slate-400">person</span>
-                      Chủ hộ đứng tên:
+                      Registered Owner:
                     </span>
                     <span className="font-semibold text-slate-900">{apt.ownerName}</span>
                   </div>
@@ -302,7 +308,7 @@ export default function CanHoPage() {
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="flex items-center gap-1.5 text-slate-500">
                       <span className="material-symbols-outlined text-[16px] text-slate-400">call</span>
-                      Số điện thoại:
+                      Phone Number:
                     </span>
                     <span className="font-mono text-slate-800">{apt.ownerPhone}</span>
                   </div>
@@ -310,7 +316,7 @@ export default function CanHoPage() {
                   <div className="flex items-center justify-between text-slate-600">
                     <span className="flex items-center gap-1.5 text-slate-500">
                       <span className="material-symbols-outlined text-[16px] text-slate-400">receipt_long</span>
-                      Phí dịch vụ tháng:
+                      Utility Fee Status:
                     </span>
                     <div>{getFeeBadge(apt.feeStatus)}</div>
                   </div>
@@ -319,13 +325,13 @@ export default function CanHoPage() {
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                 <span className="text-[11px] text-slate-500 font-medium">
-                  {apt.residents.length} nhân khẩu
+                  {apt.residents.length} Inhabitants
                 </span>
                 <Link
                   href={`/can-ho/${apt.roomNumber}`}
                   className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 bg-blue-50/70 hover:bg-blue-100/70 px-2.5 py-1 rounded transition-colors"
                 >
-                  <span>Hồ sơ chi tiết</span>
+                  <span>Unit Dossier</span>
                   <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                 </Link>
               </div>

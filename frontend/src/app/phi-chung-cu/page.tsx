@@ -69,14 +69,14 @@ export default function PhiChungCuPage() {
             paidAmount: newPaid,
             status: newStatus,
             paymentMethod: method,
-            paidAt: 'Vừa thanh toán',
+            paidAt: 'Just settled',
           };
         }
         return inv;
       })
     );
 
-    setSuccessToast(`Đã ghi nhận thanh toán ${formatCurrency(amount)} thành công!`);
+    setSuccessToast(`Payment of ${formatCurrency(amount)} successfully recorded!`);
     setTimeout(() => setSuccessToast(null), 4000);
   };
 
@@ -86,28 +86,28 @@ export default function PhiChungCuPage() {
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-            Đã thanh toán
+            Paid
           </span>
         );
       case 'PARTIAL':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-            Nộp một phần
+            Partially Paid
           </span>
         );
       case 'OVERDUE':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-800 border border-red-200/60">
             <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-            Quá hạn nộp
+            Overdue
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
             <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-            Chưa thanh toán
+            Unpaid
           </span>
         );
     }
@@ -128,10 +128,10 @@ export default function PhiChungCuPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg lg:text-xl font-bold text-slate-900 tracking-tight">
-              Quản Lý Phí Dịch Vụ & Hóa Đơn Tòa Nhà
+              Service Billing & Utility Invoicing
             </h1>
             <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-blue-800">
-              Kỳ T10/2025
+              Cycle Oct/2025
             </span>
             {isLiveApi ? (
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center gap-1">
@@ -145,30 +145,30 @@ export default function PhiChungCuPage() {
             )}
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Tính toán tự động biểu phí quản lý, công tơ điện nước lũy tiến và đối soát thanh toán VietQR
+            Automated management tariff calculation, tiered water/electricity metering, and VietQR payment reconciliation
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
-              setSuccessToast('Đang kết xuất bảng đối soát tài chính tháng ra file Excel...');
+              setSuccessToast('Exporting monthly financial reconciliation statement to Excel...');
               setTimeout(() => setSuccessToast(null), 3500);
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs"
           >
             <span className="material-symbols-outlined text-[16px] text-slate-600">file_download</span>
-            <span>Báo cáo Excel</span>
+            <span>Excel Report</span>
           </button>
           <button
             onClick={() => {
-              setSuccessToast('Hệ thống đang chạy quy trình tự động chốt công tơ & tạo hóa đơn...');
+              setSuccessToast('Generating batch utility statements and itemized invoices...');
               setTimeout(() => setSuccessToast(null), 4000);
             }}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded bg-blue-700 text-white hover:bg-blue-800 shadow-sm"
           >
             <span className="material-symbols-outlined text-[16px]">receipt_long</span>
-            <span>Lập hóa đơn kỳ mới</span>
+            <span>Generate Batch Invoices</span>
           </button>
         </div>
       </div>
@@ -176,27 +176,27 @@ export default function PhiChungCuPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
-          <div className="text-[11px] font-medium text-slate-500">Tổng phí phát sinh kỳ này</div>
+          <div className="text-[11px] font-medium text-slate-500">Total Invoiced This Cycle</div>
           <div className="text-lg font-bold text-slate-900 mt-1 font-mono">{formatCurrency(totalBilled)}</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Đã chốt công tơ ngày 25/10</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Meter cutoff cycle on Oct 25</div>
         </div>
 
         <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
-          <div className="text-[11px] font-medium text-slate-500">Thực thu đã đối soát</div>
+          <div className="text-[11px] font-medium text-slate-500">Reconciled Collections</div>
           <div className="text-lg font-bold text-emerald-700 mt-1 font-mono">{formatCurrency(totalCollected)}</div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">Tỷ lệ thu: {collectionRate}% tổng quỹ</div>
+          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">Collection Rate: {collectionRate}% of total</div>
         </div>
 
         <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
-          <div className="text-[11px] font-medium text-slate-500">Tổng nợ đọng cần thu</div>
+          <div className="text-[11px] font-medium text-slate-500">Total Outstanding Balance</div>
           <div className="text-lg font-bold text-red-700 mt-1 font-mono">{formatCurrency(totalOutstanding)}</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Gồm phí chưa thanh toán & trả góp</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Includes unpaid & partial accounts</div>
         </div>
 
         <div className="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs">
-          <div className="text-[11px] font-medium text-slate-500">Hóa đơn quá hạn nộp</div>
-          <div className="text-lg font-bold text-amber-800 mt-1 font-mono">{overdueCount} căn hộ</div>
-          <div className="text-[11px] text-amber-700 font-medium mt-0.5">Cần gửi thông báo nhắc nợ lần 2</div>
+          <div className="text-[11px] font-medium text-slate-500">Overdue Invoices</div>
+          <div className="text-lg font-bold text-amber-800 mt-1 font-mono">{overdueCount} units</div>
+          <div className="text-[11px] text-amber-700 font-medium mt-0.5">Action required: 2nd reminder notice</div>
         </div>
       </div>
 
@@ -210,7 +210,7 @@ export default function PhiChungCuPage() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm theo mã HĐ, phòng, chủ hộ..."
+              placeholder="Search by invoice code, room, owner..."
               className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 text-slate-800"
             />
           </div>
@@ -220,9 +220,9 @@ export default function PhiChungCuPage() {
             onChange={(e) => setSelectedMonth(e.target.value)}
             className="px-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 text-slate-700 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 font-medium cursor-pointer"
           >
-            <option value="ALL">Tất cả các tháng</option>
-            <option value="10/2025">Kỳ T10/2025</option>
-            <option value="09/2025">Kỳ T09/2025</option>
+            <option value="ALL">All Billing Cycles</option>
+            <option value="10/2025">Cycle Oct/2025</option>
+            <option value="09/2025">Cycle Sep/2025</option>
           </select>
 
           <select
@@ -230,23 +230,23 @@ export default function PhiChungCuPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 text-xs bg-slate-50 rounded-md border border-slate-300 text-slate-700 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-700 font-medium cursor-pointer"
           >
-            <option value="ALL">Tất cả trạng thái</option>
-            <option value="PAID">Đã thanh toán</option>
-            <option value="PARTIAL">Nộp một phần</option>
-            <option value="UNPAID">Chưa đóng</option>
-            <option value="OVERDUE">Quá hạn nộp</option>
+            <option value="ALL">All Settlement Statuses</option>
+            <option value="PAID">Paid</option>
+            <option value="PARTIAL">Partially Paid</option>
+            <option value="UNPAID">Unpaid</option>
+            <option value="OVERDUE">Overdue</option>
           </select>
         </div>
 
         <div className="text-xs text-slate-500 font-medium">
-          Hiển thị <strong>{filteredInvoices.length}</strong> hóa đơn
+          Showing <strong>{filteredInvoices.length}</strong> invoices
         </div>
       </div>
 
       {/* Invoices Table */}
       {loading ? (
         <div className="bg-white rounded-lg border border-slate-200 p-12 text-center text-slate-400 text-xs">
-          Đang nạp danh sách hóa đơn từ hệ thống...
+          Loading billing statements from server...
         </div>
       ) : (
         <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
@@ -254,16 +254,16 @@ export default function PhiChungCuPage() {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th className="py-2.5 px-3.5">Mã hóa đơn</th>
-                  <th className="py-2.5 px-3.5">Căn hộ</th>
-                  <th className="py-2.5 px-3.5">Chủ hộ</th>
-                  <th className="py-2.5 px-3.5">Kỳ phí</th>
-                  <th className="py-2.5 px-3.5 text-right">Tổng phải nộp</th>
-                  <th className="py-2.5 px-3.5 text-right">Đã nộp</th>
-                  <th className="py-2.5 px-3.5 text-right">Còn nợ</th>
-                  <th className="py-2.5 px-3.5">Trạng thái</th>
-                  <th className="py-2.5 px-3.5">Hạn đóng</th>
-                  <th className="py-2.5 px-3.5 text-right">Thao tác</th>
+                  <th className="py-2.5 px-3.5">Invoice Code</th>
+                  <th className="py-2.5 px-3.5">Unit</th>
+                  <th className="py-2.5 px-3.5">Household Head</th>
+                  <th className="py-2.5 px-3.5">Cycle</th>
+                  <th className="py-2.5 px-3.5 text-right">Total (VND)</th>
+                  <th className="py-2.5 px-3.5 text-right">Settled</th>
+                  <th className="py-2.5 px-3.5 text-right">Remaining Due</th>
+                  <th className="py-2.5 px-3.5">Status</th>
+                  <th className="py-2.5 px-3.5">Due Date</th>
+                  <th className="py-2.5 px-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -299,14 +299,14 @@ export default function PhiChungCuPage() {
                           onClick={() => setViewingInvoice(inv)}
                           className="px-2 py-1 text-[11px] font-semibold rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
                         >
-                          Chi tiết
+                          View Statement
                         </button>
                         {remaining > 0 && (
                           <button
                             onClick={() => setPayingInvoice(inv)}
                             className="px-2 py-1 text-[11px] font-semibold rounded bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-colors"
                           >
-                            Thu tiền
+                            Collect Fee
                           </button>
                         )}
                       </td>

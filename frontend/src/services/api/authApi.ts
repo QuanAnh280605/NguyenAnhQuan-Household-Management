@@ -34,7 +34,7 @@ export const authApi = {
     return {
       success: res.success,
       data: res.data,
-      message: res.error?.detail || 'Đăng nhập thành công',
+      message: res.error?.detail || 'Login successful',
     };
   },
 

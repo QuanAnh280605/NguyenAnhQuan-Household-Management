@@ -16,7 +16,7 @@ interface AddApartmentModalProps {
 }
 
 export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApartmentModalProps) {
-  const [building, setBuilding] = useState('Tháp Parkview A');
+  const [building, setBuilding] = useState('Tower Parkview A');
   const [roomNumber, setRoomNumber] = useState('');
   const [floor, setFloor] = useState('');
   const [area, setArea] = useState('');
@@ -32,7 +32,7 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
       roomNumber,
       floor: Number(floor) || 1,
       area: Number(area) || 50,
-      ownerName: ownerName.trim() || 'Chưa cập nhật',
+      ownerName: ownerName.trim() || 'Unassigned',
       ownerPhone: ownerPhone.trim() || '—',
     });
     onClose();
@@ -44,7 +44,7 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
         <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-700 text-[22px]">add_home</span>
-            <h3 className="text-base font-bold text-slate-900">Thêm Căn Hộ Mới Vào Hệ Thống</h3>
+            <h3 className="text-base font-bold text-slate-900">Register New Apartment Unit</h3>
           </div>
           <button
             onClick={onClose}
@@ -58,26 +58,26 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Tòa nhà *
+                Building Tower *
               </label>
               <select
                 value={building}
                 onChange={(e) => setBuilding(e.target.value)}
                 className="w-full px-3 py-2 rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700"
               >
-                <option>Tháp Parkview A</option>
-                <option>Tháp Parkview B</option>
+                <option>Tower Parkview A</option>
+                <option>Tower Parkview B</option>
               </select>
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Số phòng / Mã căn *
+                Unit Number / Room Code *
               </label>
               <input
                 value={roomNumber}
                 onChange={(e) => setRoomNumber(e.target.value)}
                 required
-                placeholder="VD: A-1208"
+                placeholder="e.g. A-1208"
                 className="w-full px-3 py-2 rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700 font-mono"
               />
             </div>
@@ -86,27 +86,27 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Tầng *
+                Floor Level *
               </label>
               <input
                 value={floor}
                 onChange={(e) => setFloor(e.target.value)}
                 required
                 type="number"
-                placeholder="VD: 12"
+                placeholder="e.g. 12"
                 className="w-full px-3 py-2 rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700"
               />
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Diện tích thông thủy (m²) *
+                Usable Floor Area (m²) *
               </label>
               <input
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
                 required
                 type="number"
-                placeholder="VD: 86"
+                placeholder="e.g. 86"
                 className="w-full px-3 py-2 rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700"
               />
             </div>
@@ -115,18 +115,18 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Họ tên chủ sở hữu
+                Legal Owner Name
               </label>
               <input
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
-                placeholder="VD: Nguyễn Văn B"
+                placeholder="e.g. Alex Smith"
                 className="w-full px-3 py-2 rounded bg-white border border-slate-300 focus:outline-none focus:border-blue-700"
               />
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
-                Số điện thoại liên hệ
+                Contact Phone Number
               </label>
               <input
                 value={ownerPhone}
@@ -143,13 +143,13 @@ export default function AddApartmentModal({ isOpen, onClose, onSubmit }: AddApar
               onClick={onClose}
               className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium"
             >
-              Hủy bỏ
+              Cancel
             </button>
             <button
               type="submit"
               className="px-3.5 py-1.5 rounded bg-blue-700 text-white hover:bg-blue-800 font-semibold shadow-sm"
             >
-              Lưu căn hộ
+              Save Apartment
             </button>
           </div>
         </form>

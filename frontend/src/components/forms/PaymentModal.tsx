@@ -22,7 +22,7 @@ function PaymentForm({
 }) {
   const remainingBalance = invoice.totalAmount - (invoice.paidAmount || 0);
   const [paymentAmount, setPaymentAmount] = useState<number>(remainingBalance);
-  const [paymentMethod, setPaymentMethod] = useState<string>('Chuyển khoản VietQR');
+  const [paymentMethod, setPaymentMethod] = useState<string>('VietQR Transfer');
   const [transactionCode, setTransactionCode] = useState<string>(
     `TX-${invoice.id.replace('inv-', '')}-${invoice.roomNumber}`
   );
@@ -37,30 +37,30 @@ function PaymentForm({
     <form onSubmit={handleSubmit} className="p-4 space-y-3.5 text-xs">
       <div className="p-2.5 bg-slate-50 rounded border border-slate-200 space-y-1">
         <div className="flex justify-between text-slate-500">
-          <span>Hóa đơn / Căn hộ:</span>
+          <span>Invoice / Unit:</span>
           <span className="font-bold text-slate-900">{invoice.invoiceCode} ({invoice.roomNumber})</span>
         </div>
         <div className="flex justify-between text-slate-500">
-          <span>Chủ hộ:</span>
+          <span>Household Head:</span>
           <span className="font-semibold text-slate-800">{invoice.householdHead}</span>
         </div>
         <div className="flex justify-between text-slate-500">
-          <span>Tổng phát sinh:</span>
+          <span>Total Invoiced:</span>
           <span className="font-mono text-slate-900">{formatCurrency(invoice.totalAmount)}</span>
         </div>
         <div className="flex justify-between text-slate-500">
-          <span>Đã thanh toán:</span>
+          <span>Previously Paid:</span>
           <span className="font-mono text-emerald-700">{formatCurrency(invoice.paidAmount || 0)}</span>
         </div>
         <div className="flex justify-between border-t border-slate-200 pt-1 font-bold text-xs">
-          <span className="text-red-700">Còn phải nộp:</span>
+          <span className="text-red-700">Remaining Due:</span>
           <span className="text-red-700 font-mono">{formatCurrency(remainingBalance)}</span>
         </div>
       </div>
 
       <div>
         <label className="block font-semibold text-slate-700 mb-1">
-          Số tiền thực thu lần này (VNĐ) *
+          Settlement Amount This Receipt (VND) *
         </label>
         <input
           type="number"
@@ -75,23 +75,23 @@ function PaymentForm({
 
       <div>
         <label className="block font-semibold text-slate-700 mb-1">
-          Hình thức thanh toán *
+          Payment Method *
         </label>
         <select
           value={paymentMethod}
           onChange={(e) => setPaymentMethod(e.target.value)}
           className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded focus:border-blue-700 focus:outline-none text-slate-800"
         >
-          <option value="Chuyển khoản VietQR">Chuyển khoản VietQR / Ngân hàng</option>
-          <option value="Tiền mặt">Tiền mặt tại văn phòng BQL</option>
-          <option value="Cổng VNPay">Cổng thanh toán VNPay</option>
-          <option value="Ví MoMo">Ví điện tử MoMo</option>
+          <option value="VietQR Transfer">VietQR / Instant Bank Transfer</option>
+          <option value="Cash">Cash at Building Management Office</option>
+          <option value="VNPay Gateway">VNPay Payment Gateway</option>
+          <option value="MoMo Wallet">MoMo E-Wallet</option>
         </select>
       </div>
 
       <div>
         <label className="block font-semibold text-slate-700 mb-1">
-          Mã giao dịch ngân hàng / Số biên lai
+          Bank Transaction Reference / Receipt No.
         </label>
         <input
           type="text"
@@ -107,13 +107,13 @@ function PaymentForm({
           onClick={onClose}
           className="px-3.5 py-1.5 text-xs rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium"
         >
-          Hủy bỏ
+          Cancel
         </button>
         <button
           type="submit"
           className="px-3.5 py-1.5 text-xs font-semibold bg-blue-700 text-white hover:bg-blue-800 rounded shadow-sm"
         >
-          Xác nhận & Cấp biên lai
+          Confirm & Issue Receipt
         </button>
       </div>
     </form>
@@ -129,7 +129,7 @@ export default function PaymentModal({ invoice, isOpen, onClose, onConfirm }: Pa
         <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-700 text-[20px]">payments</span>
-            <h3 className="font-bold text-sm text-slate-900">Ghi Nhận Thu Phí Dịch Vụ</h3>
+            <h3 className="font-bold text-sm text-slate-900">Record Fee Settlement</h3>
           </div>
           <button
             onClick={onClose}

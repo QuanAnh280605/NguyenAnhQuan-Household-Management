@@ -21,7 +21,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
         <nav className="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
           <Link href="/can-ho" className="hover:text-primary transition-colors flex items-center gap-1">
             <span className="material-symbols-outlined text-[16px]">domain</span>
-            <span>Căn hộ</span>
+            <span>Apartments</span>
           </Link>
           <span className="material-symbols-outlined text-outline-variant text-[14px]">chevron_right</span>
           <span className="text-on-surface-variant">{apartment.building}</span>
@@ -32,10 +32,10 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
         <div className="flex items-center gap-space-sm text-outline font-label-sm text-label-sm">
           <span className="flex items-center gap-1">
             <span className="material-symbols-outlined text-[14px] text-secondary">update</span>
-            Cập nhật: 10 phút trước
+            Updated: 10 mins ago
           </span>
           <span>•</span>
-          <span>ID Căn: APT-PK-{apartment.roomNumber.replace('-', '')}</span>
+          <span>Unit UID: APT-PK-{apartment.roomNumber.replace('-', '')}</span>
         </div>
       </div>
 
@@ -55,16 +55,16 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               </h1>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-container font-label-md text-label-md font-semibold">
                 <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                Đang ở
+                Occupied
               </span>
               <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant font-medium">
-                Gia đình thường trú
+                Permanent Household
               </span>
             </div>
             <p className="font-body-md text-body-md text-on-surface-variant flex flex-wrap items-center gap-y-1 gap-x-2">
               <span className="font-medium text-on-surface">{apartment.building}</span>
               <span className="text-outline-variant">•</span>
-              <span>Tầng {apartment.floor}</span>
+              <span>Floor {apartment.floor}</span>
               <span className="text-outline-variant">•</span>
               <span className="font-medium text-on-surface">{apartment.area} m²</span>
               <span className="text-outline-variant">•</span>
@@ -80,12 +80,12 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
         {/* Hero Actions */}
         <div className="flex items-center gap-space-sm z-10 flex-wrap sm:flex-nowrap">
           <button
-            onClick={() => alert('Chức năng chỉnh sửa thông tin căn hộ')}
+            onClick={() => alert('Edit apartment specifications')}
             className="px-space-md py-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md font-medium transition-colors flex items-center gap-2 border border-outline-variant/30"
             type="button"
           >
             <span className="material-symbols-outlined text-[18px] text-on-surface-variant">edit</span>
-            <span>Chỉnh sửa căn hộ</span>
+            <span>Edit Unit</span>
           </button>
           <button
             onClick={() => setShowAddResidentModal(true)}
@@ -93,13 +93,13 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
             type="button"
           >
             <span className="material-symbols-outlined text-[18px]">person_add</span>
-            <span>+ Thêm cư dân</span>
+            <span>+ Add Resident</span>
           </button>
           <button
-            onClick={() => alert('Xuất hồ sơ căn hộ PDF')}
+            onClick={() => alert('Export Unit Dossier to PDF')}
             className="p-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant transition-colors flex items-center justify-center border border-outline-variant/30"
             type="button"
-            title="Tùy chọn khác"
+            title="Additional Actions"
           >
             <span className="material-symbols-outlined text-[20px]">more_horiz</span>
           </button>
@@ -110,13 +110,13 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
       <div className="bg-surface-container-lowest px-space-md rounded-lg shadow-sm border border-outline-variant/20 overflow-x-auto">
         <div className="flex items-center gap-space-lg min-w-max">
           {[
-            { id: 'overview', label: 'Tổng quan', icon: 'space_dashboard' },
-            { id: 'owner', label: 'Chủ sở hữu', icon: 'shield_person' },
-            { id: 'household', label: 'Hộ dân', icon: 'family_restroom', badge: '1' },
-            { id: 'residents', label: 'Cư dân', icon: 'groups', badge: String(apartment.residents?.length || 4) },
-            { id: 'vehicles', label: 'Phương tiện', icon: 'directions_car', badge: String(apartment.vehicles?.length || 2) },
-            { id: 'invoices', label: 'Hóa đơn & Phí', icon: 'receipt_long' },
-            { id: 'history', label: 'Lịch sử thay đổi', icon: 'history' },
+            { id: 'overview', label: 'Overview', icon: 'space_dashboard' },
+            { id: 'owner', label: 'Ownership', icon: 'shield_person' },
+            { id: 'household', label: 'Household', icon: 'family_restroom', badge: '1' },
+            { id: 'residents', label: 'Residents', icon: 'groups', badge: String(apartment.residents?.length || 4) },
+            { id: 'vehicles', label: 'Vehicles', icon: 'directions_car', badge: String(apartment.vehicles?.length || 2) },
+            { id: 'invoices', label: 'Invoices & Fees', icon: 'receipt_long' },
+            { id: 'history', label: 'Audit History', icon: 'history' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -149,10 +149,10 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  Nhân khẩu cư trú hiện tại
+                  Current Registered Inhabitants
                 </h2>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Danh sách cư dân đã đăng ký thường trú / tạm trú tại căn {apartment.roomNumber}
+                  Resident roster officially verified for unit {apartment.roomNumber}
                 </p>
               </div>
               <button
@@ -160,7 +160,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                 className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[16px]">add</span>
-                <span>Thêm người</span>
+                <span>Add Member</span>
               </button>
             </div>
 
@@ -168,20 +168,20 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-outline-variant/20 text-xs text-outline font-semibold uppercase">
-                    <th className="py-2.5 px-3">Họ và tên</th>
-                    <th className="py-2.5 px-3">Quan hệ</th>
-                    <th className="py-2.5 px-3">CCCD</th>
-                    <th className="py-2.5 px-3">Ngày sinh</th>
-                    <th className="py-2.5 px-3">Cư trú</th>
-                    <th className="py-2.5 px-3 text-right">Số ĐT</th>
+                    <th className="py-2.5 px-3">Full Name</th>
+                    <th className="py-2.5 px-3">Relationship</th>
+                    <th className="py-2.5 px-3">Citizen ID (CCCD)</th>
+                    <th className="py-2.5 px-3">Date of Birth</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Phone</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/15">
                   {(apartment.residents?.length ? apartment.residents : [
-                    { id: '1', fullName: 'Trần Hoàng Nam', relationship: 'Chủ hộ', citizenId: '001090012345', dateOfBirth: '14/05/1985', residentStatus: 'PERMANENT', phone: '0912 345 678', isHead: true },
-                    { id: '2', fullName: 'Lê Thị Mai', relationship: 'Vợ', citizenId: '001192023456', dateOfBirth: '22/08/1988', residentStatus: 'PERMANENT', phone: '0988 123 456', isHead: false },
-                    { id: '3', fullName: 'Trần Hoàng Quân', relationship: 'Con trai', citizenId: '001215034567', dateOfBirth: '10/11/2014', residentStatus: 'PERMANENT', phone: '—', isHead: false },
-                    { id: '4', fullName: 'Trần Linh Chi', relationship: 'Con gái', citizenId: 'Chưa cấp', dateOfBirth: '05/03/2020', residentStatus: 'PERMANENT', phone: '—', isHead: false },
+                    { id: '1', fullName: 'Tran Hoang Nam', relationship: 'Head of Household', citizenId: '001090012345', dateOfBirth: '14/05/1985', residentStatus: 'PERMANENT', phone: '0912 345 678', isHead: true },
+                    { id: '2', fullName: 'Le Thi Mai', relationship: 'Spouse', citizenId: '001192023456', dateOfBirth: '22/08/1988', residentStatus: 'PERMANENT', phone: '0988 123 456', isHead: false },
+                    { id: '3', fullName: 'Tran Hoang Quan', relationship: 'Son', citizenId: '001215034567', dateOfBirth: '10/11/2014', residentStatus: 'PERMANENT', phone: '—', isHead: false },
+                    { id: '4', fullName: 'Tran Linh Chi', relationship: 'Daughter', citizenId: 'Unassigned', dateOfBirth: '05/03/2020', residentStatus: 'PERMANENT', phone: '—', isHead: false },
                   ]).map((resident) => (
                     <tr key={resident.id} className="hover:bg-surface-container-low/50 transition-colors">
                       <td className="py-3 px-3">
@@ -189,7 +189,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                           <span>{resident.fullName}</span>
                           {resident.isHead && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-fixed text-primary">
-                              Chủ hộ
+                              Head
                             </span>
                           )}
                         </div>
@@ -199,7 +199,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                       <td className="py-3 px-3 text-on-surface-variant text-xs">{resident.dateOfBirth}</td>
                       <td className="py-3 px-3">
                         <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-tertiary-fixed/30 text-tertiary">
-                          Thường trú
+                          Permanent
                         </span>
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-xs text-on-surface-variant">
@@ -217,18 +217,18 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  Phương tiện & Thẻ giữ xe
+                  Vehicles & Parking Allocation
                 </h2>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Xe đã được cấp thẻ định danh tại hầm gửi xe
+                  Registered vehicles with active RFID smart access badges
                 </p>
               </div>
               <button
-                onClick={() => alert('Thêm phương tiện mới')}
+                onClick={() => alert('Register new vehicle')}
                 className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[16px]">add</span>
-                <span>Đăng ký xe</span>
+                <span>Register Vehicle</span>
               </button>
             </div>
 
@@ -239,11 +239,11 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                     <span className="material-symbols-outlined text-primary text-[20px]">directions_car</span>
                     <span className="font-mono font-bold text-base text-on-surface">29A-888.99</span>
                   </div>
-                  <p className="text-xs text-on-surface-variant font-medium">Mazda CX-5 (Màu Trắng)</p>
-                  <p className="text-xs text-secondary font-medium">Vị trí: B2-A14 (Ô tô)</p>
+                  <p className="text-xs text-on-surface-variant font-medium">Mazda CX-5 (White)</p>
+                  <p className="text-xs text-secondary font-medium">Slot: B2-A14 (Car Slot)</p>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-tertiary-fixed/40 text-tertiary">
-                  Đang hoạt động
+                  Active
                 </span>
               </div>
 
@@ -253,11 +253,11 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                     <span className="material-symbols-outlined text-primary text-[20px]">two_wheeler</span>
                     <span className="font-mono font-bold text-base text-on-surface">29B1-234.56</span>
                   </div>
-                  <p className="text-xs text-on-surface-variant font-medium">Honda SH 150i (Màu Đen)</p>
-                  <p className="text-xs text-secondary font-medium">Vị trí: B1-XM-205 (Xe máy)</p>
+                  <p className="text-xs text-on-surface-variant font-medium">Honda SH 150i (Black)</p>
+                  <p className="text-xs text-secondary font-medium">Slot: B1-XM-205 (Motorbike Slot)</p>
                 </div>
                 <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-tertiary-fixed/40 text-tertiary">
-                  Đang hoạt động
+                  Active
                 </span>
               </div>
             </div>
@@ -268,14 +268,14 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  Hóa đơn & Dịch vụ gần nhất
+                  Recent Invoices & Service Statements
                 </h2>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Theo dõi tiền quản lý, điện, nước và dịch vụ gửi xe
+                  Monthly management fees, utility meters, and parking service ledger
                 </p>
               </div>
               <Link href="/phi-chung-cu" className="text-xs font-semibold text-primary hover:underline">
-                Xem toàn bộ lịch sử
+                View complete ledger
               </Link>
             </div>
 
@@ -283,39 +283,39 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-outline-variant/20 text-xs text-outline font-semibold uppercase">
-                    <th className="py-2.5 px-3">Mã Hóa đơn</th>
-                    <th className="py-2.5 px-3">Kỳ hóa đơn</th>
-                    <th className="py-2.5 px-3">Phí QL</th>
-                    <th className="py-2.5 px-3">Điện & Nước</th>
-                    <th className="py-2.5 px-3">Gửi xe</th>
-                    <th className="py-2.5 px-3 font-bold">Tổng tiền</th>
-                    <th className="py-2.5 px-3 text-right">Trạng thái</th>
+                    <th className="py-2.5 px-3">Invoice Code</th>
+                    <th className="py-2.5 px-3">Cycle</th>
+                    <th className="py-2.5 px-3">Mgmt Fee</th>
+                    <th className="py-2.5 px-3">Electricity & Water</th>
+                    <th className="py-2.5 px-3">Parking</th>
+                    <th className="py-2.5 px-3 font-bold">Total (VND)</th>
+                    <th className="py-2.5 px-3 text-right">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/15">
                   <tr className="hover:bg-surface-container-low/50 transition-colors">
                     <td className="py-3 px-3 font-mono font-medium text-xs text-primary">INV-202510-A1205</td>
-                    <td className="py-3 px-3 font-medium text-on-surface">Tháng 10/2025</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.290.000đ</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.395.000đ</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.350.000đ</td>
-                    <td className="py-3 px-3 font-bold text-on-surface">4.035.000đ</td>
+                    <td className="py-3 px-3 font-medium text-on-surface">Oct 2025</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,290,000 ₫</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,395,000 ₫</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,350,000 ₫</td>
+                    <td className="py-3 px-3 font-bold text-on-surface">4,035,000 ₫</td>
                     <td className="py-3 px-3 text-right">
                       <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed/40 text-tertiary">
-                        Đã thanh toán
+                        Paid
                       </span>
                     </td>
                   </tr>
                   <tr className="hover:bg-surface-container-low/50 transition-colors">
                     <td className="py-3 px-3 font-mono font-medium text-xs text-primary">INV-202509-A1205</td>
-                    <td className="py-3 px-3 font-medium text-on-surface">Tháng 09/2025</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.290.000đ</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.650.000đ</td>
-                    <td className="py-3 px-3 text-on-surface-variant">1.350.000đ</td>
-                    <td className="py-3 px-3 font-bold text-on-surface">4.290.000đ</td>
+                    <td className="py-3 px-3 font-medium text-on-surface">Sep 2025</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,290,000 ₫</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,650,000 ₫</td>
+                    <td className="py-3 px-3 text-on-surface-variant">1,350,000 ₫</td>
+                    <td className="py-3 px-3 font-bold text-on-surface">4,290,000 ₫</td>
                     <td className="py-3 px-3 text-right">
                       <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed/40 text-tertiary">
-                        Đã thanh toán
+                        Paid
                       </span>
                     </td>
                   </tr>
@@ -331,7 +331,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                Chủ sở hữu căn hộ
+                Legal Property Owner
               </h3>
               <span className="material-symbols-outlined text-outline text-[20px]">badge</span>
             </div>
@@ -342,42 +342,42 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               </div>
               <div>
                 <h4 className="font-bold text-on-surface">{apartment.ownerName}</h4>
-                <p className="text-xs text-on-surface-variant">Chủ hộ kiêm chủ sở hữu</p>
+                <p className="text-xs text-on-surface-variant">Owner & Household Head</p>
               </div>
             </div>
 
             <div className="space-y-2.5 text-xs">
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Số CCCD:</span>
+                <span className="text-on-surface-variant">National ID:</span>
                 <span className="font-mono font-medium text-on-surface">{apartment.ownerCitizenId}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Số điện thoại:</span>
+                <span className="text-on-surface-variant">Phone:</span>
                 <span className="font-mono font-medium text-primary">{apartment.ownerPhone}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Hợp đồng mua bán:</span>
-                <span className="font-mono font-medium text-on-surface">HĐ-PK-1205/2022</span>
+                <span className="text-on-surface-variant">Sales Deed:</span>
+                <span className="font-mono font-medium text-on-surface">HD-PK-1205/2022</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-on-surface-variant">Ngày bàn giao:</span>
+                <span className="text-on-surface-variant">Handover Date:</span>
                 <span className="font-medium text-on-surface">{apartment.handoverDate}</span>
               </div>
             </div>
 
             <button
-              onClick={() => alert('Liên hệ chủ hộ qua điện thoại')}
+              onClick={() => alert('Call property owner via telephony')}
               className="w-full py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-semibold text-xs transition-colors flex items-center justify-center gap-1.5"
             >
               <span className="material-symbols-outlined text-[16px]">call</span>
-              <span>Gọi điện cho chủ hộ</span>
+              <span>Call Property Owner</span>
             </button>
           </div>
 
           {/* Card: Chỉ số đồng hồ tiêu thụ */}
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-4">
             <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Chỉ số tiêu thụ kỳ này
+              Current Utility Meters
             </h3>
 
             <div className="space-y-3">
@@ -387,13 +387,13 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                     <span className="material-symbols-outlined text-[18px]">bolt</span>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-on-surface">Điện sinh hoạt</div>
-                    <div className="text-[11px] text-on-surface-variant">Chỉ số: 4,820 kWh</div>
+                    <div className="text-xs font-bold text-on-surface">Electricity</div>
+                    <div className="text-[11px] text-on-surface-variant">Reading: 4,820 kWh</div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-sm text-on-surface font-mono">245 kWh</div>
-                  <div className="text-[11px] text-secondary font-medium">-12 kWh so với kỳ trước</div>
+                  <div className="text-[11px] text-secondary font-medium">-12 kWh vs prior cycle</div>
                 </div>
               </div>
 
@@ -403,13 +403,13 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                     <span className="material-symbols-outlined text-[18px]">water_drop</span>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-on-surface">Nước sinh hoạt</div>
-                    <div className="text-[11px] text-on-surface-variant">Chỉ số: 182 m³</div>
+                    <div className="text-xs font-bold text-on-surface">Domestic Water</div>
+                    <div className="text-[11px] text-on-surface-variant">Reading: 182 m³</div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-sm text-on-surface font-mono">18 m³</div>
-                  <div className="text-[11px] text-on-surface-variant font-medium">+1 m³ so với kỳ trước</div>
+                  <div className="text-[11px] text-on-surface-variant font-medium">+1 m³ vs prior cycle</div>
                 </div>
               </div>
             </div>
@@ -418,19 +418,19 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
           {/* Card: Phản ánh của căn hộ */}
           <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm border border-outline-variant/20 space-y-3">
             <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Ý kiến & Yêu cầu gần nhất
+              Recent Inquiries & Requests
             </h3>
             <div className="p-3 rounded-lg bg-surface-container-low/70 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-xs text-on-surface">Thêm thẻ xe điện hầm B1</span>
+                <span className="font-semibold text-xs text-on-surface">Add B1 electric motorbike RFID badge</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
-                  Tiếp nhận
+                  Received
                 </span>
               </div>
               <p className="text-xs text-on-surface-variant">
-                Yêu cầu cấp thêm 01 thẻ RFID gửi xe điện tầng hầm B1.
+                Request additional RFID badge for B1 parking.
               </p>
-              <div className="text-[11px] text-outline pt-1">Gửi lúc: Hôm qua, 16:45</div>
+              <div className="text-[11px] text-outline pt-1">Submitted: Yesterday, 16:45</div>
             </div>
           </div>
         </div>
@@ -442,7 +442,7 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
           <div className="bg-surface-container-lowest rounded-2xl max-w-lg w-full p-6 shadow-xl border border-outline-variant/30 space-y-4 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-outline-variant/20 pb-3">
               <h3 className="font-headline-sm text-lg font-bold text-on-surface">
-                Thêm cư dân vào căn {apartment.roomNumber}
+                Add Resident to Unit {apartment.roomNumber}
               </h3>
               <button
                 onClick={() => setShowAddResidentModal(false)}
@@ -455,18 +455,18 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                alert(`Đã thêm cư dân vào căn ${apartment.roomNumber} thành công!`);
+                alert(`Resident added to unit ${apartment.roomNumber} successfully!`);
                 setShowAddResidentModal(false);
               }}
               className="space-y-3"
             >
               <div>
                 <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                  Họ và tên *
+                  Full Name *
                 </label>
                 <input
                   required
-                  placeholder="VD: Trần Hoàng Anh"
+                  placeholder="e.g. Alex Tran"
                   className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none"
                 />
               </div>
@@ -474,16 +474,16 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Số CCCD / Mã định danh
+                    National ID (CCCD 12 digits)
                   </label>
                   <input
-                    placeholder="12 chữ số"
+                    placeholder="12 digits CCCD"
                     className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Ngày sinh *
+                    Date of Birth *
                   </label>
                   <input
                     required
@@ -496,23 +496,23 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Quan hệ với chủ hộ *
+                    Relationship to Head *
                   </label>
                   <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none">
-                    <option>Con</option>
-                    <option>Bố / Mẹ</option>
-                    <option>Vợ / Chồng</option>
-                    <option>Anh / Chị / Em</option>
-                    <option>Khách thuê</option>
+                    <option>Child</option>
+                    <option>Parent</option>
+                    <option>Spouse</option>
+                    <option>Sibling</option>
+                    <option>Tenant</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                    Tình trạng cư trú *
+                    Residency Status *
                   </label>
                   <select className="w-full px-3 py-2 text-sm rounded-lg bg-surface-container-low border border-outline-variant/30 focus:outline-none">
-                    <option>Thường trú</option>
-                    <option>Tạm trú</option>
+                    <option>Permanent</option>
+                    <option>Temporary</option>
                   </select>
                 </div>
               </div>
@@ -523,13 +523,13 @@ export function ApartmentDetailClient({ apartment }: DetailClientProps) {
                   onClick={() => setShowAddResidentModal(false)}
                   className="px-4 py-2 text-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high font-medium"
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm rounded-lg bg-primary-container text-white hover:bg-primary font-semibold shadow-sm"
                 >
-                  Lưu cư dân
+                  Save Resident
                 </button>
               </div>
             </form>
