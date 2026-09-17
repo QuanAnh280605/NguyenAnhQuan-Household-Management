@@ -1,6 +1,7 @@
 export type ApartmentStatus = 'EMPTY' | 'RENTED' | 'OWNER_OCCUPIED' | 'REPAIRING';
 export type ResidentStatus = 'PERMANENT' | 'TEMPORARY' | 'ABSENT' | 'MOVED';
 export type InvoiceStatus = 'UNPAID' | 'PARTIAL' | 'PAID' | 'OVERDUE';
+export type ApartmentFeeStatus = InvoiceStatus | 'EXEMPT';
 export type VehicleType = 'CAR' | 'MOTORBIKE' | 'ELECTRIC_BIKE' | 'BICYCLE';
 export type FeedbackCategory = 'NOISE' | 'REPAIR' | 'CLEANING' | 'SECURITY' | 'SERVICE';
 export type FeedbackStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
@@ -72,6 +73,7 @@ export interface Invoice {
   dueDate: string;
   paymentMethod?: string;
   paymentDate?: string;
+  paidAt?: string;
 }
 
 export interface Feedback {
@@ -106,5 +108,5 @@ export interface Apartment {
   residents: Resident[];
   vehicles: Vehicle[];
   invoices: Invoice[];
-  feeStatus: InvoiceStatus;
+  feeStatus: ApartmentFeeStatus;
 }

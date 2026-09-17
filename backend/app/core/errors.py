@@ -35,9 +35,14 @@ class ConcurrencyError(AppError):
     def __init__(self, message: str = "Resource is currently locked or modified concurrently", details: Optional[Any] = None):
         super().__init__(message, 409, "CONCURRENCY_LOCK_ACQUIRED", details)
 
+class AuthenticationError(AppError):
+    def __init__(self, message: str = "Authentication failed or token invalid", details: Optional[Any] = None):
+        super().__init__(message, 401, "UNAUTHORIZED", details)
+
 class ForbiddenError(AppError):
     def __init__(self, message: str = "Access denied", details: Optional[Any] = None):
         super().__init__(message, 403, "FORBIDDEN", details)
+
 
 def format_rfc7807_problem(
     type_url: str,

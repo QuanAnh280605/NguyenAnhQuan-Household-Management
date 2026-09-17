@@ -16,6 +16,12 @@ class Settings(BaseSettings):
         "http://localhost:8000",
     ]
 
+    # Security & Auth Configuration
+    SECRET_KEY: str = "residenthub-dev-secret-key-replace-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+
+
     model_config = SettingsConfigDict(case_sensitive=True, env_file=".env", extra="ignore")
 
 settings = Settings()

@@ -25,18 +25,61 @@ class HttpClient {
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-    const headers = {
+    
+    // Retrieve auth token if in browser environment
+    let authHeader: Record<string, string> = {};
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('residenthub_token');
+      if (token) {
+        authHeader = { Authorization: `Bearer ${token}` };
+      }
+    }
+
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...authHeader,
+      ...(options?.headers as Record<string, string>),
     };
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-    const data = await response.json();
-    return data as ApiResponse<T>;
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        return data as ApiResponse<T>;
+      }
+
+      return {
+        success: response.ok,
+        data: null as unknown as T,
+        timestamp: new Date().toISOString(),
+        error: response.ok ? undefined : {
+          status: response.status,
+          detail: `HTTP Error ${response.status}: ${response.statusText}`,
+        },
+      };
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Network request failed';
+      return {
+        success: false,
+        data: null as unknown as T,
+        timestamp: new Date().toISOString(),
+        error: {
+          status: 503,
+          detail: `Backend API unreachable (${errorMsg}). Falling back to local data store.`,
+        },
+      };
+    }
   }
 
   public get<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
