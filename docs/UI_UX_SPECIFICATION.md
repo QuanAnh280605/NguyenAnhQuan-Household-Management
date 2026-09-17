@@ -9,7 +9,7 @@
 > - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (Frontend & Backend 3-Tier Layering)  
 > - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
 > - 📸 [docs/screenshots/](screenshots/README.md) (Visual Gallery of Production Screens)  
-> - 🗄️ [schema.sql](../schema.sql) (PostgreSQL Normalized Relational Schema)
+> - 🗄️ [database/schema.sql](../database/schema.sql) (PostgreSQL Normalized Relational Schema)
 
 ---
 

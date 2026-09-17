@@ -100,7 +100,7 @@ Select the reading path tailored to your role, perspective, and available time:
 >
 > **Goal:** Master the 18-table 3NF relational schema, utility billing calculation strategies, and state machines.
 
-- ➡️ **[../schema.sql](../schema.sql)** & **[../database/schema.dbml](../database/schema.dbml)**: 18 relational tables, foreign keys, constraints, and indexes.
+- ➡️ **[../database/schema.sql](../database/schema.sql)** & **[../database/schema.dbml](../database/schema.dbml)**: 18 relational tables, foreign keys, constraints, and indexes.
 - ➡️ **[SYSTEM_WORKFLOWS_AND_SPECS.md §1](SYSTEM_WORKFLOWS_AND_SPECS.md#1-core-lifecycles-state-machines--failure-twins)**: Residence lifecycles, billing debt transitions, and parking quota allocation.
 - ➡️ **[UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md)**: Comprehensive mapping matrix from 18 SQL tables to UI screens.
 
@@ -144,6 +144,6 @@ Select the reading path tailored to your role, perspective, and available time:
 ## 🏛️ Related Root Resources
 
 - **[Project Root README](../README.md)**: Main developer portal with installation instructions, scripts, and feature highlights.
-- **[Database SQL Schema](../schema.sql)**: Official PostgreSQL (v13+) DDL definition file with ENUMs, triggers, and indices.
+- **[Database SQL Schema](../database/schema.sql)**: Official PostgreSQL (v13+) DDL definition file with ENUMs, triggers, and indices.
 - **[Database DBML Definition](../database/schema.dbml)**: Visual schema script for [dbdiagram.io](https://dbdiagram.io) and [dbdocs.io](https://dbdocs.io).
 - **[Interactive Stitch Prototype](https://stitch.withgoogle.com/projects/16326783556633031011?pli=1)**: High-fidelity interactive UI prototype.

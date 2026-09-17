@@ -4,7 +4,7 @@
 > **Status:** Approved Architectural Baseline  
 > **Database Engine:** PostgreSQL 16+ (Normalized 3NF)  
 > **Traceability Links:**  
-> - 🗄️ [schema.sql](../schema.sql) (Production DDL Script with Constraints & Indexes)  
+> - 🗄️ [database/schema.sql](../database/schema.sql) (Production DDL Script with Constraints & Indexes)  
 > - 📐 [database/schema.dbml](../database/schema.dbml) (DBML Schema for dbdiagram.io / dbdocs.io)  
 > - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile User Stories & Acceptance Criteria)  
 > - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 2 Container & Level 3 Component Diagrams)  

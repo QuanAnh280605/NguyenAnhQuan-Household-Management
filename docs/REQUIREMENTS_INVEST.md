@@ -9,7 +9,7 @@
 > - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (Context, Container, Components & Runtime View)  
 > - 🖥️ [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
 > - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (3-Tier Layering Specifications)  
-> - 🗄️ [schema.sql](../schema.sql) (18-Table 3NF Normalized Relational Database Schema)
+> - 🗄️ [database/schema.sql](../database/schema.sql) (18-Table 3NF Normalized Relational Database Schema)
 
 ---
 

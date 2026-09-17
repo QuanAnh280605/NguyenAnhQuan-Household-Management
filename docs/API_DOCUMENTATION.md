@@ -6,7 +6,7 @@
 > **Interactive Swagger UI:** [http://localhost:3000/api-docs](/api-docs)  
 > **OpenAPI 3.0 Spec:** [docs/openapi.yaml](openapi.yaml) (or download at [/openapi.yaml](/openapi.yaml))  
 > **Database ERD & Specs:** [docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md](DATABASE_SPECIFICATION_AND_DIAGRAMS.md)  
-> **Traceability:** Aligned with [USE_CASES.md](USE_CASES.md), [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md), and [schema.sql](../schema.sql)  
+> **Traceability:** Aligned with [USE_CASES.md](USE_CASES.md), [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md), and [database/schema.sql](../database/schema.sql)  
 
 ---
 
@@ -676,7 +676,7 @@ Authorization is enforced exclusively at the server boundary. The table below ou
 
 This matrix establishes complete forward and reverse traceability connecting every API trigger to its governing Use Case, UI Screen, Domain Service, and Database Tables:
 
-| API Route / Ingress | Use Case ID | Application Route | Responsible Domain Service | Target SQL Tables ([schema.sql](../schema.sql)) |
+| API Route / Ingress | Use Case ID | Application Route | Responsible Domain Service | Target SQL Tables ([database/schema.sql](../database/schema.sql)) |
 | :--- | :--- | :--- | :--- | :--- |
 | `GET /api/v1/apartments` | `UC-APT-01` | `/can-ho` | `ApartmentService` | `apartments`, `buildings`, `owners` |
 | `GET /api/v1/apartments/{room}` | `UC-APT-02` | `/can-ho/[roomNumber]` | `ApartmentService` | `apartments`, `apartment_owners`, `households` |

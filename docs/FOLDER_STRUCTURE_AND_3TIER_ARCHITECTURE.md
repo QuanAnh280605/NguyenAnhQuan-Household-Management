@@ -9,7 +9,7 @@
 > - 🖥️ [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
 > - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
 > - 🔌 [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (REST Endpoints, DTOs & RFC 7807 Error Envelope)  
-> - 🗄️ [schema.sql](../schema.sql) (18-Table PostgreSQL Relational Schema)
+> - 🗄️ [database/schema.sql](../database/schema.sql) (18-Table PostgreSQL Relational Schema)
 
 ---
 

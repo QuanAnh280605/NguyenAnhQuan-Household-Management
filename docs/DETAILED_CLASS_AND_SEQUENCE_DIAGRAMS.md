@@ -9,7 +9,7 @@
 > - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile Requirements & INVEST Acceptance Criteria)  
 > - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
 > - 🔌 [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (REST Endpoints & DTO Contracts)  
-> - 🗄️ [schema.sql](../schema.sql) (PostgreSQL 18-Table 3NF Normalized Database Schema)
+> - 🗄️ [database/schema.sql](../database/schema.sql) (PostgreSQL 18-Table 3NF Normalized Database Schema)
 
 ---
 

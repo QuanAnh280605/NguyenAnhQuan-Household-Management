@@ -49,7 +49,7 @@ flowchart LR
 | :--- | :--- | :--- |
 | **Functional Scope** | **7 Core Modules** | Buildings, Households, Residents, Stay Tracking, Vehicles, Invoices, Feedbacks |
 | **Database Architecture** | **18 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
-| **Data Definition** | **DBML + SQL DDL + ERD** | [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md), [`database/schema.dbml`](database/schema.dbml) and [`schema.sql`](schema.sql) |
+| **Data Definition** | **DBML + SQL DDL + ERD** | [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md), [`database/schema.dbml`](database/schema.dbml) and [`database/schema.sql`](database/schema.sql) |
 | **API Specifications** | **OpenAPI 3.0.3 + Swagger UI** | [`docs/openapi.yaml`](docs/openapi.yaml) and interactive console at [`/api-docs`](/api-docs) |
 | **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level data isolation |
 | **Frontend Stack** | **Next.js (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS |
@@ -64,7 +64,7 @@ flowchart LR
 
 Decomposed from the high-level management objective, the platform encapsulates 7 operational subsystems:
 
-![System Mindmap](./image.png)
+![System Mindmap](docs/assets/mindmap.png)
 
 ```
                             ┌─ 1. Buildings & Apartments (Properties & Floor plans)
@@ -229,7 +229,7 @@ ResidentHub guarantees architectural cohesion between the user interface and the
 The database schema is modeled in 3NF across 18 relational tables. Inspect the interactive schema definitions and diagrams:
 - **Comprehensive ERD & Data Dictionary:** [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
 - **DBML Schema:** [`database/schema.dbml`](database/schema.dbml)
-- **PostgreSQL DDL:** [`schema.sql`](schema.sql)
+- **PostgreSQL DDL:** [`database/schema.sql`](database/schema.sql)
 
 ```mermaid
 erDiagram
@@ -285,35 +285,48 @@ erDiagram
 | [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | API & Ingress Specification | REST endpoints, Server Actions, RFC 7807 problem details, and VietQR Webhooks |
 | [UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md) | UI to Database Traceability | Granular field-by-field mapping between application screens and SQL columns |
 | [schema.dbml](database/schema.dbml) | Database Markup Language | Visual, importable DBML schema for dbdocs.io and dbdiagram.io |
-| [schema.sql](schema.sql) | PostgreSQL DDL | Complete table definitions, indexes, composite constraints & triggers |
+| [database/schema.sql](database/schema.sql) | PostgreSQL DDL | Complete table definitions, indexes, composite constraints & triggers |
 | [docs/screenshots/](docs/screenshots/README.md) | High-Res UI Gallery | Production screenshots across all 7 operational modules |
 
 ---
 
-## 🚀 Quick Start
+---
+
+## 🚀 Quick Start (Monorepo)
 
 ### 1. Install Dependencies
 
 ```bash
-npm install
+# Install frontend dependencies
+npm --prefix frontend install
+
+# Install backend dependencies (Python 3.11+)
+pip install -r backend/requirements.txt
 ```
 
 ### 2. Setup Database (PostgreSQL)
 
-Create the PostgreSQL database and import the schema from [schema.sql](schema.sql):
+Create the PostgreSQL database and import the schema from [database/schema.sql](database/schema.sql):
 
 ```bash
 # Create database
 createdb -U postgres resident_hub
 
 # Import schema
-psql -U postgres -d resident_hub -f schema.sql
+psql -U postgres -d resident_hub -f database/schema.sql
 ```
 
-### 3. Run Development Server
+### 3. Run Development Servers
+
+From the root directory:
 
 ```bash
+# Start Frontend Next.js app (http://localhost:3000)
 npm run dev
+
+# Or start Backend FastAPI service (http://localhost:8000)
+npm run dev:backend
 ```
 
 Open your browser at **[http://localhost:3000](http://localhost:3000)**.
+Interactive Swagger API Docs available at **[http://localhost:8000/docs](http://localhost:8000/docs)**.

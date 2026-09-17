@@ -7,7 +7,7 @@
 > - 📘 [ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md) (IEEE 42010 12-Section Architecture Dossier)  
 > - ⚙️ [SYSTEM_WORKFLOWS_AND_SPECS.md](SYSTEM_WORKFLOWS_AND_SPECS.md) (State Machines & RBAC Matrix)  
 > - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
-> - 🗄️ [schema.sql](../schema.sql) / [database/schema.dbml](../database/schema.dbml) (18-Table Normalized Schema)
+> - 🗄️ [database/schema.sql](../database/schema.sql) / [database/schema.dbml](../database/schema.dbml) (18-Table Normalized Schema)
 
 ---
 
