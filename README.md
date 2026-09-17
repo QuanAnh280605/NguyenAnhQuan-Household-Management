@@ -25,15 +25,15 @@
 ResidentHub  =  3NF Relational Integrity  +  Pessimistic Asset Locks  +  Tariff Engine  +  Dynamic VietQR Settlement
 ```
 
-> Vận hành chung cư hiện đại không thể dựa trên sổ tay hay bảng tính Excel rời rạc.  
-> Đó là **mạng lưới quản trị nhân khẩu pháp lý, tài sản hữu hạn (slot đỗ xe hầm) và dòng tiền đối soát tức thì**.
+> Modern residential facility operations cannot rely on paper logs or disparate spreadsheets.  
+> It is a **network of statutory civil demographics, scarce physical assets (basement parking bays), and immediate financial reconciliation**.
 
 ```mermaid
 flowchart LR
     subgraph business["🏢 Domain Operations (Your Business Rules)"]
         direction TB
         APT["Units & Owners<br/><small>Properties & Legal Deeds</small>"]
-        RES["Households & Census<br/><small>Civil Registry & CCCD</small>"]
+        RES["Households & Census<br/><small>Civil Registry & Citizen ID</small>"]
         PRK["Vehicle Quota Rules<br/><small>Max 1 Car, 2 Bikes / Unit</small>"]
         TRF["Utility Tariffs<br/><small>EVN 6-Tier Power & Water</small>"]
     end
@@ -58,43 +58,43 @@ flowchart LR
 ```
 
 <div align="center">
-<b>Bạn quản trị cư dân và thiết lập quy định tòa nhà. ResidentHub tự động hóa toàn bộ sự toàn vẹn dữ liệu và đối soát tài chính.</b>
+<b>You define the community policies and manage residents. ResidentHub automates relational integrity and financial ledger reconciliation.</b>
 </div>
 
 <div align="center">
 
-### [Khám phá giao diện thực tế của hệ thống →](#-user-interface-tour)
+### [Explore Live Application Tour →](#-user-interface-tour)
 
 [![ResidentHub Operations Console: Management dashboard displaying apartment occupancy, billing collection rate, and real-time operations.](docs/screenshots/dashboard.png)](#-user-interface-tour)
 
-<sub><b>Real Running Application</b> — Next.js 16 App Router, FastAPI 3-Tier Backend, 18 bảng chuẩn hóa 3NF, và bộ kiểm thử tự động <b>26/26 tests PASS (0.42s)</b>.<br/><a href="#-user-interface-tour">Khám phá chi tiết toàn bộ các màn hình và quy trình bên dưới →</a></sub>
+<sub><b>Real Running Application</b> — Next.js 16 App Router, FastAPI 3-Tier Backend, 18 normalized 3NF tables, and full automated test suite <b>26/26 tests PASS (0.42s)</b>.<br/><a href="#-user-interface-tour">Inspect every screen and workflow below →</a></sub>
 
 </div>
 
 ---
 
-## ⚡ 3 Minutes to a Running System
+## ⚡ Three Minutes to a Running System
 
-### 1. The Pure Domain Logic — EVN 6-Tier Electricity Calculation
-Không nhúng logic nghiệp vụ vào controller hay câu lệnh SQL. Biểu giá điện bậc thang sinh hoạt và hạn mức định mức được đóng gói trong domain service độc lập:
+### 1. The Pure Domain Logic — EVN 6-Tier Progressive Electricity Calculation
+Never embed domain rules inside HTTP controllers or ad-hoc SQL queries. Tiered utility tariffs and consumption quotas are encapsulated in pure, isolated domain services:
 
 ```python
 from backend.app.services.billing_service import BillingService
 
-# Tính toán tiền điện sinh hoạt theo 6 bậc lũy tiến EVN
+# Calculate residential electricity consumption across EVN 6 progressive tiers
 service = BillingService()
 breakdown = service.calculate_electricity_tiered(kwh_consumed=245.0)
 
-# Kết quả phân bổ từng bậc chuẩn xác:
-# Bậc 1 (0-50 kWh):    50 kWh x 1,806đ = 90,300đ
-# Bậc 2 (51-100 kWh):  50 kWh x 1,866đ = 93,300đ
-# Bậc 3 (101-200 kWh): 100 kWh x 2,167đ = 216,700đ
-# Bậc 4 (201-300 kWh): 45 kWh x 2,729đ = 122,805đ
-# Thuế GTGT 8% được tự động tính trên tổng thành tiền
+# Precise tiered allocation:
+# Tier 1 (0-50 kWh):    50 kWh x 1,806 VND =  90,300 VND
+# Tier 2 (51-100 kWh):  50 kWh x 1,866 VND =  93,300 VND
+# Tier 3 (101-200 kWh): 100 kWh x 2,167 VND = 216,700 VND
+# Tier 4 (201-300 kWh): 45 kWh x 2,729 VND = 122,805 VND
+# 8% VAT is automatically computed over the total gross amount
 ```
 
 ### 2. The Idempotent VietQR Pay Session Flow
-Sinh phiên thanh toán mã QR ngân hàng động theo chuẩn Napas 247, tự động đối soát qua Webhook IPN:
+Generate dynamic inter-bank payment QR sessions (Napas 247 standard), verified asynchronously through secure IPN webhooks:
 
 ```python
 # API Ingress: POST /api/v1/billing/invoices/{invoice_id}/pay-session
@@ -102,19 +102,19 @@ pay_session = await billing_service.create_pay_session(
     invoice_id="inv-a1205-2026-03",
     payment_method="VIETQR"
 )
-# Trả về mã VietQR động, số tiền chính xác và correlation_id gạch nợ tự động
+# Returns dynamic VietQR image payload, exact amount, and an idempotent correlation ID
 ```
 
-### 3. Run It Locally in 2 Terminals
+### 3. Run It Locally in Two Terminals
 
 ```bash
-# 1. Khởi động Backend FastAPI (Port 8000)
+# Terminal 1: Launch FastAPI Backend Server (Port 8000)
 cd backend && uvicorn app.main:app --reload
 
-# 2. Khởi động Frontend Next.js (Port 3000)
+# Terminal 2: Launch Next.js Frontend Application (Port 3000)
 cd frontend && npm run dev
 
-# 3. Chạy toàn bộ 26 Unit & Integration Tests (< 1 giây)
+# Verification: Run entire 26 Unit & Integration Tests (< 1 second)
 pytest backend/tests
 # ======================== 26 passed in 0.42s ========================
 ```
@@ -123,14 +123,14 @@ pytest backend/tests
 
 ## 🥊 Why ResidentHub vs Legacy Approaches?
 
-| Trọng tâm kỹ thuật | Quản lý Excel / Zalo | Phần mềm đóng gói cũ (Monolith) | **ResidentHub Architecture** |
+| Architectural Concern | Spreadsheets & Chat Groups | Legacy Monolith Suites | **ResidentHub Architecture** |
 | :--- | :--- | :--- | :--- |
-| **Trùng chỗ đỗ xe hầm (B1/B2)** | Rất thường xuyên do chia sẻ file trễ | Dễ xảy ra khi 2 nhân viên cùng mở form | **Pessimistic Lock `SELECT ... FOR UPDATE` (Cam kết 0% trùng lặp)** |
-| **Chỉ số tiêu thụ điện & nước** | Dễ gõ nhầm công thức, lệch số âm | Tính toán thủ công ở tầng code | **Generated Columns `(current - prev)` cấp DB + EVN 6-Tier Engine** |
-| **Gạch nợ & Đối soát tài chính** | Cư dân gửi ảnh chụp màn hình qua Zalo | Kế toán tra sổ phụ ngân hàng thủ công | **Mã VietQR động + Webhook IPN Napas 247 tự động gạch nợ tức thì** |
-| **Bảo mật dữ liệu CCCD / VNeID** | Lưu file sheet phân tán, dễ lộ lọt | Lưu plain-text trong CSDL | **Phân quyền 4-Tier RBAC, tuân thủ Nghị định 13/2023/NĐ-CP** |
-| **Toàn vẹn quan hệ nhân khẩu** | Khó theo dõi lịch sử tách/nhập hộ | Ràng buộc lỏng lẻo, sinh dữ liệu mồ côi | **Chuẩn hóa 3NF 18 bảng, Surrogate UUID v4, Cascading Rules** |
-| **Tốc độ chu kỳ kiểm thử tự động** | Không có kiểm thử | Kiểm thử thủ công chậm chạp | **26 Unit & Integration Tests tự động PASS trong 0.42 giây** |
+| **Basement Parking Bay Contention** | Frequent double-booking via stale files | High race condition risk during concurrent edits | **Pessimistic Lock `SELECT ... FOR UPDATE` (0% collision guarantee)** |
+| **Utility Meter Computations** | Prone to formula typos and negative indices | Manually calculated in application memory | **Generated Columns `(current - prev)` at DB layer + EVN 6-Tier Engine** |
+| **Debt Clearing & Reconciliation** | Residents upload payment screenshots manually | Accountants manually review bank statements | **Dynamic VietQR session + Asynchronous Napas 247 Webhook auto-clearing** |
+| **National Citizen ID (CCCD) Privacy** | Plain spreadsheets prone to leakage | Plaintext storage in application tables | **4-Tier RBAC governance adhering to Vietnamese Personal Data Protection Decree 13/2023/ND-CP** |
+| **Civil Demographic Kinship Integrity** | Untracked splits, moves, and orphaned entries | Loose relationships prone to orphaned records | **18-Table 3NF Normalized Schema, Surrogate UUID v4, Strict Cascading** |
+| **Automated Test Suite Velocity** | No tests | Slow, brittle, manual QA cycles | **26 Automated Unit & Integration Tests passing in 0.42 seconds** |
 
 ---
 
@@ -160,8 +160,8 @@ Decomposed from the high-level management objective, the platform encapsulates 7
 
 ```
                             ┌─ 1. Buildings & Apartments (Properties & Floor plans)
-                            ├─ 2. Households & Family Rosters (So ho khau)
-                            ├─ 3. Residents & Demographics (CCCD, Legal identity)
+                            ├─ 2. Households & Family Rosters (Civil registry books)
+                            ├─ 3. Residents & Demographics (Citizen ID, Legal identity)
 ResidentHub Operations ─────┼─ 4. Residence Tracking (Temporary stay, Absence, Move-out)
         Platform            ├─ 5. Vehicles & Parking Allocation (Basement B1/B2, RFID)
                             ├─ 6. Automated Billing & Invoicing (Meters, Tariffs, Overdue)
@@ -259,7 +259,7 @@ Clicking into any unit reveals the comprehensive **Apartment Deep-Dive Dossier**
 ---
 
 ### 3. Residents & Household Demographics
-Official civil registration roster tracking 12-digit Citizen Identity Cards (CCCD), family kinship relations (*Chủ hộ, Vợ, Con*), and statutory residency classifications (*Thường trú, Tạm trú*).
+Official civil registration roster tracking 12-digit Citizen Identity Cards (CCCD), family kinship relations (*Head of Household, Spouse, Child*), and statutory residency classifications (*Permanent, Temporary*).
 
 ![Residents Directory](docs/screenshots/residents.png)
 
@@ -273,7 +273,7 @@ Itemized monthly service invoice management featuring automated tariff calculati
 ---
 
 ### 5. Service Requests & Resident Feedback SLA
-Centralized maintenance ticket triage with urgency prioritization (*Khẩn cấp, Ưu tiên cao*), category routing (*Kỹ thuật, Vệ sinh, Tiếng ồn, An ninh*), and technician dispatch logging.
+Centralized maintenance ticket triage with urgency prioritization (*Urgent, High Priority*), category routing (*Technical Repair, Sanitation, Noise, Security*), and technician dispatch logging.
 
 ![Tickets & Maintenance](docs/screenshots/tickets.png)
 
@@ -293,8 +293,8 @@ Underground parking allocation enforcing apartment vehicle quotas, license plate
 | **Command Console** | Macro KPI cards, revenue pulse, recent civil movement timeline | `/` | [View Screen](docs/screenshots/dashboard.png) |
 | **Apartment Directory** | Unit grid, floor plans, area specs, occupancy filters | `/can-ho` | [View Screen](docs/screenshots/apartments.png) |
 | **Apartment Dossier** | Ownership tenure, co-occupants, vehicles, financial ledger | `/can-ho/[roomNumber]` | [View Screen](docs/screenshots/apartment_detail.png) |
-| **Resident Demographics** | Civil profiles, national CCCD, family tree relationships | `/cu-dan` | [View Screen](docs/screenshots/residents.png) |
-| **Billing & Payments** | Automated utility billing, overdue reminders, VietQR modal | `/phi-chung-cu` | [View Screen](docs/screenshots/billing.png) |
+| **Resident Demographics** | Civil profiles, national Citizen ID (CCCD), family tree relationships | `/cu-dan` | [View Screen](docs/screenshots/residents.png) |
+| **Billing & Payments** | Automated utility billing, overdue reminders, VietQR payment modal | `/phi-chung-cu` | [View Screen](docs/screenshots/billing.png) |
 | **Feedback & Tickets** | Resident incident triage, technician dispatch, SLA status | `/phan-anh-va-yeu-cau` | [View Screen](docs/screenshots/tickets.png) |
 | **Vehicles & Parking** | Basement B1/B2 parking allocation, RFID smart card cards | `/phuong-tien-va-bai-do` | [View Screen](docs/screenshots/vehicles.png) |
 | **API Documentation** | Interactive Swagger UI API console | `/api-docs` | [Open Console](/api-docs) |
@@ -310,28 +310,28 @@ The database schema is modeled in 3NF across 18 relational tables. Inspect the i
 
 ```mermaid
 erDiagram
-    %% 1. TÒA NHÀ & CĂN HỘ
+    %% 1. BUILDINGS & APARTMENTS
     BUILDINGS ||--o{ APARTMENTS : "has"
     BUILDINGS ||--o{ PARKING_SLOTS : "contains"
     APARTMENTS ||--o{ APARTMENT_OWNERS : "has"
     OWNERS ||--o{ APARTMENT_OWNERS : "owns"
 
-    %% 2. HỘ DÂN & CƯ DÂN
+    %% 2. HOUSEHOLDS & RESIDENTS
     APARTMENTS ||--o{ HOUSEHOLDS : "houses"
     HOUSEHOLDS ||--o{ HOUSEHOLD_MEMBERS : "contains"
     RESIDENTS ||--o{ HOUSEHOLD_MEMBERS : "belongs_to"
     HOUSEHOLDS }o--|| RESIDENTS : "headed_by"
 
-    %% 3. BIẾN ĐỘNG CƯ TRÚ
+    %% 3. CIVIL RESIDENCE TRACKING
     RESIDENTS ||--o{ RESIDENCE_RECORDS : "registers"
     APARTMENTS ||--o{ RESIDENCE_RECORDS : "recorded_at"
 
-    %% 4. PHƯƠNG TIỆN & BÃI ĐỖ
+    %% 4. VEHICLES & PARKING
     RESIDENTS ||--o{ VEHICLES : "owns"
     APARTMENTS ||--o{ VEHICLES : "registers_for"
     PARKING_SLOTS ||--o| VEHICLES : "allocates"
 
-    %% 5. PHÍ & HÓA ĐƠN
+    %% 5. BILLING & INVOICING
     APARTMENTS ||--o{ METER_READINGS : "consumes"
     APARTMENTS ||--o{ INVOICES : "billed_to"
     HOUSEHOLDS ||--o{ INVOICES : "paid_by"
@@ -339,12 +339,12 @@ erDiagram
     FEE_TYPES ||--o{ INVOICE_ITEMS : "categorized_by"
     INVOICES ||--o{ PAYMENT_TRANSACTIONS : "settled_via"
 
-    %% 6. PHẢN ÁNH & DỊCH VỤ
+    %% 6. SERVICE TICKETS & MAINTENANCE
     RESIDENTS ||--o{ FEEDBACKS : "submits"
     APARTMENTS ||--o{ FEEDBACKS : "originates_from"
     FEEDBACKS ||--o{ FEEDBACK_UPDATES : "tracks"
 
-    %% 7. HỆ THỐNG & TÀI KHOẢN
+    %% 7. IDENTITY & RBAC USERS
     USERS ||--o| RESIDENTS : "profile_of"
     USERS ||--o{ FEEDBACKS : "handled_by"
     USERS ||--o{ FEEDBACK_UPDATES : "updated_by"
@@ -354,39 +354,39 @@ erDiagram
 
 ## 📚 Architecture Documentation Index
 
-Tất cả các tài liệu kỹ thuật được chuẩn hóa và liên kết ma trận chéo trong thư mục `docs/`:
+All architectural specifications are cross-referenced across the `docs/` catalog:
 
-| Tài liệu | Phân loại | Câu hỏi kỹ thuật được giải đáp |
+| Document | Discipline | What It Answers |
 | :--- | :--- | :--- |
-| **[REQUIREMENTS_INVEST.md](docs/REQUIREMENTS_INVEST.md)** | Requirements Engineering | User Stories chi tiết ra sao? Tiêu chí nghiệm thu BDD Gherkin và ma trận INVEST thế nào? |
-| **[USE_CASES.md](docs/USE_CASES.md)** | Functional Specifications | Danh mục ca sử dụng (Use Cases), sơ đồ phân rã Actor và kịch bản ngoại lệ gồm những gì? |
-| **[UI_UX_SPECIFICATION.md](docs/UI_UX_SPECIFICATION.md)** | Interaction Design | Cây kiến trúc thông tin (IA), phân cấp 4 tầng màn hình và hệ thống Design Tokens ra sao? |
-| **[UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md)** | Field-Level Traceability | Từng trường nhập liệu trên giao diện ánh xạ vào bảng và cột SQL nào trong CSDL? |
-| **[ARCHITECTURE_C4.md](docs/ARCHITECTURE_C4.md)** | Architecture (Simon Brown C4) | Sơ đồ Context (C1), Container (C2), Component (C3), Dynamic view và Deployment topology? |
-| **[ARCHITECTURE_ARC42.md](docs/ARCHITECTURE_ARC42.md)** | Architecture (arc42 Standard) | Hồ sơ kiến trúc chuẩn IEEE 42010 gồm 12 chương theo thông lệ quốc tế? |
-| **[DATABASE_SPECIFICATION_AND_DIAGRAMS.md](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)** | Data Engineering | Thiết kế 18 bảng 3NF, từ điển dữ liệu (Data Dictionary), chiến lược Index và khóa bi quan? |
-| **[openapi.yaml](docs/openapi.yaml)** | API Standard (OpenAPI 3.0.3) | Toàn bộ endpoints, DTO schema, mã lỗi RFC 7807 và phân quyền RBAC ở định dạng máy đọc được? |
-| **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](docs/FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | Clean Architecture | Ranh giới 3 tầng (Presentation, Business Logic, Data Access) của cả Frontend và Backend? |
-| **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](docs/DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)** | Detailed UML Modeling | Sơ đồ Class chi tiết và Sequence Diagrams cấp độ gọi hàm xử lý thanh toán, phân bổ slot đỗ xe? |
+| **[REQUIREMENTS_INVEST.md](docs/REQUIREMENTS_INVEST.md)** | Requirements Engineering | How are Agile User Stories defined? What are the verifiable BDD Gherkin acceptance criteria and INVEST compliance metrics? |
+| **[USE_CASES.md](docs/USE_CASES.md)** | Functional Specifications | What is the full functional use case catalog, actor taxonomy, and failure twin handling scenarios? |
+| **[UI_UX_SPECIFICATION.md](docs/UI_UX_SPECIFICATION.md)** | Interaction Design | How is the 4-level Information Architecture (IA) structured? What are the design tokens and screen transition rules? |
+| **[UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md)** | Field-Level Traceability | Which SQL table and column does each visual input and metric card correspond to across all 7 operational screens? |
+| **[ARCHITECTURE_C4.md](docs/ARCHITECTURE_C4.md)** | Visual Architecture (C4 Model) | How does the system look across Context (C1), Container (C2), Component (C3), Dynamic runtime, and Production deployment views? |
+| **[ARCHITECTURE_ARC42.md](docs/ARCHITECTURE_ARC42.md)** | Architecture (arc42 Standard) | How is the complete 12-section international IEEE 42010 architecture documentation structured? |
+| **[DATABASE_SPECIFICATION_AND_DIAGRAMS.md](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)** | Data Engineering | What is the 18-table 3NF schema design, data dictionary, indexing strategy, and pessimistic locking specification? |
+| **[openapi.yaml](docs/openapi.yaml)** | API Standard (OpenAPI 3.0.3) | What are the machine-readable REST API contracts, DTO schemas, RFC 7807 problem envelopes, and RBAC requirements? |
+| **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](docs/FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | Clean Architecture | How are layer boundaries enforced across Presentation (Controllers), Business Logic (Services), and Data Access (Repositories)? |
+| **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](docs/DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)** | Detailed UML Modeling | What are the method-level class interactions and sequence workflows for VietQR settlement, parking allocation, and batch billing? |
 
 ---
 
 ## 🧭 Where the Project Actually Is
 
-Dự án duy trì tính minh bạch kỹ thuật cao nhất về tiến độ thực thi:
+The project maintains the highest standard of technical transparency regarding production readiness:
 
-### ✅ Những gì đã hoàn thành và kiểm chứng thực tế:
-- **Core Architecture & 3-Tier Layering:** Đầy đủ 8 API routers FastAPI, 6 Domain Services, 6 SQL Repositories.
-- **Automated Test Suite:** **26/26 tests PASS trong 0.42 giây** ([backend/tests/](backend/tests/)), bao phủ Auth/JWT, Biểu giá điện EVN 6 bậc, Hạn mức xe, Quản lý sự cố SLA.
-- **In-Memory Fallback Mode:** Hệ thống tự động hoạt động mượt mà ngay cả khi chưa kết nối PostgreSQL thật, phục vụ việc phát triển và demo tức thì.
-- **Frontend App Router:** 7 module màn hình hoàn chỉnh viết bằng React 19 + Next.js 16 + Tailwind CSS v4, tích hợp Swagger UI console tương tác tại `/api-docs`.
-- **Hồ sơ thiết kế đồng bộ 100%:** Đầy đủ 10 bộ tài liệu từ Requirements INVEST, arc42, C4, Database 3NF đến Class/Sequence diagrams.
+### ✅ Verified & In Production Code:
+- **Core Architecture & 3-Tier Layering:** 8 modular FastAPI routers, 6 Domain Services, 6 SQL Repositories fully functional.
+- **Automated Test Suite:** **26/26 tests PASS in 0.42 seconds** ([backend/tests/](backend/tests/)), covering Auth/JWT, EVN 6-Tier calculations, vehicle quota enforcement, and maintenance ticket workflows.
+- **In-Memory Fallback Mode:** Immediate developer feedback without requiring an external PostgreSQL instance.
+- **Frontend App Router:** 7 operational modules built with React 19 + Next.js 16 + Tailwind CSS v4, including interactive Swagger UI at `/api-docs`.
+- **Comprehensive Documentation Baseline:** 10 synchronized specifications connecting Requirements $\leftrightarrow$ Architecture $\leftrightarrow$ Database $\leftrightarrow$ Code.
 
-### 🔄 Những hạng mục đang tiếp tục nâng cấp (Roadmap tiếp theo):
-- **Live Database Migrations:** Bổ sung cấu hình **Alembic** để quản lý phiên bản database schema thay cho file SQL tĩnh.
-- **Soft Delete Mechanism:** Thêm cột `deleted_at` cho các bảng thực thể chính (`residents`, `apartments`, `households`).
-- **Responsive Card View:** Tối ưu hóa bảng dữ liệu trên thiết bị di động (< 768px).
-- **Asynchronous Task Queue:** Tích hợp Redis Queue / Celery cho tác vụ xuất hóa đơn hàng loạt (Batch Invoicing) khi quy mô vượt 2,000 căn hộ.
+### 🔄 Active Engineering Roadmap:
+- **Live Database Migrations:** Integrating **Alembic** for automated versioned schema migrations.
+- **Soft Delete Mechanism:** Adding standard `deleted_at` timestamps across core entities (`residents`, `apartments`, `households`).
+- **Responsive Mobile Card Views:** Optimizing wide table layouts for smartphone viewports (< 768px).
+- **Asynchronous Task Queue:** Adding Redis Queue / Celery for automated month-end batch billing across 2,000+ units.
 
 ---
 
