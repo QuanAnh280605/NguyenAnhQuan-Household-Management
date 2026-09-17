@@ -72,7 +72,7 @@ For the visual System Context diagram and catalog, refer to **[ARCHITECTURE_C4.m
 
 | Quality Goal | Architectural Strategy | Enforcing Component |
 | :--- | :--- | :--- |
-| **Q1 Financial Precision** | Integer arithmetic, decimal-free VND calculations, composite `(apartment_id, billing_month)` uniqueness. | `UtilityBillingEngine`, [schema.sql](file:///d:/VSF/chung-cu-household-management/schema.sql) |
+| **Q1 Financial Precision** | Integer arithmetic, decimal-free VND calculations, composite `(apartment_id, billing_month)` uniqueness. | `UtilityBillingEngine`, [schema.sql](../database/schema.sql) |
 | **Q2 Batch Speed** | Chunked multi-row SQL inserts, index-accelerated meter retrieval, in-memory tariff strategy execution. | `DataAccessLayer`, PostgreSQL B-Tree Indexes |
 | **Q3 Tenant Isolation** | Server-side middleware resolving user role and filtering database queries by authenticated `apartment_id`. | `AuthMiddleware`, Next.js Server Actions |
 | **Q4 Idempotency** | Unique transaction codes in `payment_transactions`, checked before updating invoice status. | `PaymentReconciliationService` |

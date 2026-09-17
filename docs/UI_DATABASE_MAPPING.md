@@ -76,7 +76,7 @@ Manages basement parking spaces (B1, B2), assigned resident vehicles, and automa
 
 ---
 
-## 5. Billing, Utility Readings & Payments (`/hoa-don`)
+## 5. Billing, Utility Readings & Payments (`/phi-chung-cu`)
 
 Handles monthly utility meter readings, automated batch invoicing, itemized tariff breakdowns, and multi-channel reconciliation.
 

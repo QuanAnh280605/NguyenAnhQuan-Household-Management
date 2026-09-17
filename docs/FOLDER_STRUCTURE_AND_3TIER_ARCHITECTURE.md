@@ -195,109 +195,63 @@ chung-cu-household-management/
 
 ---
 
-## 3. Comprehensive Backend 3-Tier Folder Architecture (Node.js / Next.js Server)
+## 3. Comprehensive Backend 3-Tier Folder Architecture (Python 3.11 FastAPI Service)
 
-All server-side code is systematically divided into **3 Tiers**:
+The ResidentHub backend is implemented as a dedicated high-performance **Python 3.11+ FastAPI** microservice enforcing strict **3-Tier Layering Architecture** and asynchronous I/O via **asyncpg**.
+
+Client browser requests on `/api/v1/:path*` are seamlessly reverse-proxied via Next.js (`frontend/next.config.ts`) to the FastAPI backend running on `http://localhost:8000/api/v1/:path*`.
 
 ```
-chung-cu-household-management/
-├── app/api/v1/                      # ════ TIER 1: PRESENTATION TIER (CONTROLLERS / ROUTE HANDLERS) ════
-│   ├── apartments/
-│   │   ├── route.ts                 # GET /api/v1/apartments (Query list), POST (Create apartment)
-│   │   └── [id]/
-│   │       ├── route.ts             # GET (Detail), PATCH (Update), DELETE
-│   │       └── ownership/route.ts   # POST /api/v1/apartments/{id}/ownership (Transfer title)
+backend/
+├── app/
+│   ├── main.py                      # Application factory, lifespan, CORS, and RFC 7807 global exception handlers
 │   │
-│   ├── residents/
-│   │   ├── route.ts                 # GET /api/v1/residents (Roster), POST (Register resident)
-│   │   ├── [id]/route.ts            # GET /api/v1/residents/{id}, PATCH, DELETE
-│   │   └── head-transfer/route.ts   # POST /api/v1/residents/head-transfer (Successor handover)
-│   │
-│   ├── stay-records/
-│   │   ├── route.ts                 # GET (Registry log), POST (Declare temporary stay/absence)
-│   │   └── [id]/verify/route.ts     # POST /api/v1/stay-records/{id}/verify (Management/Police approval)
-│   │
-│   ├── parking/
-│   │   ├── slots/
-│   │   │   ├── route.ts             # GET /api/v1/parking/slots (B1/B2 floorplan)
-│   │   │   └── allocate/route.ts    # POST /api/v1/parking/slots/allocate (Pessimistic lock reservation)
-│   │   └── vehicles/
-│   │       ├── route.ts             # GET /api/v1/parking/vehicles, POST (Register vehicle)
-│   │       ├── [id]/rfid/route.ts   # POST /api/v1/parking/vehicles/{id}/rfid (Provision RFID card)
-│   │       └── [id]/revoke/route.ts # POST /api/v1/parking/vehicles/{id}/revoke (De-register & free slot)
-│   │
-│   ├── billing/
-│   │   ├── invoices/
-│   │   │   ├── route.ts             # GET /api/v1/billing/invoices (Query monthly invoices)
-│   │   │   └── [id]/
-│   │   │       ├── route.ts         # GET (Invoice detail & itemized breakdown)
-│   │   │       └── pay-session/route.ts # POST (Initiate dynamic VietQR payment session)
-│   │   ├── meter-readings/
-│   │   │   ├── route.ts             # GET, POST (Capture meter read & flag anomalies)
-│   │   │   └── audit-batch/route.ts # POST /api/v1/billing/meter-readings/audit-batch
-│   │   ├── batch-generate/route.ts  # POST /api/v1/billing/batch-generate (Month-end cutoff on the 25th)
-│   │   └── overdue-scan/route.ts    # POST /api/v1/billing/overdue-scan (Overdue debt audit after the 10th)
-│   │
-│   ├── webhooks/
-│   │   └── vietqr/route.ts          # POST /api/v1/webhooks/vietqr (Napas 247 asynchronous IPN receiver)
-│   │
-│   └── tickets/
-│       ├── route.ts                 # GET /api/v1/tickets (Kanban feed), POST (Submit defect report)
-│       └── [id]/
-│           ├── dispatch/route.ts    # PATCH /api/v1/tickets/{id}/dispatch (Assign technician)
-│           ├── resolve/route.ts     # PATCH /api/v1/tickets/{id}/resolve (Upload proof & close ticket)
-│           └── escalate/route.ts    # POST /api/v1/tickets/{id}/escalate (Manual SLA escalation)
-│
-├── lib/                             # ════ BACKEND DOMAIN CORE & DATA PERSISTENCE ════
+│   ├── api/                         # ════ TIER 1: PRESENTATION TIER (FASTAPI ROUTERS & CONTROLLERS) ════
+│   │   └── v1/
+│   │       ├── api.py               # Master API v1 Router aggregation
+│   │       ├── apartments.py        # GET /api/v1/apartments, POST (Onboard), GET /{id}, POST /{id}/transfer-ownership
+│   │       ├── residents.py         # GET /api/v1/residents (Roster), POST (Register), POST /stay-declaration
+│   │       ├── parking.py           # GET /api/v1/parking/slots (B1/B2 floorplan), POST /slots/allocate, POST /vehicles
+│   │       ├── billing.py           # GET /api/v1/billing/invoices, GET /{id}, POST /{id}/pay-session (VietQR)
+│   │       ├── webhooks.py          # POST /api/v1/webhooks/vietqr (Napas 247 asynchronous IPN receiver)
+│   │       └── feedbacks.py         # GET /api/v1/feedbacks (Planned: Ticket triage & SLA watchdog)
 │   │
 │   ├── services/                    # ════ TIER 2: BUSINESS LOGIC TIER (PURE DOMAIN SERVICES) ════
-│   │   ├── apartment.service.ts     # Tower zoning, net area (m²), legal title succession
-│   │   ├── resident.service.ts      # 12-digit Citizen ID verification, single household head invariant
-│   │   ├── parking.service.ts       # Quota compliance (1 car, 2 bikes), pessimistic lock slot assignment
-│   │   ├── billing.service.ts       # Progressive tariff calculations, VietQR generation, batch cutoffs
-│   │   ├── payment.service.ts       # Asynchronous IPN webhook handling, idempotency deduplication
-│   │   ├── ticket.service.ts        # Defect intake, technician dispatching, photo proof verification
-│   │   ├── sla-watchdog.service.ts  # Background SLA countdown monitor (4h/24h), emergency escalation
-│   │   ├── notification.service.ts  # E-statement compilation, payment receipt dispatching
-│   │   └── auth.service.ts          # Bcrypt hashing, JWT issuance, 4-tier RBAC authorization
+│   │   ├── apartment_service.py     # Building zoning, net area (m²), legal title transfer orchestration
+│   │   ├── resident_service.py      # 12-digit Citizen ID verification, single household head invariant
+│   │   ├── parking_service.py       # Quota compliance (1 car, 2 bikes), pessimistic lock slot assignment
+│   │   ├── billing_service.py       # Progressive EVN 6-tier electricity & water, VietQR pay sessions, IPN idempotency
+│   │   └── feedback_service.py      # (Planned) Incident defect intake, technician SLA dispatch
 │   │
 │   ├── repositories/                # ════ TIER 3: DATA ACCESS TIER (SQL REPOSITORIES / DAL) ════
-│   │   ├── apartment.repository.ts  # Interacts with 'apartments', 'buildings', 'apartment_owners'
-│   │   ├── resident.repository.ts   # Interacts with 'residents', 'household_members'
-│   │   ├── household.repository.ts  # Interacts with 'households'
-│   │   ├── stay-record.repository.ts# Interacts with 'residence_records'
-│   │   ├── parking-slot.repository.ts# Interacts with 'parking_slots' (SELECT FOR UPDATE)
-│   │   ├── vehicle.repository.ts    # Interacts with 'vehicles'
-│   │   ├── invoice.repository.ts    # Interacts with 'invoices', 'invoice_items'
-│   │   ├── meter-reading.repository.ts# Interacts with 'meter_readings'
-│   │   ├── payment-tx.repository.ts # Interacts with 'payment_transactions'
-│   │   ├── fee-tariff.repository.ts # Interacts with 'fee_types'
-│   │   ├── ticket.repository.ts     # Interacts with 'feedbacks', 'feedback_updates'
-│   │   └── audit-log.repository.ts  # Interacts with 'audit_logs'
+│   │   ├── apartment_repository.py  # Parameterized SQL for 'apartments', 'buildings', 'apartment_owners'
+│   │   ├── resident_repository.py   # Parameterized SQL for 'residents', 'households', 'household_members'
+│   │   ├── parking_repository.py    # Parameterized SQL for 'parking_slots' (SELECT FOR UPDATE) & 'vehicles'
+│   │   ├── billing_repository.py    # Parameterized SQL for 'invoices', 'invoice_items', 'payment_transactions'
+│   │   └── feedback_repository.py   # (Planned) Parameterized SQL for 'feedbacks', 'feedback_updates'
 │   │
-│   ├── db/                          # DATABASE INFRASTRUCTURE
-│   │   ├── pool.ts                  # PostgreSQL connection pool (pg.Pool singleton)
-│   │   └── transaction.ts           # ACID transaction wrapper (runInTransaction)
+│   ├── schemas/                     # INPUT / OUTPUT DTO VALIDATION (PYDANTIC V2 ENGINE)
+│   │   ├── apartment.py             # ApartmentCreate, ApartmentResponse, TransferOwnershipRequest
+│   │   ├── resident.py              # ResidentCreate, ResidentResponse, StayDeclarationRequest
+│   │   ├── parking.py               # AllocateSlotRequest, RegisterVehicleRequest, ParkingSlotResponse
+│   │   └── billing.py               # InvoiceResponse, VietQrPaySessionResponse, VietQrIpnWebhookRequest
 │   │
-│   ├── errors/                      # DOMAIN EXCEPTION CATALOG (RFC 7807 MAPPINGS)
-│   │   ├── app-error.ts             # Base application error class with statusCode and error codes
-│   │   ├── validation-error.ts      # HTTP 422 - Malformed or illegal input payload
-│   │   ├── not-found-error.ts       # HTTP 404 - Requested entity does not exist
-│   │   ├── unauthorized-error.ts    # HTTP 401 / 403 - Unauthenticated or insufficient RBAC privileges
-│   │   ├── concurrency-error.ts     # HTTP 409 - Race condition conflict (Slot already occupied)
-│   │   └── idempotency-error.ts     # HTTP 200/409 - Transaction already completed
+│   ├── core/                        # CROSS-CUTTING INFRASTRUCTURE & ENVELOPE
+│   │   ├── config.py                # Pydantic Settings (DATABASE_URL, CORS_ORIGINS, API_V1_STR)
+│   │   ├── errors.py                # RFC 7807 Problem Details exception handlers (AppError, ValidationError)
+│   │   └── response.py              # api_success({ success, data, timestamp }) standard response envelope
 │   │
-│   ├── validators/                  # INPUT PAYLOAD VALIDATION SCHEMAS (ZOD ENGINE)
-│   │   ├── apartment.schema.ts      # Schemas for unit creation, ownership transfer
-│   │   ├── resident.schema.ts       # Schemas for 12-digit Citizen ID, kinship, demographics
-│   │   ├── parking.schema.ts        # Schemas for license plates, RFID codes, slot reservation
-│   │   ├── billing.schema.ts        # Schemas for meter captures, VietQR pay sessions
-│   │   └── ticket.schema.ts         # Schemas for defect reporting, technician dispatch
-│   │
-│   └── auth/                        # SECURITY & ACCESS CONTROL
-│       ├── jwt.ts                   # Access and Refresh Token signing and verification
-│       ├── rbac-guard.ts            # Role-based middleware guard (ADMIN, MANAGER, TECH, RESIDENT)
-│       └── password.ts              # Salted password hashing via Bcrypt (Salt rounds = 12)
+│   └── db/                          # DATA PERSISTENCE & CONNECTION POOL
+│       └── session.py               # AsyncPG connection pool (init_db_pool, close_db_pool, get_db_pool)
+│
+├── tests/                           # ════ AUTOMATED UNIT & INTEGRATION TESTING (PYTEST) ════
+│   ├── test_api_endpoints.py        # /health, /docs, RFC 7807 error format assertion
+│   ├── test_billing_service.py      # EVN 6-tier electricity, water, VietQR session, IPN idempotency tests
+│   ├── test_parking_service.py      # Car/Motorbike quota limits, duplicate license plate, slot concurrency tests
+│   └── test_resident_service.py     # 12-digit CCCD validation, duplicate citizen ID, missing household tests
+│
+├── requirements.txt                 # Python dependencies (fastapi, uvicorn, asyncpg, pydantic-settings, pytest)
+└── README.md                        # Quickstart guide, port specifications, and architecture summary
 ```
 
 ---

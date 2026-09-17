@@ -34,9 +34,17 @@
 
 The Class and Sequence diagrams in this document strictly enforce the **3-Tier Architecture** established in [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md):
 
-1. **Presentation Tier (Controllers / Route Handlers):** Acts as the ingress boundary, receiving HTTP requests, executing authentication & authorization guards (`rbacGuard`), validating input payloads with Zod schemas, and delegating business execution to the Service layer.
-2. **Business Logic Tier (Domain Services):** Encapsulates core business rules, progressive tariff computations, quota enforcement, and ACID transaction orchestration (`runInTransaction`), remaining completely independent of HTTP framework primitives.
+1. **Presentation Tier (Controllers / Route Handlers):** Acts as the ingress boundary, receiving HTTP requests, executing authentication & authorization guards, validating input payloads via DTO schemas, and delegating business execution to the Service layer.
+2. **Business Logic Tier (Domain Services):** Encapsulates core business rules, progressive tariff computations (EVN 6-tier electricity, water), quota enforcement (vehicles per unit), and ACID transaction orchestration, remaining completely independent of HTTP framework primitives.
 3. **Data Access Tier (Repositories & Storage):** Executes parameterized SQL statements (`$1, $2`), acquires pessimistic locks (`SELECT ... FOR UPDATE`), and maps relational database rows to domain entities.
+
+> [!NOTE]
+> **Runtime Implementation Mapping (Python 3.11 FastAPI Backend):**
+> In the physical repository (`backend/app/`), the conceptual UML contracts map directly to high-performance Python FastAPI classes:
+> - **Controllers**: FastAPI APIRouters (`backend/app/api/v1/*.py`) with Pydantic v2 schemas (`backend/app/schemas/*.py`).
+> - **Services**: Async Domain Services (`backend/app/services/*_service.py`) returning domain models and error envelopes.
+> - **Repositories**: AsyncPG SQL Repositories (`backend/app/repositories/*_repository.py`) communicating with PostgreSQL.
+
 
 ---
 
