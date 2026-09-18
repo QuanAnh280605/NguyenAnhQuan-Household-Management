@@ -6,7 +6,7 @@
 *Single Source of Truth for Building Operations, Household Demographics, and Automated Billing.*
 
 [![Tech Stack](https://img.shields.io/badge/Stack-Next.js%2016%20%7C%20FastAPI%20%7C%20PostgreSQL-blue)](README.md)
-[![Test Suite](https://img.shields.io/badge/Tests-26%20Passed%20(0.42s)-brightgreen)](backend/tests/)
+[![Test Suite](https://img.shields.io/badge/Tests-46%20Passed%20(Vitest%20%2B%20Pytest)-brightgreen)](docs/adr/ADR-0009-frontend-testing-with-vitest-and-testing-library.md)
 [![Architecture: Arc42](https://img.shields.io/badge/Architecture-Arc42%20Standard-indigo)](docs/ARCHITECTURE_ARC42.md)
 [![Visualisation: C4 Model](https://img.shields.io/badge/Visualisation-C4%20Model-teal)](docs/ARCHITECTURE_C4.md)
 [![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
@@ -14,7 +14,7 @@
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-Interactive%20Console-blue)](/api-docs)
 [![Access Control](https://img.shields.io/badge/RBAC-4%20Tiers%20Enforced-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
 [![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20100%25-brightgreen)](docs/UI_DATABASE_MAPPING.md)
-[![ADRs](https://img.shields.io/badge/ADRs-8%20Accepted%20(MADR%203.0)-purple)](docs/adr/README.md)
+[![ADRs](https://img.shields.io/badge/ADRs-9%20Accepted%20(MADR%203.0)-purple)](docs/adr/README.md)
 
 </div>
 

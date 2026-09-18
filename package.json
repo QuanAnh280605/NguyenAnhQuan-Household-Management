@@ -8,7 +8,8 @@
     "dev:backend": "cd backend && uvicorn app.main:app --reload --port 8000",
     "build": "npm --prefix frontend run build",
     "lint": "npm --prefix frontend run lint",
-    "test": "pytest backend/tests -v -o cache_dir=backend/.pytest_cache",
+    "test": "npm --prefix frontend run test && pytest backend/tests -v -o cache_dir=backend/.pytest_cache",
+    "test:frontend": "npm --prefix frontend run test",
     "test:backend": "pytest backend/tests -v -o cache_dir=backend/.pytest_cache"
   }
 }

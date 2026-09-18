@@ -53,6 +53,7 @@ Every ADR follows the **MADR 3.0** format and adheres to the **Documentation-Fir
 | **[ADR-0006](ADR-0006-3tier-architecture-with-pure-domain-services.md)** | 3-Tier Layered Architecture with Pure Domain Services | `ACCEPTED` | 2026-09-18 | Separation of Concerns, Test Velocity (<0.4s) | Decouple EVN Tariff & Quotas from HTTP & SQL Layers |
 | **[ADR-0007](ADR-0007-partial-unique-indexes-with-soft-deletion.md)** | Partial Unique Indexes with Soft-Deletion Support | `ACCEPTED` | 2026-09-18 | Civil Audit Compliance, Uniqueness Preservation | Partial Index `WHERE deleted_at IS NULL` on CCCD/Plates |
 | **[ADR-0008](ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)** | Monorepo Next.js 16 + FastAPI with Resilient Fallback | `ACCEPTED` | 2026-09-18 | Developer Ergonomics, Zero-Friction Demo | Unified NPM/Pytest Scripts + In-Memory Fallback Store |
+| **[ADR-0009](ADR-0009-frontend-testing-with-vitest-and-testing-library.md)** | Frontend Testing with Vitest & React Testing Library | `ACCEPTED` | 2026-09-18 | Test Velocity, Component Quality, A11y | Adopt Vitest + JSDOM + Testing Library matching FlowX |
 
 ---
 

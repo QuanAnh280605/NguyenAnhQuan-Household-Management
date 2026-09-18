@@ -194,6 +194,7 @@ If a record exists, the server responds with `200 OK: ALREADY_PROCESSED` without
 | **[ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md)** | **3-Tier Layered Architecture with Pure Domain Services** | `ACCEPTED` | Decouples EVN tariffs and vehicle quotas from HTTP controllers; achieves 0.39s automated test execution. |
 | **[ADR-0007](adr/ADR-0007-partial-unique-indexes-with-soft-deletion.md)** | **Partial Unique Indexes with Soft-Deletion Support** | `ACCEPTED` | Enforces active uniqueness (`WHERE deleted_at IS NULL`) while preserving 100% statutory civil audit trails. |
 | **[ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)** | **Monorepo Next.js 16 + FastAPI with Fallback Store** | `ACCEPTED` | Unified developer ergonomics, proxy rewrite, and resilient offline demo capabilities. |
+| **[ADR-0009](adr/ADR-0009-frontend-testing-with-vitest-and-testing-library.md)** | **Frontend Testing with Vitest & React Testing Library** | `ACCEPTED` | User-centric component assertions, lightning execution (< 1.5s), and complete test pyramid parity. |
 
 ---
 

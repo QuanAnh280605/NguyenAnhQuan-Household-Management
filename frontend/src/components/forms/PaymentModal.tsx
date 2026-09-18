@@ -59,10 +59,11 @@ function PaymentForm({
       </div>
 
       <div>
-        <label className="block font-semibold text-slate-700 mb-1">
+        <label htmlFor="settlementAmount" className="block font-semibold text-slate-700 mb-1">
           Settlement Amount This Receipt (VND) *
         </label>
         <input
+          id="settlementAmount"
           type="number"
           min={1000}
           max={remainingBalance}
@@ -74,10 +75,11 @@ function PaymentForm({
       </div>
 
       <div>
-        <label className="block font-semibold text-slate-700 mb-1">
+        <label htmlFor="paymentMethod" className="block font-semibold text-slate-700 mb-1">
           Payment Method *
         </label>
         <select
+          id="paymentMethod"
           value={paymentMethod}
           onChange={(e) => setPaymentMethod(e.target.value)}
           className="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded focus:border-blue-700 focus:outline-none text-slate-800"
@@ -90,10 +92,11 @@ function PaymentForm({
       </div>
 
       <div>
-        <label className="block font-semibold text-slate-700 mb-1">
+        <label htmlFor="transactionCode" className="block font-semibold text-slate-700 mb-1">
           Bank Transaction Reference / Receipt No.
         </label>
         <input
+          id="transactionCode"
           type="text"
           value={transactionCode}
           onChange={(e) => setTransactionCode(e.target.value)}
