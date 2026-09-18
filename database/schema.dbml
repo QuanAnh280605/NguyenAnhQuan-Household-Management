@@ -141,6 +141,7 @@ Table buildings {
   address text
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   Note: 'Physical apartment building structures'
 }
@@ -156,11 +157,13 @@ Table apartments {
   status apartment_status [default: 'EMPTY']
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     (building_id, room_number) [unique]
     building_id
     status
+    deleted_at
   }
   Note: 'Individual apartment units within buildings'
 }
@@ -174,6 +177,7 @@ Table owners {
   address text
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   Note: 'Legal owners of apartment property'
 }
@@ -187,6 +191,7 @@ Table apartment_owners {
   end_date date
   is_current boolean [default: true]
   created_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   Note: 'Many-to-Many relationship tracking ownership history'
 }
@@ -208,10 +213,12 @@ Table residents {
   avatar_url text
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     citizen_id
     phone
+    deleted_at
   }
   Note: 'Individual resident demographic records'
 }
@@ -225,10 +232,12 @@ Table households {
   status household_status [default: 'ACTIVE']
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     apartment_id
     head_resident_id
+    deleted_at
   }
   Note: 'Official household registration (So ho khau)'
 }
@@ -286,9 +295,11 @@ Table parking_slots {
   allowed_type vehicle_type [not null]
   status parking_slot_status [default: 'AVAILABLE']
   created_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     (building_id, slot_code) [unique]
+    deleted_at
   }
   Note: 'Physical parking bays in basement levels'
 }
@@ -307,10 +318,12 @@ Table vehicles {
   registration_date date [default: `now()`]
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     apartment_id
     license_plate
+    deleted_at
   }
   Note: 'Registered resident vehicles with allocated slots'
 }
@@ -327,6 +340,7 @@ Table fee_types {
   unit_price numeric(12,2) [not null]
   is_mandatory boolean [default: true]
   created_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   Note: 'Master catalog of building service tariffs'
 }
@@ -359,10 +373,12 @@ Table invoices {
   status invoice_status [default: 'UNPAID']
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     (apartment_id, status)
     billing_month
+    deleted_at
   }
   Note: 'Monthly unified apartment bill statements'
 }
@@ -408,9 +424,11 @@ Table users {
   is_active boolean [default: true]
   created_at timestamptz [default: `now()`]
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     username
+    deleted_at
   }
   Note: 'Authentication and role credentials'
 }
@@ -432,10 +450,12 @@ Table feedbacks {
   created_at timestamptz [default: `now()`]
   resolved_at timestamptz
   updated_at timestamptz [default: `now()`]
+  deleted_at timestamptz [null, note: 'Soft delete timestamp']
 
   indexes {
     status
     resident_id
+    deleted_at
   }
   Note: 'Service requests, repair tickets, and resident complaints'
 }

@@ -123,7 +123,8 @@ CREATE TABLE IF NOT EXISTS buildings (
     total_floors INT NOT NULL,
     address TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS apartments (
@@ -137,6 +138,7 @@ CREATE TABLE IF NOT EXISTS apartments (
     status apartment_status DEFAULT 'EMPTY',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
     CONSTRAINT uq_building_room UNIQUE (building_id, room_number)
 );
 
@@ -148,7 +150,8 @@ CREATE TABLE IF NOT EXISTS owners (
     email VARCHAR(255),
     address TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS apartment_owners (
@@ -159,7 +162,8 @@ CREATE TABLE IF NOT EXISTS apartment_owners (
     start_date DATE NOT NULL,
     end_date DATE,
     is_current BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 -- ==============================================================================
@@ -178,7 +182,8 @@ CREATE TABLE IF NOT EXISTS residents (
     resident_status resident_status DEFAULT 'PERMANENT',
     avatar_url TEXT,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS households (
@@ -189,7 +194,8 @@ CREATE TABLE IF NOT EXISTS households (
     registration_date DATE NOT NULL DEFAULT CURRENT_DATE,
     status household_status DEFAULT 'ACTIVE',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS household_members (
@@ -233,6 +239,7 @@ CREATE TABLE IF NOT EXISTS parking_slots (
     allowed_type vehicle_type NOT NULL,
     status parking_slot_status DEFAULT 'AVAILABLE',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
     CONSTRAINT uq_building_slot UNIQUE (building_id, slot_code)
 );
 
@@ -249,7 +256,8 @@ CREATE TABLE IF NOT EXISTS vehicles (
     status vehicle_status DEFAULT 'ACTIVE',
     registration_date DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 -- ==============================================================================
@@ -263,7 +271,8 @@ CREATE TABLE IF NOT EXISTS fee_types (
     unit VARCHAR(50) NOT NULL,        -- m2, vehicle, m3, kWh, month
     unit_price NUMERIC(12, 2) NOT NULL,
     is_mandatory BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS meter_readings (
@@ -289,7 +298,8 @@ CREATE TABLE IF NOT EXISTS invoices (
     due_date DATE NOT NULL,
     status invoice_status DEFAULT 'UNPAID',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS invoice_items (
@@ -328,7 +338,8 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR(20),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 -- ==============================================================================
@@ -347,7 +358,8 @@ CREATE TABLE IF NOT EXISTS feedbacks (
     status feedback_status DEFAULT 'OPEN',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMPTZ,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS feedback_updates (
@@ -361,9 +373,10 @@ CREATE TABLE IF NOT EXISTS feedback_updates (
 );
 
 -- ==============================================================================
--- INDEXES FOR QUERY OPTIMIZATION
+-- 8. INDEXES FOR QUERY OPTIMIZATION & PARTIAL UNIQUE CONSTRAINTS
 -- ==============================================================================
 
+-- General Foreign Key & Filtering Indexes
 CREATE INDEX IF NOT EXISTS idx_apartments_building_id ON apartments(building_id);
 CREATE INDEX IF NOT EXISTS idx_apartments_status ON apartments(status);
 CREATE INDEX IF NOT EXISTS idx_households_apartment_id ON households(apartment_id);
@@ -380,3 +393,48 @@ CREATE INDEX IF NOT EXISTS idx_invoices_billing_month ON invoices(billing_month)
 CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON feedbacks(status);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_resident ON feedbacks(resident_id);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
+-- Partial Unique Indexes for Soft-Delete Support (Ensures active uniqueness only)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_buildings_code_active ON buildings(code) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_apartments_room_active ON apartments(building_id, room_number) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_owners_citizen_id_active ON owners(citizen_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_households_code_active ON households(household_code) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_residents_citizen_id_active ON residents(citizen_id) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_parking_slots_code_active ON parking_slots(building_id, slot_code) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_vehicles_license_plate_active ON vehicles(license_plate) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_vehicles_rfid_active ON vehicles(rfid_card_number) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_users_username_active ON users(username) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_users_email_active ON users(email) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq_invoices_code_active ON invoices(invoice_code) WHERE deleted_at IS NULL;
+
+-- Soft-Delete Filter Indexes
+CREATE INDEX IF NOT EXISTS idx_apartments_deleted_at ON apartments(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_residents_deleted_at ON residents(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_households_deleted_at ON households(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_invoices_deleted_at ON invoices(deleted_at);
+
+-- ==============================================================================
+-- 9. DECLARATIVE TABLE PARTITIONING ARCHITECTURE (HIGH-SCALE MIGRATION BLUEPRINT)
+-- ==============================================================================
+-- Note: When migrating to multi-million historical row datasets, meter_readings
+-- and invoices can be partitioned by range (monthly) using PostgreSQL Declarative Partitioning:
+--
+-- Example Partitioning DDL:
+-- CREATE TABLE meter_readings_partitioned (
+--     id UUID DEFAULT gen_random_uuid(),
+--     apartment_id UUID NOT NULL,
+--     meter_type meter_type NOT NULL,
+--     billing_period VARCHAR(20) NOT NULL,
+--     previous_reading NUMERIC(10, 2) NOT NULL,
+--     current_reading NUMERIC(10, 2) NOT NULL,
+--     consumption NUMERIC(10, 2) GENERATED ALWAYS AS (current_reading - previous_reading) STORED,
+--     recorded_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     PRIMARY KEY (id, recorded_at)
+-- ) PARTITION BY RANGE (recorded_at);
+--
+-- CREATE TABLE meter_readings_2026_q1 PARTITION OF meter_readings_partitioned
+--     FOR VALUES FROM ('2026-01-01 00:00:00+00') TO ('2026-04-01 00:00:00+00');
+--
+-- CREATE TABLE meter_readings_2026_q2 PARTITION OF meter_readings_partitioned
+--     FOR VALUES FROM ('2026-04-01 00:00:00+00') TO ('2026-07-01 00:00:00+00');
+-- ==============================================================================

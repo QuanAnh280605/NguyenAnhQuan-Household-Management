@@ -25,6 +25,9 @@
 8. [EPIC-06: Administration, 4-Tier RBAC & Tariffs (Admin & Security)](#8-epic-06-administration-4-tier-rbac--tariffs)
 9. [Comprehensive INVEST Compliance Scorecard](#9-comprehensive-invest-compliance-scorecard)
 10. [Bidirectional Requirements Traceability Matrix](#10-bidirectional-requirements-traceability-matrix)
+11. [Quantitative Non-Functional Requirements (NFRs) & Verification Gates](#11-quantitative-non-functional-requirements-nfrs--verification-gates)
+12. [Statutory & Vietnamese Housing Legal Compliance](#12-statutory--vietnamese-housing-legal-compliance)
+13. [Definition of Ready (DoR) & Definition of Done (DoD) Standards](#13-definition-of-ready-dor--definition-of-done-dod-standards)
 
 ---
 
@@ -677,3 +680,102 @@ Summary verification table confirming that 100% of the User Stories meet all 6 *
 | `US-ADM-01` | `UC-ADM-01` | `users` | `/nguoi-dung` | `UserManagementConsole` $\rightarrow$ `SecurityAuthService` |
 | `US-ADM-02` | `UC-ADM-03` | `fee_types` | `/cai-dat` | `FeeTariffConfigTable` $\rightarrow$ `BillingService` |
 | `US-ADM-03` | `UC-ADM-04` | `audit_logs` | `/cai-dat` | `AuditLogAuditViewer` $\rightarrow$ `SecurityAuthService` |
+
+---
+
+## 11. Quantitative Non-Functional Requirements (NFRs) & Verification Gates
+
+All system features must satisfy strictly bounded, testable Non-Functional Requirements measured in automated continuous integration gates:
+
+### 11.1. Performance, Latency & Throughput (NFR-PERF)
+
+| Metric ID | Parameter | Benchmark Threshold | Measurement Context & Workload |
+| :--- | :--- | :--- | :--- |
+| `NFR-PERF-01` | Read Latency (P95) | **$\le 150\text{ ms}$** | Standard query endpoints (`/apartments`, `/residents`, `/invoices`) under 500 concurrent virtual users. |
+| `NFR-PERF-02` | Mutation Latency (P99) | **$\le 300\text{ ms}$** | Single-record mutations with pessimistic locking (`/parking/slots/allocate`, pay session init). |
+| `NFR-PERF-03` | Batch Billing Velocity | **$\le 15.0\text{ seconds}$** | Generating month-end batch invoices and itemized utility line-items for 2,000 apartment units. |
+| `NFR-PERF-04` | VietQR Generation | **$\le 250\text{ ms}$** | Rendering dynamic Napas 247 payload and base64 QR matrix image. |
+| `NFR-PERF-05` | Test Suite Velocity | **$\le 2.0\text{ seconds}$** | Running the complete 26+ backend unit & integration test suite in CI/CD without network stalls. |
+
+### 11.2. Availability, Reliability & Disaster Recovery (NFR-AVAIL)
+
+| Metric ID | Parameter | Commitment | Verification Strategy |
+| :--- | :--- | :--- | :--- |
+| `NFR-AVAIL-01` | Service Uptime | **$\ge 99.9\%$** | Multi-AZ container deployment behind health check load balancers (< 43 minutes unplanned downtime/month). |
+| `NFR-AVAIL-02` | Recovery Time Objective (RTO) | **$\le 60\text{ minutes}$** | Automated container restart and point-in-time database restoration. |
+| `NFR-AVAIL-03` | Recovery Point Objective (RPO) | **$\le 15\text{ minutes}$** | Continuous PostgreSQL Write-Ahead Log (WAL) archiving to durable object storage. |
+| `NFR-AVAIL-04` | Graceful Degradation | **Zero Unhandled 500s** | If external Napas 247 gateway or SMS broker fails, system falls back to queued retry states with RFC 7807 problem envelopes. |
+
+### 11.3. Concurrency, Idempotency & Data Consistency (NFR-CONC)
+
+| Metric ID | Concern | Engineering Standard |
+| :--- | :--- | :--- |
+| `NFR-CONC-01` | Double-Booking Elimination | **0% collision rate** on basement parking slots (`parking_slots`), enforced via pessimistic row-level locking (`SELECT ... FOR UPDATE`). |
+| `NFR-CONC-02` | Payment Idempotency | All payment requests require an `Idempotency-Key` header; duplicated requests within a 24-hour TTL return the existing transaction. |
+| `NFR-CONC-03` | Webhook Deduplication | Napas 247 IPN callbacks store processed transaction identifiers with a unique database constraint to prevent duplicate ledger credits. |
+
+### 11.4. Security, Cryptography & Governance (NFR-SEC)
+
+| Metric ID | Security Domain | Technical Specification |
+| :--- | :--- | :--- |
+| `NFR-SEC-01` | Credential Hashing | Passwords must be hashed using **Argon2id** (minimum $m=65536, t=3, p=4$) or **bcrypt** with work factor $\ge 12$. |
+| `NFR-SEC-02` | Token Lifecycle | JWT Access Tokens expire in **15 minutes**; Refresh Tokens are stored in **HTTP-only, Secure, SameSite=Strict** cookies with 7-day rotation. |
+| `NFR-SEC-03` | Access Control Model | Strict 4-Tier Role-Based Access Control (`ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT`) verified per-route at API boundary. |
+| `NFR-SEC-04` | Immutable Audit Trail | All ownership transfers, citizen ID edits, and financial adjustments are recorded in an append-only `audit_logs` table with caller IP, user ID, and timestamp. |
+
+---
+
+## 12. Statutory & Vietnamese Housing Legal Compliance
+
+ResidentHub is engineered to directly enforce statutory compliance with current Vietnamese residential laws and data protection decrees:
+
+### 12.1. Law on Housing 2023 (Luật Nhà ở số 27/2023/QH15)
+*Effective August 1, 2024 — Governing high-rise apartment administration:*
+
+- **Articles 142–146 (Building Management & Operation Governance):**
+  - Distinguishes legal rights and duties between the Building Management Board (*Ban Quản trị*), Operating Facility Company (*Đơn vị Quản lý vận hành*), and Apartment Owners (*Chủ sở hữu*).
+  - Enforced in **`EPIC-01`** (Apartment Deeds & Title Chains) and **`EPIC-06`** (4-Tier RBAC with separate permissions for Management staff vs Board members).
+- **Articles 152–155 (Common Area 2% Maintenance Reserve Fund):**
+  - Mandates complete separation and transparent accounting of the 2% building maintenance fund (*Quỹ bảo trì 2%*). Prohibits commingling maintenance funds with operational utility revenues.
+  - Enforced in **`EPIC-04`** (`fee_types` distinction between recurring monthly operational fees and dedicated maintenance reserves).
+
+### 12.2. Circular 05/2024/TT-BXD of the Ministry of Construction
+*Detailed Regulations on Apartment Building Management & Use:*
+
+- **Article 30 (Operational Service Fee Calculation Standards):**
+  - Requires management service tariffs to be computed strictly on usable net living area ($m^2$ thông thủy), transparently displayed with unit prices.
+  - Enforced in **`US-BIL-02`** (Invoice generation: `apartment.area * management_rate`).
+- **Article 34 (Infrastructure Maintenance & Defect Resolution SLAs):**
+  - Requires facility operators to maintain continuous defect intake and define strict response deadlines for common technical infrastructure (elevators, fire protection, domestic water pumps).
+  - Enforced in **`EPIC-05`** (`US-TKT-01` to `US-TKT-04` with automated SLA watchdog escalation).
+
+### 12.3. Decree 13/2023/ND-CP on Personal Data Protection
+*Statutory Privacy Standards for Resident Demographics:*
+
+- **Protection of 12-Digit Citizen ID (CCCD) & Electronic Identity (VNeID):**
+  - Prohibits plaintext export or unauthenticated public exposure of national identity numbers, birthdates, and resident photos.
+  - Enforced via **Masking rules in UI views**, row-level access isolation (cư dân chỉ xem được thông tin căn hộ của chính mình), và trường `deleted_at` bảo vệ quyền được xóa/rút lại dữ liệu cá nhân khi chuyển đi.
+
+---
+
+## 13. Definition of Ready (DoR) & Definition of Done (DoD) Standards
+
+To ensure software delivery quality across all development sprints, engineering teams adhere to formal DoR and DoD gates:
+
+### 13.1. Definition of Ready (DoR) — Gate to Enter Sprint
+A User Story is accepted into an active development sprint only when:
+- [ ] User story conforms strictly to the **INVEST** format (*As a... I want... So that...*).
+- [ ] Acceptance Criteria are formalized in verifiable **BDD Gherkin** (*Given - When - Then*), including happy path and failure twins.
+- [ ] UI/UX wireframes or high-fidelity prototypes exist in [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) or Figma/Stitch.
+- [ ] Target API contracts and schema DTOs are mapped to [openapi.yaml](openapi.yaml) and [database/schema.sql](../database/schema.sql).
+- [ ] Complexity is estimated in Fibonacci Story Points (1, 2, 3, 5, 8) with team consensus.
+
+### 13.2. Definition of Done (DoD) — Gate to Ship to Production
+A User Story is marked completed and merged into the main branch only when:
+- [ ] Code strictly follows 3-Tier Layering (Controller $\rightarrow$ Pure Service $\rightarrow$ Repository).
+- [ ] Automated Unit and Integration tests pass with **$\ge 85\%$ line coverage**.
+- [ ] All database schema alterations include corresponding migrations and partial unique index updates.
+- [ ] REST endpoints comply with the standard envelope and RFC 7807 Problem Details error format.
+- [ ] Zero static analysis warnings (Linter clean, Typecheck passes with 0 TypeScript/Pydantic errors).
+- [ ] At least one Senior Peer Review has approved the Pull Request.
+- [ ] Documentation updated across `docs/` and verified in the Bidirectional Traceability Matrix.

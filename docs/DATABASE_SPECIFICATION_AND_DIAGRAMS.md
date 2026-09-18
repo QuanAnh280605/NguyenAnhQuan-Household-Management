@@ -27,6 +27,8 @@
 5. [High-Performance Indexing & Query Optimization Strategy](#5-high-performance-indexing--query-optimization-strategy)
 6. [ACID Concurrency Control & Pessimistic Locking Mechanisms](#6-acid-concurrency-control--pessimistic-locking-mechanisms)
 7. [Integrity Triggers, Computed Columns & Cascading Rules](#7-integrity-triggers-computed-columns--cascading-rules)
+8. [Soft Delete Mechanism & Partial Index Strategy](#8-soft-delete-mechanism--partial-index-strategy)
+9. [High-Scale Table Partitioning Specification](#9-high-scale-table-partitioning-specification)
 
 ---
 
@@ -653,3 +655,114 @@ ALTER TABLE invoices ADD CONSTRAINT uq_apartment_billing_month UNIQUE (apartment
 2. **Chính sách Cascading an toàn:**
    - Khi xóa một `invoice`, toàn bộ `invoice_items` chi tiết và `payment_transactions` được thu hồi bằng `ON DELETE CASCADE`.
    - Đối với tài sản gốc như `apartments` hay `residents`, các liên kết pháp lý như `households` được bảo vệ bằng `ON DELETE RESTRICT` để tránh làm thất thoát lịch sử nhân khẩu học.
+
+---
+
+## 8. Soft Delete Mechanism & Partial Index Strategy
+
+### 8.1. Rationale & Regulatory Compliance
+Trong các hệ thống quản lý bất động sản và cư dân đô thị, việc xóa cứng dữ liệu (`DELETE FROM`) bị nghiêm cấm vì:
+1. **Kiểm toán pháp lý & Lịch sử nhân khẩu:** Khi một cư dân chuyển đi hoặc bán căn hộ, hồ sơ CCCD, các đợt tạm trú/tạm vắng và lịch sử hóa đơn phải được bảo toàn vĩnh viễn theo quy định lưu trữ của cơ quan công an và thuế.
+2. **Khắc phục lỗi thao tác (Accidental Deletions):** Cho phép ban quản lý khôi phục tức thì căn hộ hoặc thông tin cư dân nếu nhân viên bấm nhầm.
+
+### 8.2. Implementation via `deleted_at` Timestamp
+Mỗi thực thể chính đều mang trường kiểm toán:
+```sql
+deleted_at TIMESTAMPTZ DEFAULT NULL
+```
+- Khi bản ghi đang hoạt động: `deleted_at IS NULL`.
+- Khi bản ghi bị xóa logic: `deleted_at = CURRENT_TIMESTAMP`.
+
+### 8.3. Partial Unique Index Architecture
+Để giải quyết mâu thuẫn giữa ràng buộc UNIQUE và Soft Delete (ví dụ: một chiếc xe máy biển số `29A1-12345` sau khi bị xóa/chuyển nhượng thì người khác phải có thể đăng ký lại biển số đó), hệ thống sử dụng **Partial Unique Indexes**:
+
+```sql
+-- Chỉ kiểm tra tính duy nhất trên các bản ghi CHƯA BỊ XÓA (Active Records)
+CREATE UNIQUE INDEX idx_uq_residents_citizen_id_active 
+ON residents (citizen_id) 
+WHERE deleted_at IS NULL;
+
+CREATE UNIQUE INDEX idx_uq_apartments_room_active 
+ON apartments (building_id, room_number) 
+WHERE deleted_at IS NULL;
+
+CREATE UNIQUE INDEX idx_uq_vehicles_license_plate_active 
+ON vehicles (license_plate) 
+WHERE deleted_at IS NULL;
+
+CREATE UNIQUE INDEX idx_uq_parking_slots_code_active 
+ON parking_slots (building_id, slot_code) 
+WHERE deleted_at IS NULL;
+```
+
+### 8.4. Application Query Pattern
+Tầng Data Access Layer (Repositories) luôn tự động gắn điều kiện lọc:
+```sql
+-- Standard active query
+SELECT * FROM apartments 
+WHERE building_id = $1 AND deleted_at IS NULL 
+ORDER BY room_number ASC;
+
+-- Administrative audit query (view archived/deleted records)
+SELECT * FROM residents 
+WHERE deleted_at IS NOT NULL 
+ORDER BY deleted_at DESC;
+```
+
+---
+
+## 9. High-Scale Table Partitioning Specification
+
+### 9.1. Growth Dynamics & Scalability Bottlenecks
+Đối với một cụm chung cư 2,000 căn hộ:
+- **`meter_readings`:** 2,000 căn hộ $\times$ 2 loại đồng hồ (điện + nước) = 4,000 bản ghi/tháng $\rightarrow$ gần 50,000 bản ghi/năm.
+- **`invoices` & `invoice_items`:** 2,000 hóa đơn $\times$ 8 mục phí = 18,000 bản ghi/tháng $\rightarrow$ hơn 200,000 bản ghi/năm.
+
+Sau 5 năm vận hành, bảng hóa đơn và chỉ số tích lũy hàng triệu dòng, khiến các câu lệnh quét hóa đơn tháng hiện tại bị suy giảm I/O trầm trọng nếu lưu trên một bảng đơn lẻ.
+
+### 9.2. Declarative Range Partitioning Architecture
+ResidentHub áp dụng mô hình **Range Partitioning theo tháng** (`PARTITION BY RANGE`):
+
+```sql
+-- 1. Bảng cha phân vùng cho hóa đơn
+CREATE TABLE invoices_partitioned (
+    id UUID DEFAULT gen_random_uuid(),
+    apartment_id UUID NOT NULL,
+    household_id UUID,
+    invoice_code VARCHAR(100) NOT NULL,
+    billing_month VARCHAR(20) NOT NULL,
+    billing_date DATE NOT NULL,
+    total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    paid_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    due_date DATE NOT NULL,
+    status invoice_status DEFAULT 'UNPAID',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
+    PRIMARY KEY (id, billing_date)
+) PARTITION BY RANGE (billing_date);
+
+-- 2. Khởi tạo các partition tháng cụ thể
+CREATE TABLE invoices_2026_01 PARTITION OF invoices_partitioned
+    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
+
+CREATE TABLE invoices_2026_02 PARTITION OF invoices_partitioned
+    FOR VALUES FROM ('2026-02-01') TO ('2026-03-01');
+
+CREATE TABLE invoices_2026_03 PARTITION OF invoices_partitioned
+    FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+```
+
+### 9.3. Partition Pruning Performance Advantage
+Khi hệ thống truy vấn hóa đơn của tháng hiện tại (`billing_date >= '2026-03-01' AND billing_date < '2026-04-01'`), trình tối ưu hóa truy vấn PostgreSQL kích hoạt tính năng **Partition Pruning**:
+- Bỏ qua hoàn toàn việc quét đĩa trên các partition của năm trước.
+- Giảm số lượng block I/O lên tới **95%**.
+- Tăng tốc độ phản hồi API chốt hóa đơn hàng loạt và báo cáo thu tài chính.
+
+### 9.4. Cold-Storage Detachment Policy
+Dữ liệu trên 5 năm có thể được ngắt kết nối linh hoạt mà không cần xóa vật lý:
+```sql
+-- Ngắt partition cũ để lưu trữ lạnh (Cold Data Storage)
+ALTER TABLE invoices_partitioned DETACH PARTITION invoices_2021_01;
+-- Sau đó nén thành định dạng Parquet xuất lên AWS S3 / Cloudflare R2
+```
