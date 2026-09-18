@@ -182,12 +182,18 @@ If a record exists, the server responds with `200 OK: ALREADY_PROCESSED` without
 
 ## 9. Architecture Decisions (ADR Index)
 
-| ADR | Decision Summary | Status | Documented Rationale |
+> All architectural choices are formally documented and version-controlled under **[docs/adr/](adr/README.md)** using the MADR 3.0 standard.
+
+| ADR | Decision Summary | Status | Documented Rationale & Specification |
 | :---: | :--- | :---: | :--- |
-| **ADR-0001** | **18-Table 3NF Normalized Relational Schema over NoSQL** | Accepted | Ensures strict referential integrity for co-owners, family ties, and financial invoices. |
-| **ADR-0002** | **Next.js 16 Server Actions for Domain Mutations** | Accepted | Eliminates redundant client-side API boilerplates while preserving server-only DB credentials. |
-| **ADR-0003** | **Asynchronous VietQR Reconciliation via HMAC Webhooks** | Accepted | Delivers real-time payment clearance without fragile client-side confirmation polling. |
-| **ADR-0004** | **Pessimistic Row Locking for Parking Slot Reservations** | Accepted | Eliminates race conditions and double-booking on limited B1/B2 parking assets under concurrency. |
+| **[ADR-0001](adr/ADR-0001-record-architecture-decisions.md)** | **Record Architecture Decisions (MADR 3.0)** | `ACCEPTED` | Adopts Markdown Architectural Decision Records in Git for institutional memory and auditability. |
+| **[ADR-0002](adr/ADR-0002-postgresql-3nf-relational-modeling.md)** | **PostgreSQL 16 & 3NF Normalized Relational Schema** | `ACCEPTED` | Ensures strict referential integrity for co-owners, civil demographics, and financial invoice ledgers. |
+| **[ADR-0003](adr/ADR-0003-pessimistic-locking-for-parking-slots.md)** | **Pessimistic Locking (`SELECT ... FOR UPDATE`)** | `ACCEPTED` | Guarantees zero double-booking on scarce B1/B2 parking slots under concurrent reservation events. |
+| **[ADR-0004](adr/ADR-0004-virtual-generated-columns-for-utility-meters.md)** | **Virtual Generated Columns for Utility Meter Deltas** | `ACCEPTED` | Engine-enforced `GENERATED ALWAYS AS (current - prev) STORED` eliminating negative index errors. |
+| **[ADR-0005](adr/ADR-0005-vietqr-napas-pay-sessions-and-ipn-idempotency.md)** | **Dynamic VietQR Napas 247 Sessions & IPN Idempotency** | `ACCEPTED` | Zero-surcharge inter-bank digital payment with idempotent webhook replay protection. |
+| **[ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md)** | **3-Tier Layered Architecture with Pure Domain Services** | `ACCEPTED` | Decouples EVN tariffs and vehicle quotas from HTTP controllers; achieves 0.39s automated test execution. |
+| **[ADR-0007](adr/ADR-0007-partial-unique-indexes-with-soft-deletion.md)** | **Partial Unique Indexes with Soft-Deletion Support** | `ACCEPTED` | Enforces active uniqueness (`WHERE deleted_at IS NULL`) while preserving 100% statutory civil audit trails. |
+| **[ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)** | **Monorepo Next.js 16 + FastAPI with Fallback Store** | `ACCEPTED` | Unified developer ergonomics, proxy rewrite, and resilient offline demo capabilities. |
 
 ---
 

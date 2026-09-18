@@ -14,6 +14,7 @@
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-Interactive%20Console-blue)](/api-docs)
 [![Access Control](https://img.shields.io/badge/RBAC-4%20Tiers%20Enforced-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
 [![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20100%25-brightgreen)](docs/UI_DATABASE_MAPPING.md)
+[![ADRs](https://img.shields.io/badge/ADRs-8%20Accepted%20(MADR%203.0)-purple)](docs/adr/README.md)
 
 </div>
 
@@ -364,6 +365,7 @@ All architectural specifications are cross-referenced across the `docs/` catalog
 | **[UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md)** | Field-Level Traceability | Which SQL table and column does each visual input and metric card correspond to across all 7 operational screens? |
 | **[ARCHITECTURE_C4.md](docs/ARCHITECTURE_C4.md)** | Visual Architecture (C4 Model) | How does the system look across Context (C1), Container (C2), Component (C3), Dynamic runtime, and Production deployment views? |
 | **[ARCHITECTURE_ARC42.md](docs/ARCHITECTURE_ARC42.md)** | Architecture (arc42 Standard) | How is the complete 12-section international IEEE 42010 architecture documentation structured? |
+| **[adr/README.md](docs/adr/README.md)** | Architecture Decisions (MADR 3.0) | What are the formal architectural choices, rationales, and trade-offs (3NF, Pessimistic Locking, VietQR, Monorepo)? |
 | **[DATABASE_SPECIFICATION_AND_DIAGRAMS.md](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)** | Data Engineering | What is the 18-table 3NF schema design, data dictionary, indexing strategy, and pessimistic locking specification? |
 | **[openapi.yaml](docs/openapi.yaml)** | API Standard (OpenAPI 3.0.3) | What are the machine-readable REST API contracts, DTO schemas, RFC 7807 problem envelopes, and RBAC requirements? |
 | **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](docs/FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | Clean Architecture | How are layer boundaries enforced across Presentation (Controllers), Business Logic (Services), and Data Access (Repositories)? |
