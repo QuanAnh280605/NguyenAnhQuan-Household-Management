@@ -35,24 +35,25 @@
 
 ## 1. Ground Truth Status Matrix
 
-This table provides a transparent, verifiable audit of the platform's API state: what is running in production, what is backed by UI Mock Data, what uses Server Actions, and what is reserved for external REST interfaces.
+This table provides a transparent, verifiable audit of the platform's API state across the **Monorepo Architecture** ([ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)): what is live in the Python FastAPI backend, what is proxied via Next.js, and how the **Resilient Fallback Store** operates.
 
-| Area / Subsystem | Ingress Mechanism | Transport | Current Runtime State | Implementation Reference |
+| Area / Subsystem | Ingress Endpoint | Protocol | Current Runtime State | Implementation Reference |
 | :--- | :--- | :--- | :--- | :--- |
-| **Command Console** | Server Component | React SSR | **Active (Mocked)** | `app/page.tsx` $\rightarrow$ `lib/mock-data.ts` |
-| **Apartment Directory** | Server Component / Search | React SSR + Action | **Active (Mocked)** | `app/can-ho/page.tsx` |
-| **Apartment Deep-Dive Dossier**| Dynamic Route | React SSR | **Active (Mocked)** | `app/can-ho/[roomNumber]/page.tsx` |
-| **Resident Demographics** | Form Mutation | Server Action / REST | **Active (Mocked)** | `app/cu-dan/page.tsx` |
-| **Civil Stay Declarations** | Mutation Form | Server Action | **Active (Mocked)** | `app/cu-tru/page.tsx`, `app/lich-su-cu-tru/page.tsx` |
-| **Parking Slot Reservation** | Concurrency Mutation | Server Action | **Active (Mocked)** | `app/phuong-tien-va-bai-do/page.tsx` |
-| **VietQR Payment Session** | REST Route Handler | `POST /api/invoices/{id}/pay-session` | **Specification Ready** | [C4 Dynamic §4.1](ARCHITECTURE_C4.md#41-workflow-1-vietqr-billing-settlement) |
-| **VietQR Webhook IPN** | REST Route Handler | `POST /api/webhooks/vietqr` | **Specification Ready** | `PaymentSettlementService`, [USE_CASES.md §UC-FIN-04](USE_CASES.md) |
-| **Batch Billing Invoicing**| REST / Scheduled Trigger | `POST /api/billing/batch-generate` | **Specification Ready** | `UtilityBillingEngine`, [ARC42 §8.2](ARCHITECTURE_ARC42.md#82-error-handling-standard-rfc-7807) |
+| **Command Console & Metrics** | `GET /api/v1/apartments` | REST / JSON | **Live (FastAPI + Fallback)** | `backend/app/api/v1/apartments.py` $\leftrightarrow$ `frontend/src/app/page.tsx` |
+| **Apartment Directory & Deeds** | `GET /api/v1/apartments`, `POST /onboard` | REST / JSON | **Live (FastAPI + AsyncPG)** | `backend/app/api/v1/apartments.py` $\leftrightarrow$ `backend/app/services/apartment_service.py` |
+| **Resident Demographics** | `GET /api/v1/residents`, `POST /residents` | REST / JSON | **Live (FastAPI + AsyncPG)** | `backend/app/api/v1/residents.py` $\leftrightarrow$ `frontend/src/services/api/residentApi.ts` |
+| **Civil Stay Declarations** | `POST /api/v1/residents/stay-declaration` | REST / JSON | **Live (FastAPI + AsyncPG)** | `backend/app/api/v1/residents.py` $\leftrightarrow$ `backend/app/services/resident_service.py` |
+| **Parking Slot Reservation** | `GET /api/v1/parking/slots`, `POST /allocate`| REST / JSON | **Live (FastAPI + Lock)** | `backend/app/api/v1/parking.py` $\leftrightarrow$ `SELECT FOR UPDATE` ([ADR-0003](adr/ADR-0003-pessimistic-locking-for-parking-slots.md)) |
+| **VietQR Payment Session** | `POST /api/v1/billing/invoices/{id}/pay-session`| REST / JSON | **Live (FastAPI + VietQR)**| `backend/app/api/v1/billing.py` $\leftrightarrow$ `PaymentModal.tsx` ([ADR-0005](adr/ADR-0005-vietqr-napas-pay-sessions-and-ipn-idempotency.md)) |
+| **VietQR Webhook IPN** | `POST /api/v1/webhooks/vietqr` | REST / JSON | **Live (FastAPI + Idempotent)**| `backend/app/api/v1/webhooks.py` $\leftrightarrow$ `backend/app/services/billing_service.py` |
+| **Maintenance & Feedbacks** | `GET /api/v1/feedbacks` | REST / JSON | **Live (FastAPI + AsyncPG)** | `backend/app/api/v1/feedbacks.py` $\leftrightarrow$ `backend/app/services/feedback_service.py` |
+| **Batch Billing Generation** | `POST /api/v1/billing/batch-generate` | REST / Scheduled | **Specification Ready** | `backend/app/services/billing_service.py`, [ARC42 §8.2](ARCHITECTURE_ARC42.md#82-error-handling-standard-rfc-7807) |
 | **Evidence Media Upload** | S3 Pre-signed API | HTTPS S3 API (PUT/GET) | **Specification Ready** | [ARC42 §3.2](ARCHITECTURE_ARC42.md#32-external-interfaces-matrix) |
 | **Civil Police Registry Sync**| mTLS External REST | HTTPS / REST (mTLS + OAuth2)| **Planned (Phase 4)** | [SYSTEM_WORKFLOWS_AND_SPECS.md §3](SYSTEM_WORKFLOWS_AND_SPECS.md#3-post-dbml-implementation-steps-next-steps) |
 
 > [!NOTE]
-> All REST API specifications detailed below establish the contract for Next.js App Router route handlers (`app/api/**/route.ts`) and corresponding server-side domain service bindings (`lib/services/*`).
+> **Dual-Mode Resilient Ingress Architecture ([ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)):**  
+> All client requests hitting `/api/v1/:path*` on port 3000 are transparently reverse-proxied to the FastAPI backend running on `http://localhost:8000/api/v1/:path*`. If the FastAPI backend is running and connected to PostgreSQL, live data is rendered with an active indicator badge (`FastAPI Live`). If the backend is offline or unreachable, `frontend/src/services/api/httpClient.ts` automatically catches the network error and falls back to the in-memory `Demo Store`, ensuring zero UI crashes during presentations or testing.
 
 ---
 
@@ -61,7 +62,7 @@ This table provides a transparent, verifiable audit of the platform's API state:
 ```mermaid
 flowchart TD
     subgraph Clients["Ingress Clients"]
-        SPA["💻 Browser SPA Client<br/>(React 19 / Next.js)"]
+        SPA["💻 Browser SPA Client<br/>(React 19 / Next.js 16)"]
         GW["🏦 VietQR / Napas 247 Gateway<br/>(Webhook IPN)"]
         POLICE["🏛️ National Civil Registry<br/>(Government Portal)"]
         CRON["⏱️ Cloud Scheduler / Worker<br/>(Cron Trigger)"]
@@ -69,13 +70,12 @@ flowchart TD
 
     subgraph SecurityBoundary["ResidentHub Security & Routing Perimeter"]
         direction TB
-        WAF["Cloudflare Edge WAF<br/>TLS 1.3 · Rate Limiting (100 req/min/IP)"]
+        WAF["Edge WAF & Reverse Proxy Gateway<br/>Next.js 16 (Port 3000) / Cloudflare Edge<br/>TLS 1.3 · Rate Limiting (100 req/min/IP)"]
         
-        subgraph AppServer["Next.js 16 Application Server"]
-            SA["⚡ Next.js Server Actions<br/><i>Internal UI Mutations (ADR-0002)</i>"]
-            RH["🌐 REST Route Handlers (/api/v1/*)<br/><i>External Ingress & Integrations</i>"]
-            AUTH["🛡️ Auth & RBAC Middleware<br/><i>JWT Verification & Tenant Scoping</i>"]
-            IDEMP["🔑 Idempotency Guard<br/><i>Redis / DB Deduplication</i>"]
+        subgraph AppServer["Backend Application Server (FastAPI / Python 3.11)"]
+            RH["🌐 REST APIRouters (/api/v1/*)<br/><i>backend/app/api/v1/*.py</i>"]
+            AUTH["🛡️ Auth & RBAC Guard<br/><i>JWT Verification & Tenant Scoping</i>"]
+            IDEMP["🔑 Idempotency & Concurrency Guard<br/><i>Pessimistic Lock & Idempotent IPN</i>"]
         end
     end
 
@@ -84,13 +84,11 @@ flowchart TD
         S3["Object Storage (S3/R2)<br/>Pre-signed Photo Proofs"]
     end
 
-    SPA -->|Form Actions| SA
-    SPA -->|Fetch / Polling| RH
+    SPA -->|Reverse Proxy /api/v1| WAF --> RH
     GW -->|POST Webhook IPN| WAF --> RH
     POLICE -->|mTLS Sync| WAF --> RH
     CRON -->|HTTP POST + Bearer| WAF --> RH
 
-    SA --> AUTH
     RH --> AUTH
     AUTH --> IDEMP
     IDEMP --> DB
@@ -100,13 +98,14 @@ flowchart TD
     classDef server fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a
     classDef data fill:#ecfdf5,stroke:#059669,color:#065f46
     class SPA,GW,POLICE,CRON client
-    class WAF,SA,RH,AUTH,IDEMP server
+    class WAF,RH,AUTH,IDEMP server
     class DB,S3 data
 ```
 
-### 2.1. Architectural Separation: Server Actions vs. REST Routes (ADR-0002)
-* **Internal User Operations (UI Mutations):** Handled via **Next.js Server Actions** (`"use server"`). This eliminates redundant API serialization boilerplates, keeps database access credentials exclusively on the server, and natively leverages React 19 optimistic updates and form status (`useActionState`).
-* **External Integration & Machine Ingress:** Handled via standard **REST Route Handlers** (`app/api/v1/*/route.ts`). Strict REST conventions, OpenAPI schemas, and RFC 7807 error structures govern all external webhook receivers, third-party payment callbacks, and automated batch triggers.
+### 2.1. Dual-Mode Client Ingress: Live FastAPI with Resilient Fallback (ADR-0008)
+* **Direct FastAPI Execution:** The high-performance Python 3.11 FastAPI backend (`http://localhost:8000`) executes all business rules, EVN tiered electricity/water calculations, and AsyncPG database transactions.
+* **Transparent Reverse Proxy:** Next.js (`frontend/next.config.ts`) rewrites all `/api/v1/:path*` requests to `http://localhost:8000/api/v1/:path*`.
+* **Zero-Downtime Fallback Store:** When running in standalone mode (without PostgreSQL running locally), `httpClient.ts` catches network errors and gracefully switches to pre-seeded mock fixtures in `mock-data.ts`, maintaining 100% interactive responsiveness.
 
 ### 2.2. Multi-Tenant Data Isolation (Tenant Scoping)
 * **Tenancy Unit:** Multi-tenancy in ResidentHub is scoped at the **Apartment (`apartment_id`)** and **Building (`building_id`)** level.

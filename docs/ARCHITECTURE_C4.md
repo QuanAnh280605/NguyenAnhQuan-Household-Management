@@ -100,13 +100,13 @@ flowchart TB
 
     subgraph platform["ResidentHub Platform Boundary [System]"]
         direction TB
-        subgraph client_tier["Presentation Tier"]
-            spa["Single-Page Web Application<br/><i>[Container: React 19, Tailwind CSS v4, TypeScript]</i><br/>Responsive web portal providing interactive KPI dashboards,<br/>unit directory, citizen declaration forms, and VietQR payment modals."]
+        subgraph client_tier["Presentation & Ingress Gateway Tier"]
+            spa["Single-Page Web Application & Proxy<br/><i>[Container: Next.js 16 App Router, React 19, TypeScript]</i><br/>Responsive web portal providing interactive KPI dashboards,<br/>citizen declaration forms, VietQR modals, and reverse proxy rewrite<br/>(/api/v1/:path* ➔ FastAPI:8000 with Resilient Fallback Store)."]
         end
 
         subgraph app_tier["Application & Execution Tier"]
-            api["Web & API Application Server<br/><i>[Container: Next.js 16 App Router, Node.js 20]</i><br/>Executes core domain logic, Server Actions, 4-tier RBAC enforcement,<br/>residency state machines, and automated utility billing engines."]
-            worker["Cron Background Worker<br/><i>[Container: Node.js 20 Worker Process]</i><br/>Scheduled batch daemon auditing overdue accounts (OVERDUE),<br/>triggering recurring billing cutoffs (25th), and dispatching reminders."]
+            api["Backend API Application Server<br/><i>[Container: FastAPI, Python 3.11, AsyncPG]</i><br/>High-performance async backend executing 3-Tier Layering,<br/>pure domain services, EVN billing calculations, and concurrency locks.<br/><i>(Documented in ADR-0006 & ADR-0008)</i>"]
+            worker["Scheduled Background Worker<br/><i>[Container: Python Async Daemon / Cron Process]</i><br/>Auditing overdue accounts (OVERDUE),<br/>triggering recurring billing cutoffs (25th), and dispatching reminders."]
         end
 
         subgraph data_tier["Data Persistence Tier"]
@@ -121,8 +121,8 @@ flowchart TB
     end
 
     resident & manager & tech & admin -- "Interacts via Web Browser [HTTPS]" --> spa
-    spa -- "Invokes Server Actions & REST APIs [JSON/HTTPS]" --> api
-    api -- "Executes parameterized SQL & ACID transactions [TCP 5432]" --> database
+    spa -- "Reverse-proxies /api/v1 or calls directly [JSON/HTTPS]" --> api
+    api -- "Executes parameterized SQL & ACID transactions [AsyncPG / TCP 5432]" --> database
     worker -- "Scans overdue bills & batches billing [TCP 5432]" --> database
     api -- "Stores & signs evidence photos [S3 API]" --> storage
     spa -- "Fetches optimized assets directly [HTTPS/CDN]" --> storage
@@ -150,10 +150,10 @@ flowchart TB
 
 | Container | Tech Stack & Environment | Primary Technical Responsibilities |
 | :--- | :--- | :--- |
-| **`spa`** | React 19, Tailwind CSS v4, TypeScript | Client-side reactive UI delivering master-detail tables, KPI charts, VietQR modal dialogs, and registration wizards. |
-| **`api`** | Next.js 16 App Router, Node.js 20 | Unified Server Application handling Server Actions, REST endpoints, RBAC session verification, and transactional domain logic. |
-| **`worker`** | Node.js 20 Worker Process | Scheduled cron worker scanning for overdue invoices, computing monthly penalties, and driving batch billing cycles. |
-| **`database`** | PostgreSQL 16 (18 Tables in 3NF) | ACID relational engine enforcing referential integrity, unique constraints, and isolation across 18 business entities. |
+| **`spa`** | Next.js 16 App Router, React 19, Tailwind CSS v4, TypeScript | Client-side reactive UI delivering master-detail tables, KPI charts, VietQR modals, and seamless reverse proxy to FastAPI with Resilient Fallback Store ([ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)). Tested via Vitest ([ADR-0009](adr/ADR-0009-frontend-testing-with-vitest-and-testing-library.md)). |
+| **`api`** | FastAPI, Python 3.11, AsyncPG | High-performance asynchronous backend executing 3-Tier Layering: APIRouters, Pure Domain Services, and AsyncPG Repositories ([ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md)). Tested via Pytest (26 suites). |
+| **`worker`** | Python Async Worker / Cron Process | Scheduled cron worker scanning for overdue invoices, computing monthly penalties, and driving batch billing cycles. |
+| **`database`** | PostgreSQL 16 (18 Tables in 3NF) | ACID relational engine enforcing referential integrity, unique constraints, and isolation across 18 business entities ([ADR-0002](adr/ADR-0002-postgresql-3nf-relational-modeling.md)). |
 | **`storage`** | Cloudflare R2 / AWS S3 | Encrypted object storage preserving utility meter photos, repair evidence, and generated PDF e-statements. |
 
 ---
@@ -242,37 +242,37 @@ flowchart TB
 
 ---
 
-### 3.2. Application Tier — Web & API Application Server Container (Next.js 16)
+### 3.2. Application Tier — Backend Application Server Container (FastAPI / Python 3.11)
 
-The Application Tier inspects the internal modular architecture of the **Web & API Application Server** container, detailing functional domain services aligned 1-to-1 with the 6 business Epics from [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md):
+The Application Tier inspects the internal modular architecture of the **FastAPI Application Server** container, detailing functional domain services and repositories aligned 1-to-1 with the 6 business Epics from [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) and [ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md):
 
 ```mermaid
 flowchart TB
     subgraph callers["Callers & Integrations"]
-        spa["Single-Page Web Application<br/><i>[Container: React 19]</i>"]
+        spa["Single-Page Web Application<br/><i>[Container: Next.js 16 / React 19]</i>"]
         vietqr["VietQR Gateway<br/><i>[External System: Napas 247]</i>"]
         mail["Messaging Gateway<br/><i>[External System: SMTP / ZNS]</i>"]
         db[("PostgreSQL Database<br/><i>[ContainerDb: 18 Tables in 3NF]</i>")]
         storage[("Object Storage<br/><i>[ContainerDb: S3 / Cloudflare R2]</i>")]
     end
 
-    subgraph api["Web & API Application Server Container [Next.js 16]"]
+    subgraph api["Backend Application Server Container [FastAPI / Python 3.11]"]
         direction TB
-        auth["1. Auth & RBAC Security Component<br/><i>[Component: Middleware / JWT Guard]</i><br/>Enforces 4-tier RBAC (ADMIN, MANAGER, TECHNICIAN, RESIDENT),<br/>session decryption, and apartment-level row isolation (EPIC-06)."]
+        auth["1. Auth & RBAC Security Guard<br/><i>[Component: FastAPI Dependency / JWT Bearer]</i><br/>Enforces 4-tier RBAC (ADMIN, MANAGER, TECHNICIAN, RESIDENT),<br/>token decoding, and apartment-level row isolation (EPIC-06)."]
         
-        subgraph domain_services["Core Domain Services (Epics Alignment)"]
-            apt["2. Apartment Management Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-01 (US-APT-01..03):</b> Unit directory, floor plans,<br/>floor area (m²), and legal ownership succession."]
-            res["3. Resident & Household Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-02 (US-RES-01..04):</b> CCCD 12-digit validation,<br/>single head-of-household invariant, and stay declarations."]
-            park["4. Vehicle & Parking Service<br/><i>[Component: TypeScript Service]</i><br/><b>EPIC-03 (US-VEH-01..04):</b> Quota limits (1 car, 2 bikes),<br/>RFID card provisioning, and pessimistic lock slot allocation."]
-            bill["5. Utility & Billing Calculation Engine<br/><i>[Component: Calculation Engine]</i><br/><b>EPIC-04 (US-BIL-01..05):</b> Tiered tariffs, anomaly detection,<br/>batch invoicing on the 25th, and VietQR dynamic sessions."]
-            ticket["6. Maintenance SLA Workflow Service<br/><i>[Component: Workflow Service]</i><br/><b>EPIC-05 (US-TKT-01..04):</b> Defect intake, technician dispatch,<br/>SLA watchdog countdown, and resolution photo proofs."]
-            notif["7. Notification & Dispatcher Service<br/><i>[Component: TypeScript Service]</i><br/>Compiles templates for e-statements, payment receipts,<br/>and urgent SLA breach alerts, pushing to external queues."]
+        subgraph domain_services["Core Pure Domain Services (Epics Alignment)"]
+            apt["2. Apartment Management Service<br/><i>[Component: Python Service - apartment_service.py]</i><br/><b>EPIC-01 (US-APT-01..03):</b> Unit directory, floor plans,<br/>floor area (m²), and legal ownership succession."]
+            res["3. Resident & Household Service<br/><i>[Component: Python Service - resident_service.py]</i><br/><b>EPIC-02 (US-RES-01..04):</b> CCCD 12-digit validation,<br/>single head-of-household invariant, and stay declarations."]
+            park["4. Vehicle & Parking Service<br/><i>[Component: Python Service - parking_service.py]</i><br/><b>EPIC-03 (US-VEH-01..04):</b> Quota limits (1 car, 2 bikes),<br/>RFID card provisioning, and pessimistic lock slot allocation."]
+            bill["5. Utility & Billing Calculation Engine<br/><i>[Component: Python Engine - billing_service.py]</i><br/><b>EPIC-04 (US-BIL-01..05):</b> Tiered tariffs, anomaly detection,<br/>batch invoicing on the 25th, and VietQR dynamic sessions."]
+            ticket["6. Maintenance SLA Workflow Service<br/><i>[Component: Python Service - feedback_service.py]</i><br/><b>EPIC-05 (US-TKT-01..04):</b> Defect intake, technician dispatch,<br/>SLA watchdog countdown, and resolution photo proofs."]
+            notif["7. Notification & Dispatcher Service<br/><i>[Component: Async Python Service]</i><br/>Compiles templates for e-statements, payment receipts,<br/>and urgent SLA breach alerts, pushing to external queues."]
         end
 
-        repo["8. Data Access Layer (DAL) & Repositories<br/><i>[Component: PostgreSQL Driver Pool]</i><br/>Manages connection pooling, explicit ACID transactions<br/>(BEGIN ... COMMIT / ROLLBACK), and parameterized SQL."]
+        repo["8. Data Access Repositories (DAL)<br/><i>[Component: AsyncPG Connection Pool - repositories/*.py]</i><br/>Manages connection pooling, explicit ACID transactions<br/>(BEGIN ... COMMIT / ROLLBACK), and parameterized SQL."]
     end
 
-    spa -- "HTTPS Requests + JWT Session Token" --> auth
+    spa -- "HTTPS JSON API Calls (Direct or Proxied)" --> auth
     auth --> apt & res & park & bill & ticket
 
     res -- "Validates linked unit" --> apt
@@ -283,7 +283,7 @@ flowchart TB
     ticket -- "Triggers ticket status updates" --> notif
 
     apt & res & park & bill & ticket --> repo
-    repo -- "Executes parameterized SQL & ACID blocks [TCP 5432]" --> db
+    repo -- "Executes parameterized SQL & ACID blocks [AsyncPG / TCP 5432]" --> db
 
     bill -- "Signs payment session & receives IPN" --> vietqr
     ticket -- "Uploads resolution photos" --> storage

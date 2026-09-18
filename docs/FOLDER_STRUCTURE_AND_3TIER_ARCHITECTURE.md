@@ -32,40 +32,40 @@
 
 ## 1. 3-Tier Architectural Principles & Strict Layer Boundaries
 
-The **3-Tier Architecture** eliminates spaghetti code and tight coupling across user interfaces, domain computations, and database queries. Within the **Next.js 16 App Router** ecosystem, the platform strictly enforces **Clean Architecture** layering:
+The **3-Tier Architecture** eliminates spaghetti code and tight coupling across user interfaces, domain computations, and database queries. Adhering to **[ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md)** and **[ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)**, ResidentHub strictly enforces **Clean Architecture** layering across its Monorepo ecosystem:
 
 ```mermaid
 flowchart TB
-    subgraph Client["💻 Client Tier (Browser)"]
-        UI["React 19 Components<br/><i>(Atomic UI, Domain Views, Modals)</i>"]
+    subgraph Client["💻 Client Tier (React 19 / Next.js 16)"]
+        UI["React 19 Components<br/><i>(frontend/src/components/forms/PaymentModal.tsx)</i>"]
         State["Client State & Custom Hooks<br/><i>(useVietQrPolling, useDebounce)</i>"]
-        ApiClient["API Client Adapters<br/><i>(services/api/*.ts)</i>"]
+        ApiClient["API Client Adapters & Fallback Store<br/><i>(frontend/src/services/api/httpClient.ts)</i>"]
         UI --> State --> ApiClient
     end
 
-    subgraph Tier1["1️⃣ Presentation Tier (Controllers / Route Handlers)"]
+    subgraph Tier1["1️⃣ Presentation Tier (FastAPI APIRouters & Controllers)"]
         direction TB
-        Route["app/api/v1/**/route.ts<br/><i>(HTTP Ingress Controller)</i>"]
-        AuthMiddleware["Auth & RBAC Guard<br/><i>(JWT Verification, Role Check)</i>"]
-        ZodValidator["Input DTO Validation<br/><i>(lib/validators/*.schema.ts)</i>"]
-        Envelope["Standard Envelope & RFC 7807<br/><i>({ success, data, error })</i>"]
-        Route --> AuthMiddleware --> ZodValidator --> Envelope
+        Route["backend/app/api/v1/*.py<br/><i>(FastAPI Ingress Router)</i>"]
+        AuthMiddleware["Auth & RBAC Dependency Guard<br/><i>(JWT Bearer Dependency)</i>"]
+        PydanticValidator["Input DTO Validation Engine<br/><i>(backend/app/schemas/*.py - Pydantic v2)</i>"]
+        Envelope["Standard Envelope & RFC 7807 Handler<br/><i>(api_success, AppError, RFC 7807)</i>"]
+        Route --> AuthMiddleware --> PydanticValidator --> Envelope
     end
 
-    subgraph Tier2["2️⃣ Business Logic Tier (Domain Services)"]
+    subgraph Tier2["2️⃣ Business Logic Tier (Pure Python Domain Services)"]
         direction TB
-        Service["lib/services/*.service.ts<br/><i>(Pure TypeScript Domain Services)</i>"]
-        BizRules["Business Rules & Quota Engines<br/><i>(Tiered Electricity/Water, SLA Watchdog)</i>"]
-        TxOrchestrator["Transaction Orchestrator<br/><i>(BEGIN ... COMMIT / ROLLBACK)</i>"]
-        DomainErrors["Domain Exception Emitters<br/><i>(AppError, ConcurrencyError)</i>"]
+        Service["backend/app/services/*_service.py<br/><i>(Pure Python Domain Services)</i>"]
+        BizRules["Business Rules & Calculation Engines<br/><i>(EVN 6-Tier Electricity, Water, Quotas)</i>"]
+        TxOrchestrator["Transaction Orchestrator<br/><i>(asyncpg.Connection.transaction())</i>"]
+        DomainErrors["Domain Exception Emitters<br/><i>(AppError, ConcurrencyError, NotFoundError)</i>"]
         Service --> BizRules --> TxOrchestrator --> DomainErrors
     end
 
-    subgraph Tier3["3️⃣ Data Access Tier (Repositories & Storage)"]
+    subgraph Tier3["3️⃣ Data Access Tier (AsyncPG Repositories & SQL)"]
         direction TB
-        Repo["lib/repositories/*.repository.ts<br/><i>(SQL Repositories / DAL)</i>"]
+        Repo["backend/app/repositories/*_repository.py<br/><i>(AsyncPG SQL Repositories / DAL)</i>"]
         SqlEngine["Parameterized SQL & Pessimistic Locks<br/><i>(SELECT ... FOR UPDATE)</i>"]
-        DbPool["PostgreSQL Connection Pool<br/><i>(lib/db/pool.ts - pg client)</i>"]
+        DbPool["AsyncPG Connection Pool<br/><i>(backend/app/db/session.py)</i>"]
         Repo --> SqlEngine --> DbPool
     end
 
@@ -73,10 +73,10 @@ flowchart TB
         Tables[("apartments, residents, vehicles, invoices...")]
     end
 
-    ApiClient -- "HTTPS / JSON Payload" --> Route
-    ZodValidator -- "Validated DTO" --> Service
+    ApiClient -- "HTTPS / JSON Payload (/api/v1)" --> Route
+    PydanticValidator -- "Validated Pydantic DTO" --> Service
     TxOrchestrator -- "Domain Model Calls" --> Repo
-    DbPool -- "TCP 5432 Parameterized SQL" --> Tables
+    DbPool -- "TCP 5432 Parameterized SQL ($1, $2)" --> Tables
 
     style Client fill:#eff6ff,stroke:#3b82f6,stroke-width:2px
     style Tier1 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
@@ -88,10 +88,10 @@ flowchart TB
 
 ### Strict Layer Boundary Rules:
 
-1. **Rule 1 (Controllers Never Contain SQL):** Writing SQL statements (`SELECT`, `INSERT`, `UPDATE`) or directly calling the database client pool within Controller route handlers (`app/api/**`) is strictly prohibited. Controllers perform exactly 4 tasks: (1) Receive Request $\rightarrow$ (2) Verify Token & RBAC Role $\rightarrow$ (3) Validate Input DTOs via Zod $\rightarrow$ (4) Delegate execution to the Domain Service and return the formatted HTTP response.
-2. **Rule 2 (Domain Services Are 100% HTTP-Agnostic):** All files in `lib/services/` must be **Pure TypeScript Modules**. Never import `NextRequest`, `NextResponse`, `headers()`, or `cookies()`. Services receive primitive values or DTOs and return Domain Entities. This guarantees that **Services can be unit-tested in complete isolation** without mocking HTTP servers.
-3. **Rule 3 (Repositories Exclusively Own SQL):** All database reads and mutations must reside within `lib/repositories/`. Every SQL statement must be **100% parameterized (`$1, $2, ...`)** to prevent SQL injection vulnerabilities.
-4. **Rule 4 (Client Components Never Import Server Layers):** Frontend client components (`"use client"`) must never import files from `lib/db/`, `lib/repositories/`, or server-only environment variables (`DATABASE_URL`, `JWT_SECRET`).
+1. **Rule 1 (Controllers Never Contain SQL):** Writing SQL statements (`SELECT`, `INSERT`, `UPDATE`) or directly acquiring database connection pools inside FastAPI APIRouters (`backend/app/api/v1/*.py`) is strictly prohibited. Controllers perform exactly 4 tasks: (1) Receive Request $\rightarrow$ (2) Verify JWT & RBAC Role $\rightarrow$ (3) Validate Input DTOs via Pydantic v2 $\rightarrow$ (4) Delegate execution to the Domain Service and return the standard JSON envelope.
+2. **Rule 2 (Domain Services Are 100% HTTP-Agnostic):** All files in `backend/app/services/` must be **Pure Python Modules**. Never import `fastapi.Request`, `fastapi.Response`, or FastAPI `Depends` directly. Services receive primitive values or Pydantic DTOs and return Domain Dictionaries / Models. This guarantees that **Services can be unit-tested in complete isolation via Pytest** in under 0.40 seconds without spinning up an HTTP server.
+3. **Rule 3 (Repositories Exclusively Own SQL):** All database queries, transaction boundaries, and row-level locks must reside within `backend/app/repositories/`. Every SQL statement must be **100% parameterized (`$1, $2, ...`)** via AsyncPG to eliminate SQL injection vulnerabilities.
+4. **Rule 4 (Frontend Connects via Resilient API Ingress):** Frontend client components (`"use client"`) connect exclusively through `frontend/src/services/api/` with automatic proxying (`/api/v1/:path*` $\rightarrow$ `http://localhost:8000`) and fallback store protection (`Demo Store`) if the backend is unreachable ([ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)).
 
 ---
 
@@ -316,264 +316,184 @@ Any unhandled rejection or domain exception is formatted into RFC 7807 standard 
 
 A complete end-to-end implementation example for the **Dynamic VietQR Payment Session Initiation (`US-BIL-03`)**:
 
-### 5.1. DTO Validator Schema (`lib/validators/billing.schema.ts`)
-```typescript
-import { z } from 'zod';
+### 5.1. DTO Validator Schema (`backend/app/schemas/billing.py` - Pydantic v2)
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+from enum import Enum
+import uuid
 
-export const createPaySessionSchema = z.object({
-  invoiceId: z.string().uuid({ message: "Invoice ID must be a valid UUID" }),
-  paymentChannel: z.enum(['VIETQR_NAPAS', 'CASH_DESK']).default('VIETQR_NAPAS'),
-});
+class PaymentChannel(str, Enum):
+    VIETQR_NAPAS = "VIETQR_NAPAS"
+    CASH_DESK = "CASH_DESK"
 
-export type CreatePaySessionInput = z.infer<typeof createPaySessionSchema>;
+class CreatePaySessionRequest(BaseModel):
+    invoice_id: uuid.UUID = Field(..., description="Target Invoice UUID")
+    payment_channel: PaymentChannel = Field(default=PaymentChannel.VIETQR_NAPAS)
+
+class VietQrSessionResponse(BaseModel):
+    session_id: str
+    invoice_id: str
+    qr_code_url: str
+    bank_name: str
+    account_number: str
+    account_holder: str
+    amount: int
+    transfer_content: str
+    expires_at: str
 ```
 
 ---
 
-### 5.2. Tier 1: Controller Route Handler (`app/api/v1/billing/invoices/[id]/pay-session/route.ts`)
-```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { createPaySessionSchema } from '@/lib/validators/billing.schema';
-import { billingService } from '@/lib/services/billing.service';
-import { rbacGuard } from '@/lib/auth/rbac-guard';
-import { AppError } from '@/lib/errors/app-error';
+### 5.2. Tier 1: FastAPI APIRouter Controller (`backend/app/api/v1/billing.py`)
+```python
+from fastapi import APIRouter, Depends, status
+from app.schemas.billing import CreatePaySessionRequest, VietQrSessionResponse
+from app.services.billing_service import billing_service
+from app.core.response import api_success
+from app.core.errors import AppError, NotFoundError, ValidationError
 
-export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    // 1. Authorization: Require authenticated user with RESIDENT, MANAGER, or ADMIN role
-    const session = await rbacGuard(request, ['RESIDENT', 'MANAGER', 'ADMIN']);
-    const { id } = await context.params;
+router = APIRouter(prefix="/billing", tags=["Billing"])
 
-    // 2. Validate input payload
-    const body = await request.json().catch(() => ({}));
-    const validationResult = createPaySessionSchema.safeParse({ ...body, invoiceId: id });
-
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          type: 'https://residenthub.internal/errors/validation-error',
-          title: 'Invalid Request Payload',
-          status: 422,
-          detail: validationResult.error.issues[0]?.message,
-          instance: request.nextUrl.pathname,
-        },
-        { status: 422 }
-      );
-    }
-
-    // 3. Delegate execution to the Business Logic Tier
-    const paySession = await billingService.generateVietQrSession({
-      invoiceId: id,
-      requestUserId: session.userId,
-      userRole: session.role,
-    });
-
-    // 4. Return standard envelope response
-    return NextResponse.json(
-      {
-        success: true,
-        data: paySession,
-        timestamp: new Date().toISOString(),
-      },
-      { status: 200 }
-    );
-  } catch (error: unknown) {
-    if (error instanceof AppError) {
-      return NextResponse.json(error.toRfc7807(request.nextUrl.pathname), {
-        status: error.statusCode,
-      });
-    }
-
-    // Unhandled exception (Internal Server Error 500)
-    console.error('[PaySession Controller Error]:', error);
-    return NextResponse.json(
-      {
-        type: 'https://residenthub.internal/errors/internal-server-error',
-        title: 'Internal Server Error',
-        status: 500,
-        detail: 'The system encountered an unexpected error generating the VietQR session.',
-        instance: request.nextUrl.pathname,
-      },
-      { status: 500 }
-    );
-  }
-}
+@router.post(
+    "/invoices/{invoice_id}/pay-session",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+    summary="Initiate dynamic VietQR payment session (US-BIL-03)"
+)
+async def create_pay_session(
+    invoice_id: str,
+    payload: CreatePaySessionRequest,
+):
+    """
+    Tier 1 Controller:
+    1. Validates payload via Pydantic v2
+    2. Delegates domain execution to pure BillingService
+    3. Wraps response in standard envelope { success, data, timestamp }
+    """
+    session_dto = await billing_service.generate_vietqr_session(
+        invoice_id=invoice_id,
+        channel=payload.payment_channel
+    )
+    return api_success(data=session_dto)
 ```
 
 ---
 
-### 5.3. Tier 2: Domain Service (`lib/services/billing.service.ts`)
-```typescript
-import { invoiceRepository } from '@/lib/repositories/invoice.repository';
-import { NotFoundError } from '@/lib/errors/not-found-error';
-import { ValidationError } from '@/lib/errors/validation-error';
-import { UnauthorizedError } from '@/lib/errors/unauthorized-error';
+### 5.3. Tier 2: Pure Domain Service (`backend/app/services/billing_service.py`)
+```python
+import urllib.parse
+from datetime import datetime, timezone, timedelta
+from app.repositories.billing_repository import billing_repository
+from app.core.errors import NotFoundError, ValidationError
 
-export interface GeneratePaySessionParams {
-  invoiceId: string;
-  requestUserId: string;
-  userRole: string;
-}
+class BillingService:
+    """
+    Tier 2 Business Logic: Pure Python, 100% decoupled from HTTP primitives.
+    Fully testable via Pytest without spinning up a web server.
+    """
+    async def generate_vietqr_session(self, invoice_id: str, channel: str) -> dict:
+        # 1. Retrieve invoice record via Data Access Repository
+        invoice = await billing_repository.get_invoice_by_id(invoice_id)
+        if not invoice:
+            raise NotFoundError(f"Invoice with ID #{invoice_id} was not found.")
 
-export interface VietQrSessionDto {
-  sessionId: string;
-  invoiceId: string;
-  qrCodeUrl: string;
-  bankName: string;
-  accountNumber: string;
-  accountHolder: string;
-  amount: number;
-  transferContent: string;
-  expiresAt: string;
-}
+        # 2. Invariant: Settled invoices cannot generate new QR sessions
+        if invoice.get("status") == "PAID":
+            raise ValidationError("This invoice has already been fully paid and settled.")
 
-export class BillingService {
-  /**
-   * Generates a dynamic VietQR Napas 247 payment session (US-BIL-03)
-   * Pure Business Logic: 100% decoupled from NextRequest and NextResponse
-   */
-  async generateVietQrSession(params: GeneratePaySessionParams): Promise<VietQrSessionDto> {
-    const { invoiceId, requestUserId, userRole } = params;
+        # 3. Compute outstanding balance and 15-minute expiration TTL
+        total_amount = int(invoice["total_amount"])
+        paid_amount = int(invoice.get("paid_amount") or 0)
+        remaining_balance = total_amount - paid_amount
 
-    // 1. Retrieve invoice record from Data Access Tier
-    const invoice = await invoiceRepository.findById(invoiceId);
-    if (!invoice) {
-      throw new NotFoundError(`Invoice with ID #${invoiceId} was not found.`);
-    }
+        invoice_code = invoice.get("invoice_code", "INV")
+        room_number = invoice.get("room_number", "")
+        transfer_content = f"INV {invoice_code} CANHO {room_number}"
+        
+        now = datetime.now(timezone.utc)
+        expires_at = (now + timedelta(minutes=15)).isoformat()
 
-    // 2. Enforce business rule: Settled invoices cannot generate new QR sessions
-    if (invoice.status === 'PAID') {
-      throw new ValidationError('This invoice has already been fully paid and settled.');
-    }
+        # 4. Construct Napas 247 Dynamic VietQR standard image endpoint
+        safe_content = urllib.parse.quote(transfer_content)
+        account_name = urllib.parse.quote("BQL CHUNG CU RESIDENTHUB")
+        qr_code_url = (
+            f"https://img.vietqr.io/image/MB-098765432199-compact2.png"
+            f"?amount={remaining_balance}&addInfo={safe_content}&accountName={account_name}"
+        )
 
-    // 3. Multi-tenant isolation: Residents can only pay bills for their registered unit
-    if (userRole === 'RESIDENT') {
-      const isOwnerOrResident = await invoiceRepository.verifyUserBelongsToApartment(
-        requestUserId,
-        invoice.apartmentId
-      );
-      if (!isOwnerOrResident) {
-        throw new UnauthorizedError('You are not authorized to pay invoices for other apartment units.');
-      }
-    }
+        return {
+            "session_id": f"SESSION-{invoice_id[:8]}-{int(now.timestamp())}",
+            "invoice_id": invoice_id,
+            "qr_code_url": qr_code_url,
+            "bank_name": "MB Bank (Military Commercial Joint Stock Bank)",
+            "account_number": "098765432199",
+            "account_holder": "BQL CHUNG CU RESIDENTHUB",
+            "amount": remaining_balance,
+            "transfer_content": transfer_content,
+            "expires_at": expires_at
+        }
 
-    // 4. Compute outstanding balance and 15-minute TTL
-    const remainingAmount = invoice.totalAmount - (invoice.paidAmount || 0);
-    const transferContent = `INV ${invoice.invoiceCode} CANHO ${invoice.roomNumber}`;
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-
-    // 5. Construct Napas 247 Dynamic VietQR endpoint string
-    const qrCodeUrl = `https://img.vietqr.io/image/MB-098765432199-compact2.png?amount=${remainingAmount}&addInfo=${encodeURIComponent(
-      transferContent
-    )}&accountName=${encodeURIComponent('BQL CHUNG CU RESIDENTHUB')}`;
-
-    return {
-      sessionId: `SESSION-${invoice.id.substring(0, 8)}-${Date.now()}`,
-      invoiceId: invoice.id,
-      qrCodeUrl,
-      bankName: 'MB Bank (Military Commercial Joint Stock Bank)',
-      accountNumber: '098765432199',
-      accountHolder: 'BQL CHUNG CU RESIDENTHUB',
-      amount: remainingAmount,
-      transferContent,
-      expiresAt,
-    };
-  }
-}
-
-export const billingService = new BillingService();
+billing_service = BillingService()
 ```
 
 ---
 
-### 5.4. Tier 3: Data Access Repository (`lib/repositories/invoice.repository.ts`)
-```typescript
-import { dbPool } from '@/lib/db/pool';
+### 5.4. Tier 3: AsyncPG Data Access Repository (`backend/app/repositories/billing_repository.py`)
+```python
+from app.db.session import get_db_pool
+from typing import Optional, Dict, Any
 
-export interface InvoiceRecord {
-  id: string;
-  invoiceCode: string;
-  apartmentId: string;
-  roomNumber: string;
-  totalAmount: number;
-  paidAmount: number;
-  status: 'UNPAID' | 'PAID' | 'OVERDUE' | 'CANCELLED';
-  dueDate: string;
-}
+class BillingRepository:
+    """
+    Tier 3 Data Access: Exclusively owns SQL queries, connection pools,
+    and parameterized SQL statements ($1, $2).
+    """
+    async def get_invoice_by_id(self, invoice_id: str) -> Optional[Dict[str, Any]]:
+        query = """
+            SELECT 
+                i.id,
+                i.invoice_code,
+                i.apartment_id,
+                a.room_number,
+                i.total_amount,
+                i.paid_amount,
+                i.status,
+                i.due_date
+            FROM invoices i
+            INNER JOIN apartments a ON a.id = i.apartment_id
+            WHERE i.id = $1 AND i.deleted_at IS NULL
+            LIMIT 1;
+        """
+        pool = get_db_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(query, invoice_id)
+            return dict(row) if row else None
 
-export class InvoiceRepository {
-  /**
-   * Retrieves an invoice record joined with apartment room data (Parameterized SQL)
-   */
-  async findById(invoiceId: string): Promise<InvoiceRecord | null> {
-    const query = `
-      SELECT 
-        i.id,
-        i.invoice_code AS "invoiceCode",
-        i.apartment_id AS "apartmentId",
-        a.room_number AS "roomNumber",
-        i.total_amount AS "totalAmount",
-        i.paid_amount AS "paidAmount",
-        i.status,
-        i.due_date AS "dueDate"
-      FROM invoices i
-      INNER JOIN apartments a ON a.id = i.apartment_id
-      WHERE i.id = $1
-      LIMIT 1;
-    `;
-
-    const result = await dbPool.query(query, [invoiceId]);
-    return result.rows[0] || null;
-  }
-
-  /**
-   * Verifies resident residency/ownership credentials against the targeted apartment unit
-   */
-  async verifyUserBelongsToApartment(userId: string, apartmentId: string): Promise<boolean> {
-    const query = `
-      SELECT 1 FROM household_members hm
-      INNER JOIN households h ON h.id = hm.household_id
-      INNER JOIN residents r ON r.id = hm.resident_id
-      INNER JOIN users u ON u.id = r.user_id
-      WHERE u.id = $1 AND h.apartment_id = $2
-      LIMIT 1;
-    `;
-    const result = await dbPool.query(query, [userId, apartmentId]);
-    return (result.rowCount ?? 0) > 0;
-  }
-}
-
-export const invoiceRepository = new InvoiceRepository();
+billing_repository = BillingRepository()
 ```
 
 ---
 
-### 5.5. Database Transaction Helper (`lib/db/transaction.ts`)
+### 5.5. Client API Ingress Adapter (`frontend/src/services/api/httpClient.ts` & `PaymentModal.tsx`)
 ```typescript
-import { PoolClient } from 'pg';
-import { dbPool } from './pool';
-
 /**
- * Wraps business execution inside an atomic ACID transaction block
- * Handles BEGIN, COMMIT upon success, and automatic ROLLBACK on exceptions
+ * Frontend Client Tier (React 19 / Next.js 16):
+ * Calls /api/v1/billing/invoices/:id/pay-session via reverse proxy rewrite.
+ * Seamlessly catches network timeouts and falls back to Demo Store if offline (ADR-0008).
  */
-export async function runInTransaction<T>(
-  callback: (client: PoolClient) => Promise<T>
-): Promise<T> {
-  const client = await dbPool.connect();
-  try {
-    await client.query('BEGIN');
-    const result = await callback(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
+import { httpClient } from '@/services/api/httpClient';
+
+export async function requestVietQrSession(invoiceId: string) {
+  return await httpClient.post<{
+    session_id: string;
+    qr_code_url: string;
+    amount: number;
+    transfer_content: string;
+    expires_at: string;
+  }>(`/billing/invoices/${invoiceId}/pay-session`, {
+    invoice_id: invoiceId,
+    payment_channel: 'VIETQR_NAPAS',
+  });
 }
 ```

@@ -20,7 +20,9 @@ info:
 
 servers:
   - url: http://localhost:3000/api/v1
-    description: Local Development Next.js API Server
+    description: Local Development Next.js API Reverse Proxy Gateway
+  - url: http://localhost:8000/api/v1
+    description: Local Development Direct FastAPI Python Backend
   - url: https://staging-api.residenthub.internal/api/v1
     description: Staging Integration Testing Server
   - url: https://api.residenthub.internal/api/v1

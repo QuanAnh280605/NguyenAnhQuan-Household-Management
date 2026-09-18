@@ -94,32 +94,49 @@ Detailed visual specification and catalog in **[ARCHITECTURE_C4.md §2](ARCHITEC
 
 ### 5.3. Target Code Structure
 
+Adhering to **[ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)**, ResidentHub is architected as a **Unified Monorepo** separating reactive user interface ergonomics from high-performance asynchronous computation:
+
 ```
 d:/VSF/chung-cu-household-management/
-├── src/
-│   ├── app/                          # Next.js 16 App Router pages & API routes
-│   │   ├── (auth)/                   # Login, logout, session management
-│   │   ├── (dashboard)/              # Administrative & Resident responsive portals
-│   │   │   ├── apartments/           # Unit directory and handover screens
-│   │   │   ├── residents/            # Census registry & CCCD declaration
-│   │   │   ├── vehicles/             # Parking slot allocation & RFID cards
-│   │   │   ├── meters/               # Monthly utility meter logging
-│   │   │   ├── billing/              # Invoice generator & payment reconciliation
-│   │   │   └── tickets/              # Maintenance SLA tracking & photo evidence
-│   │   └── api/
-│   │       └── webhooks/vietqr/      # Idempotent Napas 247 IPN receiver
-│   ├── components/                   # Reusable React 19 UI components (Tailwind v4)
-│   ├── lib/
-│   │   ├── auth/                     # JWT decryption, RBAC session guards
-│   │   ├── services/                 # Pure domain services (Billing, Parking, SLA)
-│   │   ├── db/                       # PostgreSQL connection pooling & DAL queries
-│   │   └── tariffs/                  # Calculation strategies (Electricity, Water, Quota)
-│   └── types/                        # Strongly-typed TypeScript interfaces
+├── frontend/                         # Next.js 16 (App Router), React 19, Tailwind CSS v4, Vitest
+│   ├── src/
+│   │   ├── app/                      # Responsive portals (/can-ho, /cu-dan, /phi-chung-cu, /phuong-tien-va-bai-do)
+│   │   ├── components/               # Atomic UI, Domain components, Modals (PaymentModal, ResidentTable)
+│   │   ├── hooks/                    # Custom React hooks (useVietQrPolling, useDebounce)
+│   │   ├── services/api/             # Client API adapters (residentApi, httpClient with fallback store)
+│   │   ├── types/                    # Strongly-typed TypeScript domain contracts
+│   │   └── utils/                    # Formatters (VND, area, phone, dates) with unit tests
+│   ├── next.config.ts                # Reverse proxy rewrite: /api/v1/:path* -> http://localhost:8000
+│   ├── package.json                  # Frontend scripts, Vitest toolchain, dependencies
+│   └── vitest.config.ts              # Vitest + JSDOM + React Testing Library configuration
+│
+├── backend/                          # High-Performance Python 3.11 FastAPI Microservice
+│   ├── app/
+│   │   ├── main.py                   # FastAPI app factory, lifespan, CORS, RFC 7807 error handlers
+│   │   ├── api/v1/                   # ════ TIER 1: PRESENTATION TIER (FASTAPI ROUTERS) ════
+│   │   │   ├── apartments.py, residents.py, parking.py, billing.py, webhooks.py, feedbacks.py
+│   │   ├── services/                 # ════ TIER 2: BUSINESS LOGIC TIER (PURE DOMAIN SERVICES) ════
+│   │   │   ├── apartment_service.py, resident_service.py, parking_service.py, billing_service.py
+│   │   ├── repositories/             # ════ TIER 3: DATA ACCESS TIER (ASYNCPG REPOSITORIES) ════
+│   │   │   ├── apartment_repository.py, resident_repository.py, parking_repository.py, billing_repository.py
+│   │   ├── schemas/                  # Pydantic v2 DTO input/output validation schemas
+│   │   ├── core/                     # Configuration (Pydantic Settings), RFC 7807 exceptions, envelopes
+│   │   └── db/                       # AsyncPG connection pool management (session.py)
+│   ├── tests/                        # Automated Pytest unit & integration suites (26 tests)
+│   ├── requirements.txt              # FastAPI, asyncpg, pydantic-settings, pytest
+│   └── README.md                     # Backend service documentation and quickstart
+│
 ├── database/
-│   ├── schema.dbml                   # Visual database definition
-│   └── schema.sql                    # Production DDL with ENUMs and indexes
-├── docs/                             # Technical documentation repository
-└── tests/                            # Fitness functions, unit & integration tests
+│   ├── schema.dbml                   # Visual database definition (dbdiagram.io / dbdocs.io)
+│   └── schema.sql                    # Production PostgreSQL 16 3NF DDL (18 tables, triggers, partial indexes)
+│
+├── docs/                             # Comprehensive technical documentation & 9 ADRs (MADR 3.0)
+│   ├── adr/                          # ADR-0001 through ADR-0009
+│   ├── ARCHITECTURE_ARC42.md         # This arc42 architectural dossier
+│   ├── ARCHITECTURE_C4.md            # C4 Level 1-3 visual architecture & failure twins
+│   ├── openapi.yaml                  # OpenAPI 3.0.3 specification
+│   └── ...
+└── package.json                      # Monorepo orchestrator (npm test, npm run dev, test:frontend, test:backend)
 ```
 
 ---
@@ -230,3 +247,14 @@ If a record exists, the server responds with `200 OK: ALREADY_PROCESSED` without
 | `EveryActionGuardsRBAC` | Security | Server Action lacks `enforceRole(...)` check | AST parser test in Vitest |
 | `FinancialCalculationsAreInteger` | Precision | Billing formula returns floating-point decimals | Unit test suite checking `Number.isInteger(amount)` |
 | `NoOrphanDatabaseEntities` | Integrity | Tables lack foreign key constraints or indexes on relations | Schema linter on `schema.sql` |
+
+### 12.1. Automated Test Suites Execution Metrics
+
+Continuous Integration guarantees zero regression through dual-tier automated test runners:
+
+| Test Suite | Runner & Environment | Test Count | Execution Time | Coverage Target |
+| :--- | :--- | :---: | :---: | :--- |
+| **Frontend Component & Logic** | Vitest 3.x, JSDOM, Testing Library | **20 passed** | 1.07s | Formatters, PaymentModal, ResidentTable, residentApi |
+| **Backend 3-Tier Domain Engine** | Pytest 8.x, Python 3.11, AsyncPG | **26 passed** | 0.40s | EVN 6-tier billing, VietQR IPN, parking locks, 12-digit CCCD |
+| **Total Monorepo CI Pipeline** | `npm test` (Concurrent execution) | **46 passed** | **1.47s** | **100% Core Business Logic & UI Invariant Integrity** |
+

@@ -655,31 +655,31 @@ Summary verification table confirming that 100% of the User Stories meet all 6 *
 
 ## 10. Bidirectional Requirements Traceability Matrix
 
-| User Story ID | Corresponding Use Case | Primary SQL Tables (3NF Schema) | Frontend View / Modal | Target C4 Component |
-| :--- | :--- | :--- | :--- | :--- |
-| `US-APT-01` | `UC-RES-04` | `apartments`, `buildings` | `/can-ho` | `ApartmentDirectoryView` $\rightarrow$ `ApartmentService` |
-| `US-APT-02` | `UC-RES-04` | `apartments`, `owners` | `/can-ho` | `ApartmentCreateModal` $\rightarrow$ `ApartmentService` |
-| `US-APT-03` | `UC-RES-05` | `apartment_owners` | `/can-ho/[roomNumber]` | `OwnershipTransferDrawer` $\rightarrow$ `ApartmentService` |
-| `US-RES-01` | `UC-RES-03` | `residents`, `household_members` | `/cu-dan` | `ResidentRegisterModal` $\rightarrow$ `ResidentService` |
-| `US-RES-02` | `UC-RES-02` | `households`, `household_members` | `/cu-dan` | `HouseholdHeadTransferModal` $\rightarrow$ `ResidentService` |
-| `US-RES-03` | `UC-RES-01` | `residence_records` | `/cu-tru` | `StayDeclarationForm` $\rightarrow$ `ResidentService` |
-| `US-RES-04` | `UC-RES-06` | `residence_records` | `/lich-su-cu-tru` | `DossierApprovalAction` $\rightarrow$ `ResidentService` |
-| `US-VEH-01` | `UC-VEH-01` | `vehicles`, `apartments` | `/phuong-tien-va-bai-do` | `VehicleRegisterModal` $\rightarrow$ `ParkingService` |
-| `US-VEH-02` | `UC-VEH-02` | `parking_slots`, `vehicles` | `/phuong-tien-va-bai-do` | `SlotAllocationGrid` $\rightarrow$ `ParkingService` |
-| `US-VEH-03` | `UC-VEH-03` | `vehicles` | `/phuong-tien-va-bai-do` | `RfidActivationCard` $\rightarrow$ `ParkingService` |
-| `US-VEH-04` | `UC-VEH-04` | `vehicles`, `parking_slots` | `/phuong-tien-va-bai-do` | `VehicleRevokeDialog` $\rightarrow$ `ParkingService` |
-| `US-BIL-01` | `UC-FIN-01` | `meter_readings` | `/phi-chung-cu` | `MeterReadingBatchTable` $\rightarrow$ `BillingService` |
-| `US-BIL-02` | `UC-FIN-02` | `invoices`, `invoice_items` | `/phi-chung-cu` | `MonthlyBillingAction` $\rightarrow$ `BillingService` |
-| `US-BIL-03` | `UC-FIN-03` | `invoices`, `payment_transactions` | `/phi-chung-cu` | `VietQrPaymentModal` $\rightarrow$ `BillingService` |
-| `US-BIL-04` | `UC-FIN-04` | `payment_transactions`, `invoices` | `/api/webhooks/vietqr` | `VietQrIpnWebhookHandler` $\rightarrow$ `BillingService` |
-| `US-BIL-05` | `UC-FIN-06` | `invoices` | Background Worker | `OverdueScanDaemon` $\rightarrow$ `BillingService` |
-| `US-TKT-01` | `UC-SRV-01` | `feedbacks` | `/phan-anh-va-yeu-cau` | `TicketSubmitDrawer` $\rightarrow$ `MaintenanceService` |
-| `US-TKT-02` | `UC-SRV-02` | `feedback_updates` | `/phan-anh-va-yeu-cau` | `TicketDispatchModal` $\rightarrow$ `MaintenanceService` |
-| `US-TKT-03` | `UC-SRV-03` | `feedbacks`, `feedback_updates` | `/phan-anh-va-yeu-cau` | `TicketResolveDrawer` $\rightarrow$ `MaintenanceService` |
-| `US-TKT-04` | `UC-SRV-04` | `feedbacks` | Cron Watchdog | `SlaEscalationDaemon` $\rightarrow$ `MaintenanceService` |
-| `US-ADM-01` | `UC-ADM-01` | `users` | `/nguoi-dung` | `UserManagementConsole` $\rightarrow$ `SecurityAuthService` |
-| `US-ADM-02` | `UC-ADM-03` | `fee_types` | `/cai-dat` | `FeeTariffConfigTable` $\rightarrow$ `BillingService` |
-| `US-ADM-03` | `UC-ADM-04` | `audit_logs` | `/cai-dat` | `AuditLogAuditViewer` $\rightarrow$ `SecurityAuthService` |
+| User Story ID | Corresponding Use Case | Primary SQL Tables (3NF Schema) | Frontend View / Modal | Target C4 Component | Automated Verification Suite |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `US-APT-01` | `UC-RES-04` | `apartments`, `buildings` | `/can-ho` | `ApartmentDirectoryView` $\rightarrow$ `ApartmentService` | `test_api_endpoints.py` |
+| `US-APT-02` | `UC-RES-04` | `apartments`, `owners` | `/can-ho` | `ApartmentCreateModal` $\rightarrow$ `ApartmentService` | `test_api_endpoints.py` |
+| `US-APT-03` | `UC-RES-05` | `apartment_owners` | `/can-ho/[roomNumber]` | `OwnershipTransferDrawer` $\rightarrow$ `ApartmentService` | `test_api_endpoints.py` |
+| `US-RES-01` | `UC-RES-03` | `residents`, `household_members` | `/cu-dan` | `ResidentRegisterModal` $\rightarrow$ `ResidentService` | `ResidentTable.test.tsx`, `test_resident_service.py` |
+| `US-RES-02` | `UC-RES-02` | `households`, `household_members` | `/cu-dan` | `HouseholdHeadTransferModal` $\rightarrow$ `ResidentService` | `ResidentTable.test.tsx`, `test_resident_service.py` |
+| `US-RES-03` | `UC-RES-01` | `residence_records` | `/cu-tru` | `StayDeclarationForm` $\rightarrow$ `ResidentService` | `residentApi.test.ts` |
+| `US-RES-04` | `UC-RES-06` | `residence_records` | `/lich-su-cu-tru` | `DossierApprovalAction` $\rightarrow$ `ResidentService` | `residentApi.test.ts` |
+| `US-VEH-01` | `UC-VEH-01` | `vehicles`, `apartments` | `/phuong-tien-va-bai-do` | `VehicleRegisterModal` $\rightarrow$ `ParkingService` | `test_parking_service.py` |
+| `US-VEH-02` | `UC-VEH-02` | `parking_slots`, `vehicles` | `/phuong-tien-va-bai-do` | `SlotAllocationGrid` $\rightarrow$ `ParkingService` | `test_parking_service.py` (Concurrency lock) |
+| `US-VEH-03` | `UC-VEH-03` | `vehicles` | `/phuong-tien-va-bai-do` | `RfidActivationCard` $\rightarrow$ `ParkingService` | `test_parking_service.py` |
+| `US-VEH-04` | `UC-VEH-04` | `vehicles`, `parking_slots` | `/phuong-tien-va-bai-do` | `VehicleRevokeDialog` $\rightarrow$ `ParkingService` | `test_parking_service.py` |
+| `US-BIL-01` | `UC-FIN-01` | `meter_readings` | `/phi-chung-cu` | `MeterReadingBatchTable` $\rightarrow$ `BillingService` | `formatters.test.ts`, `test_billing_service.py` |
+| `US-BIL-02` | `UC-FIN-02` | `invoices`, `invoice_items` | `/phi-chung-cu` | `MonthlyBillingAction` $\rightarrow$ `BillingService` | `test_billing_service.py` (EVN 6-tier) |
+| `US-BIL-03` | `UC-FIN-03` | `invoices`, `payment_transactions` | `/phi-chung-cu` | `VietQrPaymentModal` $\rightarrow$ `BillingService` | `PaymentModal.test.tsx`, `test_billing_service.py` |
+| `US-BIL-04` | `UC-FIN-04` | `payment_transactions`, `invoices` | `/api/webhooks/vietqr` | `VietQrIpnWebhookHandler` $\rightarrow$ `BillingService` | `test_billing_service.py` (Idempotency) |
+| `US-BIL-05` | `UC-FIN-06` | `invoices` | Background Worker | `OverdueScanDaemon` $\rightarrow$ `BillingService` | `test_billing_service.py` |
+| `US-TKT-01` | `UC-SRV-01` | `feedbacks` | `/phan-anh-va-yeu-cau` | `TicketSubmitDrawer` $\rightarrow$ `MaintenanceService` | `test_api_endpoints.py` |
+| `US-TKT-02` | `UC-SRV-02` | `feedback_updates` | `/phan-anh-va-yeu-cau` | `TicketDispatchModal` $\rightarrow$ `MaintenanceService` | `test_api_endpoints.py` |
+| `US-TKT-03` | `UC-SRV-03` | `feedbacks`, `feedback_updates` | `/phan-anh-va-yeu-cau` | `TicketResolveDrawer` $\rightarrow$ `MaintenanceService` | `test_api_endpoints.py` |
+| `US-TKT-04` | `UC-SRV-04` | `feedbacks` | Cron Watchdog | `SlaEscalationDaemon` $\rightarrow$ `MaintenanceService` | `test_api_endpoints.py` |
+| `US-ADM-01` | `UC-ADM-01` | `users` | `/nguoi-dung` | `UserManagementConsole` $\rightarrow$ `SecurityAuthService` | `test_api_endpoints.py` |
+| `US-ADM-02` | `UC-ADM-03` | `fee_types` | `/cai-dat` | `FeeTariffConfigTable` $\rightarrow$ `BillingService` | `test_billing_service.py` |
+| `US-ADM-03` | `UC-ADM-04` | `audit_logs` | `/cai-dat` | `AuditLogAuditViewer` $\rightarrow$ `SecurityAuthService` | `test_api_endpoints.py` |
 
 ---
 
@@ -695,7 +695,7 @@ All system features must satisfy strictly bounded, testable Non-Functional Requi
 | `NFR-PERF-02` | Mutation Latency (P99) | **$\le 300\text{ ms}$** | Single-record mutations with pessimistic locking (`/parking/slots/allocate`, pay session init). |
 | `NFR-PERF-03` | Batch Billing Velocity | **$\le 15.0\text{ seconds}$** | Generating month-end batch invoices and itemized utility line-items for 2,000 apartment units. |
 | `NFR-PERF-04` | VietQR Generation | **$\le 250\text{ ms}$** | Rendering dynamic Napas 247 payload and base64 QR matrix image. |
-| `NFR-PERF-05` | Test Suite Velocity | **$\le 2.0\text{ seconds}$** | Running the complete 26+ backend unit & integration test suite in CI/CD without network stalls. |
+| `NFR-PERF-05` | Test Suite Velocity | **$\le 2.0\text{ seconds}$** | Running the complete 46 automated test suite (20 Vitest Frontend + 26 Pytest Backend) in CI/CD without network stalls. |
 
 ### 11.2. Availability, Reliability & Disaster Recovery (NFR-AVAIL)
 

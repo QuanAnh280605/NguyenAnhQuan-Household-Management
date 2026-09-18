@@ -54,13 +54,13 @@ The Class and Sequence diagrams in this document strictly enforce the **3-Tier A
 
 ```mermaid
 classDiagram
-    %% PRESENTATION TIER
+    %% PRESENTATION TIER (FASTAPI INGRESS / REST CONTROLLER)
     class BillingController {
-        +POST_paySession(request: NextRequest, params: RouteParams) Promise~NextResponse~
-        +POST_webhookIpn(request: NextRequest) Promise~NextResponse~
-        +POST_batchGenerate(request: NextRequest) Promise~NextResponse~
-        +GET_invoices(request: NextRequest) Promise~NextResponse~
-        +GET_invoiceDetail(request: NextRequest, params: RouteParams) Promise~NextResponse~
+        +createPaySession(invoiceId: UUID, payload: CreatePaySessionDto) ApiResponse
+        +receiveWebhookIpn(payload: VietQrIpnPayloadDto) ApiResponse
+        +batchGenerate(billingMonth: string) ApiResponse
+        +getInvoices(apartmentId: UUID, status: string) ApiResponse
+        +getInvoiceDetail(invoiceId: UUID) ApiResponse
     }
 
     %% BUSINESS LOGIC TIER
@@ -162,13 +162,13 @@ classDiagram
 
 ```mermaid
 classDiagram
-    %% PRESENTATION TIER
+    %% PRESENTATION TIER (FASTAPI INGRESS / REST CONTROLLER)
     class ResidentController {
-        +GET_residents(request: NextRequest) Promise~NextResponse~
-        +POST_registerResident(request: NextRequest) Promise~NextResponse~
-        +POST_transferHead(request: NextRequest) Promise~NextResponse~
-        +POST_declareStay(request: NextRequest) Promise~NextResponse~
-        +POST_verifyStayRecord(request: NextRequest, params: RouteParams) Promise~NextResponse~
+        +getResidents(filters: ResidentFilterDto) ApiResponse
+        +registerResident(payload: RegisterMemberInputDto) ApiResponse
+        +transferHead(payload: TransferHeadInputDto) ApiResponse
+        +declareStay(payload: StayDeclarationInputDto) ApiResponse
+        +verifyStayRecord(recordId: UUID, payload: VerifyStayDto) ApiResponse
     }
 
     %% BUSINESS LOGIC TIER
@@ -254,13 +254,13 @@ classDiagram
 
 ```mermaid
 classDiagram
-    %% PRESENTATION TIER
+    %% PRESENTATION TIER (FASTAPI INGRESS / REST CONTROLLER)
     class ParkingController {
-        +GET_slots(request: NextRequest) Promise~NextResponse~
-        +POST_allocateSlot(request: NextRequest) Promise~NextResponse~
-        +POST_registerVehicle(request: NextRequest) Promise~NextResponse~
-        +POST_activateRfid(request: NextRequest, params: RouteParams) Promise~NextResponse~
-        +POST_revokeVehicle(request: NextRequest, params: RouteParams) Promise~NextResponse~
+        +getSlots(floorZone: string) ApiResponse
+        +allocateSlot(payload: AllocateSlotInputDto) ApiResponse
+        +registerVehicle(payload: RegisterVehicleInputDto) ApiResponse
+        +activateRfid(vehicleId: UUID, rfidCode: string) ApiResponse
+        +revokeVehicle(vehicleId: UUID, reason: string) ApiResponse
     }
 
     %% BUSINESS LOGIC TIER
@@ -331,12 +331,12 @@ classDiagram
 
 ```mermaid
 classDiagram
-    %% PRESENTATION TIER
+    %% PRESENTATION TIER (FASTAPI INGRESS / REST CONTROLLER)
     class TicketController {
-        +GET_tickets(request: NextRequest) Promise~NextResponse~
-        +POST_submitTicket(request: NextRequest) Promise~NextResponse~
-        +PATCH_dispatchTechnician(request: NextRequest, params: RouteParams) Promise~NextResponse~
-        +PATCH_resolveTicket(request: NextRequest, params: RouteParams) Promise~NextResponse~
+        +getTickets(filters: TicketFilterDto) ApiResponse
+        +submitTicket(payload: CreateTicketInputDto) ApiResponse
+        +dispatchTechnician(ticketId: UUID, techId: UUID) ApiResponse
+        +resolveTicket(ticketId: UUID, proofDto: ResolveProofDto) ApiResponse
     }
 
     %% BUSINESS LOGIC TIER
