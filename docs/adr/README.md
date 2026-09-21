@@ -56,6 +56,7 @@ Every ADR follows the **MADR 3.0** format and adheres to the **Documentation-Fir
 | **[ADR-0009](ADR-0009-frontend-testing-with-vitest-and-testing-library.md)** | Frontend Testing with Vitest & React Testing Library | `ACCEPTED` | 2026-09-18 | Test Velocity, Component Quality, A11y | Adopt Vitest + JSDOM + Testing Library matching FlowX |
 | **[ADR-0010](ADR-0010-result-pattern-over-exceptions.md)** | Result Pattern over Exceptions for Domain Operations | `ACCEPTED` | 2026-09-21 | Type Safety, FlowX Parity, Zero Traceback Overhead | Adopt `Result[T, DomainError]` (Success/Failure) in Services |
 | **[ADR-0011](ADR-0011-saga-orchestration-engine-with-compensations.md)** | Saga Orchestration Engine with Reverse Compensations | `ACCEPTED` | 2026-09-21 | Multi-Step Consistency, FlowX Parity, Rollback Guarantees | Typed Saga Orchestrator with LIFO Compensations & Step Journaling |
+| **[ADR-0012](ADR-0012-architecture-fitness-testing-with-pytest-ast.md)** | Architecture Fitness Testing with Pytest & Python AST | `ACCEPTED` | 2026-09-21 | Zero Architectural Drift, FlowX Parity, Fast CI (<0.3s) | Automated AST Verification for 3-Tier Layer Boundaries |
 
 ---
 
