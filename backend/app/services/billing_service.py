@@ -157,3 +157,32 @@ class BillingService:
             prev_max = tier["max"]
 
         return {"total": total, "breakdown": breakdown}
+
+    async def run_month_end_billing_saga(
+        self,
+        month: str,
+        simulate_failure_step: Optional[str] = None,
+        dry_run: bool = False,
+    ) -> Result[Dict[str, Any], DomainError]:
+        from backend.app.services.sagas.billing_batch_saga import create_month_end_billing_saga
+
+        saga = create_month_end_billing_saga()
+        initial_data = {
+            "month": month,
+            "simulate_failure_step": simulate_failure_step,
+            "dry_run": dry_run,
+        }
+        result = await saga.run(initial_data)
+        if result.is_failure:
+            return Failure(result.error)
+
+        ctx = result.value
+        return Success({
+            "sagaId": ctx.saga_id,
+            "workflowName": ctx.name,
+            "status": ctx.status.value,
+            "month": month,
+            "totalInvoicesGenerated": ctx.get("total_invoices_generated", 0),
+            "totalAmountVnd": ctx.get("total_amount_vnd", 0.0),
+            "journal": [rec.to_dict() for rec in ctx.step_journal],
+        })

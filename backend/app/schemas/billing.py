@@ -39,3 +39,27 @@ class InvoiceOut(BaseModel):
     room_number: Optional[str] = None
     building_code: Optional[str] = None
     items: Optional[List[InvoiceItemOut]] = None
+
+class BillingBatchSagaRequest(BaseModel):
+    month: str = Field(..., description="Billing month, e.g. '10/2025'")
+    simulateFailureStep: Optional[str] = Field(
+        None,
+        description="Step name to simulate failure for testing compensation (e.g. 'IssueVietQrSessionsStep')"
+    )
+    dryRun: Optional[bool] = Field(False, description="Dry-run execution without persistent changes")
+
+class SagaJournalItemOut(BaseModel):
+    stepName: str
+    status: str
+    startedAt: str
+    completedAt: Optional[str] = None
+    error: Optional[str] = None
+
+class BillingBatchSagaResponse(BaseModel):
+    sagaId: str
+    workflowName: str
+    status: str
+    month: str
+    totalInvoicesGenerated: int
+    totalAmountVnd: float
+    journal: List[SagaJournalItemOut]

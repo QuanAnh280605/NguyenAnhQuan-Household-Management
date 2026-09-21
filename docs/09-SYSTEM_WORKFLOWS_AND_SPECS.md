@@ -52,6 +52,7 @@ stateDiagram-v2
 ```
 
 - **Cycle**: Record utility meters (25th–28th) $\rightarrow$ Calculate (Area $\times$ Tariff + Utilities + Parking) $\rightarrow$ Batch generate invoices $\rightarrow$ Settle via Gateway/Cash $\rightarrow$ Auto-flag `OVERDUE` after deadline.
+- **Saga Orchestration & Compensations ([ADR-0011](adr/ADR-0011-saga-orchestration-engine-with-compensations.md))**: The month-end billing and settlement workflow is modeled as a 4-step orchestrated saga (`MonthEndBillingSaga`). If an intermediate step fails (e.g. VietQR gateway timeout), the engine executes backward compensating transactions in LIFO order (voiding generated invoices and unlocking audited meters).
 - **Billing Dead-Letter Handling**: If a unit contains invalid meter data (e.g. current index < previous index), the automated batch isolates that unit into `billing_dead_letter_log` rather than halting the 1,000+ unit generation.
 
 ---
