@@ -17,9 +17,10 @@ class ApiSuccessEnvelope(BaseModel, Generic[T]):
     timestamp: str
 
 def api_success(data: Any, pagination: Optional[PaginationMeta] = None) -> Dict[str, Any]:
+    serialized_data = data.model_dump() if hasattr(data, "model_dump") else data
     envelope = {
         "success": True,
-        "data": data,
+        "data": serialized_data,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     if pagination:

@@ -1,6 +1,14 @@
 import re
 from typing import Any, Dict, List, Optional
-from backend.app.core.errors import ConflictError, NotFoundError, ValidationError
+from backend.app.core.result import (
+    BusinessRuleViolationError,
+    ConflictDomainError,
+    DomainError,
+    Failure,
+    ResourceNotFoundError,
+    Result,
+    Success,
+)
 from backend.app.repositories.resident_repository import ResidentRepository
 from backend.app.schemas.resident import ResidentCreate, StayDeclarationRequest
 
@@ -12,28 +20,37 @@ class ResidentService:
         self,
         search: Optional[str] = None,
         status: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        return await self.repo.find_all(search, status)
+    ) -> Result[List[Dict[str, Any]], DomainError]:
+        residents = await self.repo.find_all(search, status)
+        return Success(residents)
 
-    async def get_resident_by_id(self, resident_id: str) -> Dict[str, Any]:
+    async def get_resident_by_id(self, resident_id: str) -> Result[Dict[str, Any], DomainError]:
         resident = await self.repo.find_by_id(resident_id)
         if not resident:
-            raise NotFoundError(f"Resident with id '{resident_id}' not found")
-        return resident
+            return Failure(ResourceNotFoundError(f"Resident with id '{resident_id}' not found"))
+        return Success(resident)
 
-    async def register_member(self, data: ResidentCreate) -> Dict[str, Any]:
+    async def register_member(self, data: ResidentCreate) -> Result[Dict[str, Any], DomainError]:
         if not re.match(r"^\d{12}$", data.citizenId):
-            raise ValidationError("Citizen ID (CCCD) must contain exactly 12 numeric digits")
+            return Failure(
+                BusinessRuleViolationError(
+                    "INVALID_CCCD",
+                    "Citizen ID (CCCD) must contain exactly 12 numeric digits",
+                )
+            )
 
         existing = await self.repo.find_by_citizen_id(data.citizenId)
         if existing:
-            raise ConflictError(
-                f"Citizen ID '{data.citizenId}' is already registered to resident '{existing.get('full_name')}'"
+            return Failure(
+                ConflictDomainError(
+                    "DUPLICATE_CCCD",
+                    f"Citizen ID '{data.citizenId}' is already registered to resident '{existing.get('full_name')}'",
+                )
             )
 
         household = await self.repo.find_household_by_id(data.householdId)
         if not household:
-            raise NotFoundError(f"Household with id '{data.householdId}' not found")
+            return Failure(ResourceNotFoundError(f"Household with id '{data.householdId}' not found"))
 
         created = await self.repo.create_resident({
             "full_name": data.fullName,
@@ -55,13 +72,17 @@ class ResidentService:
 
         return await self.get_resident_by_id(created["id"])
 
-    async def declare_stay(self, data: StayDeclarationRequest) -> Dict[str, Any]:
-        await self.get_resident_by_id(data.residentId)
+    async def declare_stay(self, data: StayDeclarationRequest) -> Result[Dict[str, Any], DomainError]:
+        res = await self.get_resident_by_id(data.residentId)
+        if res.is_failure:
+            return res
 
         if data.endDate and data.endDate < data.startDate:
-            raise ValidationError("End date must be on or after start date")
+            return Failure(
+                BusinessRuleViolationError("INVALID_DATE_RANGE", "End date must be on or after start date")
+            )
 
-        return await self.repo.create_stay_record({
+        record = await self.repo.create_stay_record({
             "resident_id": data.residentId,
             "apartment_id": data.apartmentId,
             "record_type": data.recordType,
@@ -70,3 +91,5 @@ class ResidentService:
             "reason": data.reason,
             "police_verified_code": data.policeVerifiedCode,
         })
+        return Success(record)
+

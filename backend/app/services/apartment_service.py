@@ -1,6 +1,14 @@
 from datetime import date
 from typing import Any, Dict, List, Optional
-from backend.app.core.errors import ConflictError, NotFoundError, ValidationError
+from backend.app.core.result import (
+    BusinessRuleViolationError,
+    ConflictDomainError,
+    DomainError,
+    Failure,
+    ResourceNotFoundError,
+    Result,
+    Success,
+)
 from backend.app.repositories.apartment_repository import ApartmentRepository
 from backend.app.schemas.apartment import ApartmentCreate, TransferOwnershipRequest
 
@@ -13,22 +21,23 @@ class ApartmentService:
         building: Optional[str] = None,
         status: Optional[str] = None,
         search: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        return await self.repo.find_all(building, status, search)
+    ) -> Result[List[Dict[str, Any]], DomainError]:
+        apartments = await self.repo.find_all(building, status, search)
+        return Success(apartments)
 
-    async def get_apartment_by_id(self, apartment_id: str) -> Dict[str, Any]:
+    async def get_apartment_by_id(self, apartment_id: str) -> Result[Dict[str, Any], DomainError]:
         apartment = await self.repo.find_by_id(apartment_id)
         if not apartment:
-            raise NotFoundError(f"Apartment with id '{apartment_id}' not found")
-        return apartment
+            return Failure(ResourceNotFoundError(f"Apartment with id '{apartment_id}' not found"))
+        return Success(apartment)
 
-    async def create_apartment(self, data: ApartmentCreate) -> Dict[str, Any]:
+    async def create_apartment(self, data: ApartmentCreate) -> Result[Dict[str, Any], DomainError]:
         if data.area <= 0:
-            raise ValidationError("Net usable area must be greater than 0 m²")
+            return Failure(BusinessRuleViolationError("INVALID_AREA", "Net usable area must be greater than 0 m²"))
 
         existing = await self.repo.find_by_room_number(data.buildingId, data.roomNumber)
         if existing:
-            raise ConflictError(f"Apartment with room number '{data.roomNumber}' already exists in this building")
+            return Failure(ConflictDomainError("DUPLICATE_ROOM_NUMBER", f"Apartment with room number '{data.roomNumber}' already exists in this building"))
 
         status = "OWNER_OCCUPIED" if data.owner else "EMPTY"
         created = await self.repo.create({
@@ -56,8 +65,10 @@ class ApartmentService:
 
         return await self.get_apartment_by_id(created["id"])
 
-    async def transfer_ownership(self, apartment_id: str, data: TransferOwnershipRequest) -> Dict[str, Any]:
-        await self.get_apartment_by_id(apartment_id)
+    async def transfer_ownership(self, apartment_id: str, data: TransferOwnershipRequest) -> Result[Dict[str, Any], DomainError]:
+        apt_res = await self.get_apartment_by_id(apartment_id)
+        if apt_res.is_failure:
+            return apt_res
 
         owner = await self.repo.find_owner_by_citizen_id(data.newOwner.citizenId)
         if not owner:
@@ -73,3 +84,4 @@ class ApartmentService:
         await self.repo.link_owner(apartment_id, owner["id"], data.transferDate)
 
         return await self.get_apartment_by_id(apartment_id)
+

@@ -1,7 +1,6 @@
 import pytest
 from pydantic import ValidationError as PydanticValidationError
 from unittest.mock import AsyncMock
-from backend.app.core.errors import ConflictError, NotFoundError, ValidationError
 from backend.app.repositories.resident_repository import ResidentRepository
 from backend.app.schemas.resident import ResidentCreate
 from backend.app.services.resident_service import ResidentService
@@ -15,7 +14,7 @@ def resident_service(mock_repo):
     return ResidentService(repo=mock_repo)
 
 def test_register_member_invalid_cccd():
-    # Pydantic schema validation strictly rejects non-12-digit CCCD
+    # Pydantic schema validation strictly rejects non-12-digit CCCD at presentation ingress
     with pytest.raises(PydanticValidationError) as excinfo:
         ResidentCreate(
             fullName="Nguyen Van A",
@@ -47,9 +46,10 @@ async def test_register_member_duplicate_cccd(resident_service, mock_repo):
         householdId="hh-1",
         relationshipToHead="CON",
     )
-    with pytest.raises(ConflictError) as excinfo:
-        await resident_service.register_member(payload)
-    assert "already registered" in str(excinfo.value)
+    result = await resident_service.register_member(payload)
+    assert result.is_failure
+    assert result.error.code == "DUPLICATE_CCCD"
+    assert "already registered" in result.error.message
 
 @pytest.mark.asyncio
 async def test_register_member_household_not_found(resident_service, mock_repo):
@@ -66,5 +66,8 @@ async def test_register_member_household_not_found(resident_service, mock_repo):
         householdId="hh-not-found",
         relationshipToHead="CON",
     )
-    with pytest.raises(NotFoundError):
-        await resident_service.register_member(payload)
+    result = await resident_service.register_member(payload)
+    assert result.is_failure
+    assert result.error.code == "NOT_FOUND"
+    assert "not found" in result.error.message
+

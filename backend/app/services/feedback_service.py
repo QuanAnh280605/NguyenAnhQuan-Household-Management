@@ -1,5 +1,12 @@
 from typing import Any, Dict, List, Optional
-from backend.app.core.errors import NotFoundError, ValidationError
+from backend.app.core.result import (
+    BusinessRuleViolationError,
+    DomainError,
+    Failure,
+    ResourceNotFoundError,
+    Result,
+    Success,
+)
 from backend.app.repositories.feedback_repository import FeedbackRepository
 from backend.app.schemas.feedback import FeedbackCreate, FeedbackStatusUpdate
 
@@ -16,23 +23,34 @@ class FeedbackService:
         status: Optional[str] = None,
         category: Optional[str] = None,
         search: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        return await self.repo.find_all(status, category, search)
+    ) -> Result[List[Dict[str, Any]], DomainError]:
+        feedbacks = await self.repo.find_all(status, category, search)
+        return Success(feedbacks)
 
-    async def get_feedback_by_id(self, feedback_id: str) -> Dict[str, Any]:
+    async def get_feedback_by_id(self, feedback_id: str) -> Result[Dict[str, Any], DomainError]:
         feedback = await self.repo.find_by_id(feedback_id)
         if not feedback:
-            raise NotFoundError(f"Feedback with id '{feedback_id}' not found")
-        return feedback
+            return Failure(ResourceNotFoundError(f"Feedback with id '{feedback_id}' not found"))
+        return Success(feedback)
 
-    async def create_feedback(self, payload: FeedbackCreate) -> Dict[str, Any]:
+    async def create_feedback(self, payload: FeedbackCreate) -> Result[Dict[str, Any], DomainError]:
         cat = payload.category.upper()
         if cat not in VALID_CATEGORIES:
-            raise ValidationError(f"Invalid category '{payload.category}'. Allowed: {list(VALID_CATEGORIES)}")
+            return Failure(
+                BusinessRuleViolationError(
+                    "INVALID_CATEGORY",
+                    f"Invalid category '{payload.category}'. Allowed: {list(VALID_CATEGORIES)}",
+                )
+            )
 
         prio = payload.priority.upper()
         if prio not in VALID_PRIORITIES:
-            raise ValidationError(f"Invalid priority '{payload.priority}'. Allowed: {list(VALID_PRIORITIES)}")
+            return Failure(
+                BusinessRuleViolationError(
+                    "INVALID_PRIORITY",
+                    f"Invalid priority '{payload.priority}'. Allowed: {list(VALID_PRIORITIES)}",
+                )
+            )
 
         created = await self.repo.create({
             "resident_id": payload.residentId,
@@ -42,12 +60,17 @@ class FeedbackService:
             "content": payload.content,
             "priority": prio,
         })
-        return created
+        return Success(created)
 
-    async def update_status(self, feedback_id: str, payload: FeedbackStatusUpdate) -> Dict[str, Any]:
+    async def update_status(self, feedback_id: str, payload: FeedbackStatusUpdate) -> Result[Dict[str, Any], DomainError]:
         new_status = payload.status.upper()
         if new_status not in VALID_STATUSES:
-            raise ValidationError(f"Invalid status '{payload.status}'. Allowed: {list(VALID_STATUSES)}")
+            return Failure(
+                BusinessRuleViolationError(
+                    "INVALID_STATUS",
+                    f"Invalid status '{payload.status}'. Allowed: {list(VALID_STATUSES)}",
+                )
+            )
 
         updated = await self.repo.update_status(
             feedback_id=feedback_id,
@@ -56,5 +79,6 @@ class FeedbackService:
             user_id=payload.userId,
         )
         if not updated:
-            raise NotFoundError(f"Feedback with id '{feedback_id}' not found")
-        return updated
+            return Failure(ResourceNotFoundError(f"Feedback with id '{feedback_id}' not found"))
+        return Success(updated)
+

@@ -1,6 +1,13 @@
 import urllib.parse
 from typing import Any, Dict, List, Optional
-from backend.app.core.errors import ConflictError, NotFoundError
+from backend.app.core.result import (
+    ConflictDomainError,
+    DomainError,
+    Failure,
+    ResourceNotFoundError,
+    Result,
+    Success,
+)
 from backend.app.repositories.billing_repository import BillingRepository
 from backend.app.schemas.billing import VietQrIpnWebhookRequest, VietQrSessionOut
 
@@ -12,24 +19,28 @@ class BillingService:
         self,
         month: Optional[str] = None,
         status: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        return await self.repo.find_all_invoices(month, status)
+    ) -> Result[List[Dict[str, Any]], DomainError]:
+        invoices = await self.repo.find_all_invoices(month, status)
+        return Success(invoices)
 
-    async def get_invoice_by_id(self, invoice_id: str) -> Dict[str, Any]:
+    async def get_invoice_by_id(self, invoice_id: str) -> Result[Dict[str, Any], DomainError]:
         invoice = await self.repo.find_invoice_by_id(invoice_id)
         if not invoice:
-            raise NotFoundError(f"Invoice with id '{invoice_id}' not found")
-        return invoice
+            return Failure(ResourceNotFoundError(f"Invoice with id '{invoice_id}' not found"))
+        return Success(invoice)
 
-    async def create_vietqr_pay_session(self, invoice_id: str) -> VietQrSessionOut:
-        invoice = await self.get_invoice_by_id(invoice_id)
+    async def create_vietqr_pay_session(self, invoice_id: str) -> Result[VietQrSessionOut, DomainError]:
+        inv_res = await self.get_invoice_by_id(invoice_id)
+        if inv_res.is_failure:
+            return inv_res
+        invoice = inv_res.value
 
         if invoice.get("status") == "PAID":
-            raise ConflictError(f"Invoice '{invoice.get('invoice_code')}' has already been fully paid")
+            return Failure(ConflictDomainError("INVOICE_ALREADY_PAID", f"Invoice '{invoice.get('invoice_code')}' has already been fully paid"))
 
         remaining = float(invoice.get("total_amount", 0)) - float(invoice.get("paid_amount", 0))
         if remaining <= 0:
-            raise ConflictError("Remaining invoice balance is 0 VND")
+            return Failure(ConflictDomainError("ZERO_BALANCE", "Remaining invoice balance is 0 VND"))
 
         bank_code = "970422" # MBBank BIN
         account_number = "0987654321"
@@ -41,7 +52,7 @@ class BillingService:
         qr_code_url = f"https://img.vietqr.io/image/{bank_code}-{account_number}-compact2.png?amount={int(remaining)}&addInfo={encoded_memo}&accountName={encoded_name}"
         qr_raw_data = f"00020101021238540010A00000072701240006{bank_code}0110{account_number}5303704540{int(remaining)}5802VN62{len(memo):02d}{memo}6304"
 
-        return VietQrSessionOut(
+        return Success(VietQrSessionOut(
             invoiceId=invoice["id"],
             invoiceCode=invoice["invoice_code"],
             amount=remaining,
@@ -51,21 +62,21 @@ class BillingService:
             bankCode=bank_code,
             accountName=account_name,
             expiresInSeconds=900,
-        )
+        ))
 
-    async def process_vietqr_webhook(self, payload: VietQrIpnWebhookRequest) -> Dict[str, Any]:
+    async def process_vietqr_webhook(self, payload: VietQrIpnWebhookRequest) -> Result[Dict[str, Any], DomainError]:
         # 1. Idempotency Guard (US-BIL-04)
         existing_tx = await self.repo.find_transaction_by_code(payload.transactionCode)
         if existing_tx:
-            return {
+            return Success({
                 "alreadyProcessed": True,
                 "transaction": existing_tx,
-            }
+            })
 
         # 2. Check Invoice
         invoice = await self.repo.find_invoice_by_code(payload.invoiceCode)
         if not invoice:
-            raise NotFoundError(f"Invoice with code '{payload.invoiceCode}' was not found in billing ledger")
+            return Failure(ResourceNotFoundError(f"Invoice with code '{payload.invoiceCode}' was not found in billing ledger"))
 
         # 3. Record transaction and update invoice
         transaction = await self.repo.record_payment_transaction({
@@ -79,11 +90,11 @@ class BillingService:
 
         updated_invoice = await self.repo.update_invoice_paid_amount(invoice["id"], payload.amount)
 
-        return {
+        return Success({
             "alreadyProcessed": False,
             "transaction": transaction,
             "invoice": updated_invoice,
-        }
+        })
 
     def calculate_tiered_water(self, m3: float) -> Dict[str, Any]:
         tiers = [

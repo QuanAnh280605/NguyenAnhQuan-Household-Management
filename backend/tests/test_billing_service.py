@@ -43,7 +43,9 @@ async def test_create_vietqr_pay_session_success(billing_service, mock_repo):
     }
     mock_repo.find_invoice_by_id.return_value = sample_invoice
 
-    session = await billing_service.create_vietqr_pay_session("inv-uuid-1")
+    result = await billing_service.create_vietqr_pay_session("inv-uuid-1")
+    assert result.is_success
+    session = result.value
     assert session.invoiceId == "inv-uuid-1"
     assert session.amount == 1500000
     assert "amount=1500000" in session.qrCodeUrl
@@ -59,8 +61,10 @@ async def test_create_vietqr_pay_session_already_paid(billing_service, mock_repo
         "paid_amount": 1500000,
         "status": "PAID",
     }
-    with pytest.raises(ConflictError):
-        await billing_service.create_vietqr_pay_session("inv-uuid-1")
+    result = await billing_service.create_vietqr_pay_session("inv-uuid-1")
+    assert result.is_failure
+    assert result.error.code == "INVOICE_ALREADY_PAID"
+    assert "already been fully paid" in result.error.message
 
 @pytest.mark.asyncio
 async def test_process_vietqr_webhook_idempotency(billing_service, mock_repo):
@@ -77,7 +81,9 @@ async def test_process_vietqr_webhook_idempotency(billing_service, mock_repo):
         amount=1500000,
     )
     result = await billing_service.process_vietqr_webhook(payload)
-    assert result["alreadyProcessed"] is True
+    assert result.is_success
+    data = result.value
+    assert data["alreadyProcessed"] is True
     mock_repo.record_payment_transaction.assert_not_called()
     mock_repo.update_invoice_paid_amount.assert_not_called()
 
@@ -99,6 +105,9 @@ async def test_process_vietqr_webhook_success(billing_service, mock_repo):
         amount=1500000,
     )
     result = await billing_service.process_vietqr_webhook(payload)
-    assert result["alreadyProcessed"] is False
-    assert result["invoice"]["status"] == "PAID"
+    assert result.is_success
+    data = result.value
+    assert data["alreadyProcessed"] is False
+    assert data["invoice"]["status"] == "PAID"
     mock_repo.record_payment_transaction.assert_called_once()
+

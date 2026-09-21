@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import AsyncMock
-from backend.app.core.errors import ConcurrencyError, ConflictError, ValidationError
 from backend.app.repositories.parking_repository import ParkingRepository
 from backend.app.schemas.parking import AllocateSlotRequest, RegisterVehicleRequest
 from backend.app.services.parking_service import ParkingService
@@ -23,9 +22,10 @@ async def test_register_vehicle_car_quota_exceeded(parking_service, mock_repo):
         licensePlate="30E-999.88",
         vehicleType="CAR",
     )
-    with pytest.raises(ValidationError) as excinfo:
-        await parking_service.register_vehicle(payload)
-    assert "quota exceeded" in str(excinfo.value)
+    result = await parking_service.register_vehicle(payload)
+    assert result.is_failure
+    assert result.error.code == "QUOTA_EXCEEDED"
+    assert "quota exceeded" in result.error.message
 
 @pytest.mark.asyncio
 async def test_register_vehicle_motorbike_quota_exceeded(parking_service, mock_repo):
@@ -37,9 +37,10 @@ async def test_register_vehicle_motorbike_quota_exceeded(parking_service, mock_r
         licensePlate="29A-123.45",
         vehicleType="MOTORBIKE",
     )
-    with pytest.raises(ValidationError) as excinfo:
-        await parking_service.register_vehicle(payload)
-    assert "quota exceeded" in str(excinfo.value)
+    result = await parking_service.register_vehicle(payload)
+    assert result.is_failure
+    assert result.error.code == "QUOTA_EXCEEDED"
+    assert "quota exceeded" in result.error.message
 
 @pytest.mark.asyncio
 async def test_register_vehicle_duplicate_plate(parking_service, mock_repo):
@@ -56,9 +57,10 @@ async def test_register_vehicle_duplicate_plate(parking_service, mock_repo):
         licensePlate="30e-999.88",
         vehicleType="CAR",
     )
-    with pytest.raises(ConflictError) as excinfo:
-        await parking_service.register_vehicle(payload)
-    assert "already registered" in str(excinfo.value)
+    result = await parking_service.register_vehicle(payload)
+    assert result.is_failure
+    assert result.error.code == "DUPLICATE_LICENSE_PLATE"
+    assert "already registered" in result.error.message
 
 @pytest.mark.asyncio
 async def test_allocate_slot_occupied_concurrency_error(parking_service, mock_repo):
@@ -79,5 +81,8 @@ async def test_allocate_slot_occupied_concurrency_error(parking_service, mock_re
         vehicleId="veh-1",
         apartmentId="apt-1",
     )
-    with pytest.raises(ConcurrencyError):
-        await parking_service.allocate_slot(payload)
+    result = await parking_service.allocate_slot(payload)
+    assert result.is_failure
+    assert result.error.code == "CONCURRENCY_CONFLICT"
+    assert "cannot be allocated" in result.error.message
+

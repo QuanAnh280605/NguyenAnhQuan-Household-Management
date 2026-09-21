@@ -57,7 +57,7 @@ flowchart TB
         Service["backend/app/services/*_service.py<br/><i>(Pure Python Domain Services)</i>"]
         BizRules["Business Rules & Calculation Engines<br/><i>(EVN 6-Tier Electricity, Water, Quotas)</i>"]
         TxOrchestrator["Transaction Orchestrator<br/><i>(asyncpg.Connection.transaction())</i>"]
-        DomainErrors["Domain Exception Emitters<br/><i>(AppError, ConcurrencyError, NotFoundError)</i>"]
+        DomainErrors["Result[T, DomainError] Engine<br/><i>(Success/Failure, ADR-0010 FlowX Pattern)</i>"]
         Service --> BizRules --> TxOrchestrator --> DomainErrors
     end
 
