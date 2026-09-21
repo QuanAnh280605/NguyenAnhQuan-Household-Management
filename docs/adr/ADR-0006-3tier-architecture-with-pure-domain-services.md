@@ -97,7 +97,7 @@ The backend codebase in [backend/app/](file:///d:/VSF/chung-cu-household-managem
 
 ## 6. Links & References
 
-- [3-Tier Architecture Documentation](../FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)
-- [Detailed UML Class & Sequence Diagrams](../DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)
+- [3-Tier Architecture Documentation](../07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)
+- [Detailed UML Class & Sequence Diagrams](../08-DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)
 - [Billing Service Domain Implementation](../../backend/app/services/billing_service.py)
 - [Backend Automated Test Suite](../../backend/tests/)

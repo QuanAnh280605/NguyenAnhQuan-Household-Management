@@ -4,10 +4,10 @@
 > **Status:** Approved Architectural Baseline  
 > **Audience:** Product Designers, Frontend Engineers, Fullstack Developers, QA/UAT Engineers  
 > **Traceability Links:**  
-> - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile User Stories & INVEST Acceptance Criteria)  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Container & Component Diagrams)  
-> - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (Frontend & Backend 3-Tier Layering)  
-> - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
+> - 📋 [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md) (Agile User Stories & INVEST Acceptance Criteria)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (C4 Container & Component Diagrams)  
+> - 📂 [07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (Frontend & Backend 3-Tier Layering)  
+> - 🔗 [10-UI_DATABASE_MAPPING.md](10-UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
 > - 📸 [docs/screenshots/](screenshots/README.md) (Visual Gallery of Production Screens)  
 > - 🗄️ [database/schema.sql](../database/schema.sql) (PostgreSQL Normalized Relational Schema)
 
@@ -386,12 +386,12 @@ Every view and data container implements 5 core UI states:
 
 | Interface Module | Route Path | Production Screenshot Reference | Database Mapping Reference |
 | :--- | :--- | :--- | :--- |
-| **Operational Command Console** | `app/page.tsx` | [`docs/screenshots/dashboard.png`](screenshots/dashboard.png) | [UI_DATABASE_MAPPING.md §0](UI_DATABASE_MAPPING.md) |
-| **Apartment Directory** | `app/can-ho/page.tsx` | [`docs/screenshots/apartments.png`](screenshots/apartments.png) | [UI_DATABASE_MAPPING.md §1](UI_DATABASE_MAPPING.md#1-apartments-management-view-can-ho-can-horoomnumber) |
-| **Apartment 360 Dossier** | `app/can-ho/[roomNumber]/page.tsx`| [`docs/screenshots/apartment_detail.png`](screenshots/apartment_detail.png) | [UI_DATABASE_MAPPING.md §1](UI_DATABASE_MAPPING.md#1-apartments-management-view-can-ho-can-horoomnumber) |
-| **Resident Directory & Census** | `app/cu-dan/page.tsx` | [`docs/screenshots/residents.png`](screenshots/residents.png) | [UI_DATABASE_MAPPING.md §2](UI_DATABASE_MAPPING.md#2-residents--household-roster-view-cu-dan) |
-| **Civil Stay Declarations** | `app/cu-tru/page.tsx` | [`docs/screenshots/residents.png`](screenshots/residents.png) | [UI_DATABASE_MAPPING.md §3](UI_DATABASE_MAPPING.md#3-stay-declarations--audit-history-cu-tru-lich-su-cu-tru) |
-| **Vehicles & Parking Slots** | `app/phuong-tien-va-bai-do/page.tsx`| [`docs/screenshots/vehicles.png`](screenshots/vehicles.png) | [UI_DATABASE_MAPPING.md §4](UI_DATABASE_MAPPING.md#4-vehicles--parking-management-view-phuong-tien-va-bai-do) |
-| **Billing, Invoices & VietQR** | `app/phi-chung-cu/page.tsx` | [`docs/screenshots/billing.png`](screenshots/billing.png) | [UI_DATABASE_MAPPING.md §5](UI_DATABASE_MAPPING.md#5-utility-meters-invoices--payments-view-phi-chung-cu) |
-| **Tickets & Maintenance SLA** | `app/phan-anh-va-yeu-cau/page.tsx` | [`docs/screenshots/tickets.png`](screenshots/tickets.png) | [UI_DATABASE_MAPPING.md §6](UI_DATABASE_MAPPING.md#6-service-requests--tickets-view-phan-anh-va-yeu-cau) |
-| **User Management & Settings** | `app/nguoi-dung/page.tsx`, `app/cai-dat/page.tsx`| *Unified administration* | [UI_DATABASE_MAPPING.md §7](UI_DATABASE_MAPPING.md#7-system-users--rbac-view-nguoi-dung-cai-dat) |
+| **Operational Command Console** | `app/page.tsx` | [`docs/screenshots/dashboard.png`](screenshots/dashboard.png) | [10-UI_DATABASE_MAPPING.md §0](10-UI_DATABASE_MAPPING.md) |
+| **Apartment Directory** | `app/can-ho/page.tsx` | [`docs/screenshots/apartments.png`](screenshots/apartments.png) | [10-UI_DATABASE_MAPPING.md §1](10-UI_DATABASE_MAPPING.md#1-apartments-management-view-can-ho-can-horoomnumber) |
+| **Apartment 360 Dossier** | `app/can-ho/[roomNumber]/page.tsx`| [`docs/screenshots/apartment_detail.png`](screenshots/apartment_detail.png) | [10-UI_DATABASE_MAPPING.md §1](10-UI_DATABASE_MAPPING.md#1-apartments-management-view-can-ho-can-horoomnumber) |
+| **Resident Directory & Census** | `app/cu-dan/page.tsx` | [`docs/screenshots/residents.png`](screenshots/residents.png) | [10-UI_DATABASE_MAPPING.md §2](10-UI_DATABASE_MAPPING.md#2-residents--household-roster-view-cu-dan) |
+| **Civil Stay Declarations** | `app/cu-tru/page.tsx` | [`docs/screenshots/residents.png`](screenshots/residents.png) | [10-UI_DATABASE_MAPPING.md §3](10-UI_DATABASE_MAPPING.md#3-stay-declarations--audit-history-cu-tru-lich-su-cu-tru) |
+| **Vehicles & Parking Slots** | `app/phuong-tien-va-bai-do/page.tsx`| [`docs/screenshots/vehicles.png`](screenshots/vehicles.png) | [10-UI_DATABASE_MAPPING.md §4](10-UI_DATABASE_MAPPING.md#4-vehicles--parking-management-view-phuong-tien-va-bai-do) |
+| **Billing, Invoices & VietQR** | `app/phi-chung-cu/page.tsx` | [`docs/screenshots/billing.png`](screenshots/billing.png) | [10-UI_DATABASE_MAPPING.md §5](10-UI_DATABASE_MAPPING.md#5-utility-meters-invoices--payments-view-phi-chung-cu) |
+| **Tickets & Maintenance SLA** | `app/phan-anh-va-yeu-cau/page.tsx` | [`docs/screenshots/tickets.png`](screenshots/tickets.png) | [10-UI_DATABASE_MAPPING.md §6](10-UI_DATABASE_MAPPING.md#6-service-requests--tickets-view-phan-anh-va-yeu-cau) |
+| **User Management & Settings** | `app/nguoi-dung/page.tsx`, `app/cai-dat/page.tsx`| *Unified administration* | [10-UI_DATABASE_MAPPING.md §7](10-UI_DATABASE_MAPPING.md#7-system-users--rbac-view-nguoi-dung-cai-dat) |

@@ -5,8 +5,8 @@
 > **Standard:** REST/JSON, RFC 7807 Problem Details, Next.js 16 App Router Server Actions, OpenAPI 3.0.3  
 > **Interactive Swagger UI:** [http://localhost:3000/api-docs](/api-docs)  
 > **OpenAPI 3.0 Spec:** [docs/openapi.yaml](openapi.yaml) (or download at [/openapi.yaml](/openapi.yaml))  
-> **Database ERD & Specs:** [docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md](DATABASE_SPECIFICATION_AND_DIAGRAMS.md)  
-> **Traceability:** Aligned with [USE_CASES.md](USE_CASES.md), [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md), and [database/schema.sql](../database/schema.sql)  
+> **Database ERD & Specs:** [docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md](05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md)  
+> **Traceability:** Aligned with [11-USE_CASES.md](11-USE_CASES.md), [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md), and [database/schema.sql](../database/schema.sql)  
 
 ---
 
@@ -47,9 +47,9 @@ This table provides a transparent, verifiable audit of the platform's API state 
 | **VietQR Payment Session** | `POST /api/v1/billing/invoices/{id}/pay-session`| REST / JSON | **Live (FastAPI + VietQR)**| `backend/app/api/v1/billing.py` $\leftrightarrow$ `PaymentModal.tsx` ([ADR-0005](adr/ADR-0005-vietqr-napas-pay-sessions-and-ipn-idempotency.md)) |
 | **VietQR Webhook IPN** | `POST /api/v1/webhooks/vietqr` | REST / JSON | **Live (FastAPI + Idempotent)**| `backend/app/api/v1/webhooks.py` $\leftrightarrow$ `backend/app/services/billing_service.py` |
 | **Maintenance & Feedbacks** | `GET /api/v1/feedbacks` | REST / JSON | **Live (FastAPI + AsyncPG)** | `backend/app/api/v1/feedbacks.py` $\leftrightarrow$ `backend/app/services/feedback_service.py` |
-| **Batch Billing Generation** | `POST /api/v1/billing/batch-generate` | REST / Scheduled | **Specification Ready** | `backend/app/services/billing_service.py`, [ARC42 §8.2](ARCHITECTURE_ARC42.md#82-error-handling-standard-rfc-7807) |
-| **Evidence Media Upload** | S3 Pre-signed API | HTTPS S3 API (PUT/GET) | **Specification Ready** | [ARC42 §3.2](ARCHITECTURE_ARC42.md#32-external-interfaces-matrix) |
-| **Civil Police Registry Sync**| mTLS External REST | HTTPS / REST (mTLS + OAuth2)| **Planned (Phase 4)** | [SYSTEM_WORKFLOWS_AND_SPECS.md §3](SYSTEM_WORKFLOWS_AND_SPECS.md#3-post-dbml-implementation-steps-next-steps) |
+| **Batch Billing Generation** | `POST /api/v1/billing/batch-generate` | REST / Scheduled | **Specification Ready** | `backend/app/services/billing_service.py`, [ARC42 §8.2](04-ARCHITECTURE_ARC42.md#82-error-handling-standard-rfc-7807) |
+| **Evidence Media Upload** | S3 Pre-signed API | HTTPS S3 API (PUT/GET) | **Specification Ready** | [ARC42 §3.2](04-ARCHITECTURE_ARC42.md#32-external-interfaces-matrix) |
+| **Civil Police Registry Sync**| mTLS External REST | HTTPS / REST (mTLS + OAuth2)| **Planned (Phase 4)** | [09-SYSTEM_WORKFLOWS_AND_SPECS.md §3](09-SYSTEM_WORKFLOWS_AND_SPECS.md#3-post-dbml-implementation-steps-next-steps) |
 
 > [!NOTE]
 > **Dual-Mode Resilient Ingress Architecture ([ADR-0008](adr/ADR-0008-monorepo-nextjs16-fastapi-with-fallback-store.md)):**  

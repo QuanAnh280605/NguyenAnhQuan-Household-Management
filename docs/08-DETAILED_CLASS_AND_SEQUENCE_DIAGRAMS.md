@@ -5,10 +5,10 @@
 > **Audience:** Backend Engineers, Software Architects, QA/SDET, Code Reviewers  
 > **Standard:** UML 2.5, Clean Architecture / 3-Tier Layering, RFC 7807  
 > **Traceability Links:**  
-> - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (Physical Folder Layout & Layer Boundaries)  
-> - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile Requirements & INVEST Acceptance Criteria)  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
-> - 🔌 [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (REST Endpoints & DTO Contracts)  
+> - 📂 [07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (Physical Folder Layout & Layer Boundaries)  
+> - 📋 [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md) (Agile Requirements & INVEST Acceptance Criteria)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
+> - 🔌 [06-API_DOCUMENTATION.md](06-API_DOCUMENTATION.md) (REST Endpoints & DTO Contracts)  
 > - 🗄️ [database/schema.sql](../database/schema.sql) (PostgreSQL 18-Table 3NF Normalized Database Schema)
 
 ---
@@ -32,7 +32,7 @@
 
 ## 1. 3-Tier UML Design Methodology
 
-The Class and Sequence diagrams in this document strictly enforce the **3-Tier Architecture** established in [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md):
+The Class and Sequence diagrams in this document strictly enforce the **3-Tier Architecture** established in [07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md):
 
 1. **Presentation Tier (Controllers / Route Handlers):** Acts as the ingress boundary, receiving HTTP requests, executing authentication & authorization guards, validating input payloads via DTO schemas, and delegating business execution to the Service layer.
 2. **Business Logic Tier (Domain Services):** Encapsulates core business rules, progressive tariff computations (EVN 6-tier electricity, water), quota enforcement (vehicles per unit), and ACID transaction orchestration, remaining completely independent of HTTP framework primitives.

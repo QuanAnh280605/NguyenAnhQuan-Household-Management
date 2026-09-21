@@ -18,10 +18,10 @@ This document provides the formal architectural specification for the **Resident
 - 🚀 **C4 Deployment**: [Production Deployment Topology](#5-c4-deployment-diagram---infrastructure-view) (Cloudflare Edge, AWS RDS Multi-AZ, S3)
 - 🧪 **Fitness Functions**: [Integrity & Layering Gates](#6-architecture-fitness-functions--integrity-tests) (Automated CI assertions)
 - 🔗 **Quad-Traceability Matrix**: [Requirements, UI, Architecture & DB Alignment](#7-full-quad-traceability-matrix)
-- 📋 **Agile Requirements**: For User Stories and Gherkin Acceptance Criteria, see **[REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md)**.
-- 🖥️ **UI/UX & IA Specifications**: For Information Architecture and Screen Hierarchy, see **[UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md)**.
-- 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 dossier, see **[ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md)**.
-- 📋 **Use Case Specifications**: For UML catalogs and E2E journeys, see **[USE_CASES.md](USE_CASES.md)**.
+- 📋 **Agile Requirements**: For User Stories and Gherkin Acceptance Criteria, see **[01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md)**.
+- 🖥️ **UI/UX & IA Specifications**: For Information Architecture and Screen Hierarchy, see **[02-UI_UX_SPECIFICATION.md](02-UI_UX_SPECIFICATION.md)**.
+- 📘 **arc42 Full Specification**: For the complete 12-section IEEE 42010 dossier, see **[04-ARCHITECTURE_ARC42.md](04-ARCHITECTURE_ARC42.md)**.
+- 📋 **Use Case Specifications**: For UML catalogs and E2E journeys, see **[11-USE_CASES.md](11-USE_CASES.md)**.
 
 ---
 
@@ -161,8 +161,8 @@ flowchart TB
 ## 3. C4 Component Diagram - Level 3
 
 Adhering to Simon Brown's C4 model, Level 3 decomposes the platform's primary deployable containers into their internal structural components, responsibilities, and interface boundaries:
-- **3.1. Presentation Tier**: Internal component architecture of the **Single-Page Web Application Container** (React 19 / Next.js Client), aligned directly with [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md).
-- **3.2. Application Tier**: Modular service architecture of the **Web & API Application Server Container** (Next.js 16 App Router & Services), mapped 1-to-1 with Epics in [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md).
+- **3.1. Presentation Tier**: Internal component architecture of the **Single-Page Web Application Container** (React 19 / Next.js Client), aligned directly with [02-UI_UX_SPECIFICATION.md](02-UI_UX_SPECIFICATION.md).
+- **3.2. Application Tier**: Modular service architecture of the **Web & API Application Server Container** (Next.js 16 App Router & Services), mapped 1-to-1 with Epics in [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md).
 
 ---
 
@@ -244,7 +244,7 @@ flowchart TB
 
 ### 3.2. Application Tier — Backend Application Server Container (FastAPI / Python 3.11)
 
-The Application Tier inspects the internal modular architecture of the **FastAPI Application Server** container, detailing functional domain services and repositories aligned 1-to-1 with the 6 business Epics from [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) and [ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md):
+The Application Tier inspects the internal modular architecture of the **FastAPI Application Server** container, detailing functional domain services and repositories aligned 1-to-1 with the 6 business Epics from [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md) and [ADR-0006](adr/ADR-0006-3tier-architecture-with-pure-domain-services.md):
 
 ```mermaid
 flowchart TB

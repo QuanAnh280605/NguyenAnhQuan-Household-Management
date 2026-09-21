@@ -5,10 +5,10 @@
 > **Audience:** Fullstack Developers, Backend Engineers, Frontend Engineers, Solution Architects, Code Reviewers  
 > **Frameworks:** Next.js 16 (App Router), React 19, TypeScript, PostgreSQL 16 (3NF), Tailwind CSS v4  
 > **Traceability Links:**  
-> - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile Requirements & User Stories)  
-> - 🖥️ [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
-> - 🔌 [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (REST Endpoints, DTOs & RFC 7807 Error Envelope)  
+> - 📋 [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md) (Agile Requirements & User Stories)  
+> - 🖥️ [02-UI_UX_SPECIFICATION.md](02-UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (C4 Level 3 Component Diagrams)  
+> - 🔌 [06-API_DOCUMENTATION.md](06-API_DOCUMENTATION.md) (REST Endpoints, DTOs & RFC 7807 Error Envelope)  
 > - 🗄️ [database/schema.sql](../database/schema.sql) (18-Table PostgreSQL Relational Schema)
 
 ---

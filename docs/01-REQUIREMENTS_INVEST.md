@@ -5,10 +5,10 @@
 > **Audience:** Product Owners, Agile Development Teams, QA/SDET, Solution Architects, System Auditors  
 > **Methodology:** Agile User Stories, INVEST Best Practices, BDD Gherkin (*Given - When - Then*)  
 > **Traceability Links:**  
-> - 📋 [USE_CASES.md](USE_CASES.md) (UML Functional Catalog & Fully-Dressed Use Cases)  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (Context, Container, Components & Runtime View)  
-> - 🖥️ [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
-> - 📂 [FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (3-Tier Layering Specifications)  
+> - 📋 [11-USE_CASES.md](11-USE_CASES.md) (UML Functional Catalog & Fully-Dressed Use Cases)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (Context, Container, Components & Runtime View)  
+> - 🖥️ [02-UI_UX_SPECIFICATION.md](02-UI_UX_SPECIFICATION.md) (Information Architecture & Screens Hierarchy)  
+> - 📂 [07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md) (3-Tier Layering Specifications)  
 > - 🗄️ [database/schema.sql](../database/schema.sql) (18-Table 3NF Normalized Relational Database Schema)
 
 ---
@@ -766,7 +766,7 @@ To ensure software delivery quality across all development sprints, engineering 
 A User Story is accepted into an active development sprint only when:
 - [ ] User story conforms strictly to the **INVEST** format (*As a... I want... So that...*).
 - [ ] Acceptance Criteria are formalized in verifiable **BDD Gherkin** (*Given - When - Then*), including happy path and failure twins.
-- [ ] UI/UX wireframes or high-fidelity prototypes exist in [UI_UX_SPECIFICATION.md](UI_UX_SPECIFICATION.md) or Figma/Stitch.
+- [ ] UI/UX wireframes or high-fidelity prototypes exist in [02-UI_UX_SPECIFICATION.md](02-UI_UX_SPECIFICATION.md) or Figma/Stitch.
 - [ ] Target API contracts and schema DTOs are mapped to [openapi.yaml](openapi.yaml) and [database/schema.sql](../database/schema.sql).
 - [ ] Complexity is estimated in Fibonacci Story Points (1, 2, 3, 5, 8) with team consensus.
 

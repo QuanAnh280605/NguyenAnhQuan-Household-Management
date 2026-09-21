@@ -75,7 +75,7 @@ All primary keys use **UUID v4** (`DEFAULT gen_random_uuid()`) to prevent predic
 
 ## 6. Links & References
 
-- [Database Specification & ERD Documentation](../DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
+- [Database Specification & ERD Documentation](../05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
 - [PostgreSQL Schema DDL](../../database/schema.sql)
 - [DBML Schema Definition](../../database/schema.dbml)
 - [Decree 13/2023/NĐ-CP on Personal Data Protection (Vietnam)](https://vanban.chinhphu.vn)

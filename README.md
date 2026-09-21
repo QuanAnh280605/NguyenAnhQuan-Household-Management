@@ -7,13 +7,13 @@
 
 [![Tech Stack](https://img.shields.io/badge/Stack-Next.js%2016%20%7C%20FastAPI%20%7C%20PostgreSQL-blue)](README.md)
 [![Test Suite](https://img.shields.io/badge/Tests-46%20Passed%20(Vitest%20%2B%20Pytest)-brightgreen)](docs/adr/ADR-0009-frontend-testing-with-vitest-and-testing-library.md)
-[![Architecture: Arc42](https://img.shields.io/badge/Architecture-Arc42%20Standard-indigo)](docs/ARCHITECTURE_ARC42.md)
-[![Visualisation: C4 Model](https://img.shields.io/badge/Visualisation-C4%20Model-teal)](docs/ARCHITECTURE_C4.md)
-[![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
+[![Architecture: Arc42](https://img.shields.io/badge/Architecture-Arc42%20Standard-indigo)](docs/04-ARCHITECTURE_ARC42.md)
+[![Visualisation: C4 Model](https://img.shields.io/badge/Visualisation-C4%20Model-teal)](docs/03-ARCHITECTURE_C4.md)
+[![Database](https://img.shields.io/badge/Schema-18%20Tables%20(3NF)-success)](docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
 [![OpenAPI 3.0](https://img.shields.io/badge/OpenAPI-3.0.3%20Swagger-green)](docs/openapi.yaml)
 [![Swagger UI](https://img.shields.io/badge/Swagger%20UI-Interactive%20Console-blue)](/api-docs)
-[![Access Control](https://img.shields.io/badge/RBAC-4%20Tiers%20Enforced-orange)](docs/SYSTEM_WORKFLOWS_AND_SPECS.md)
-[![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20100%25-brightgreen)](docs/UI_DATABASE_MAPPING.md)
+[![Access Control](https://img.shields.io/badge/RBAC-4%20Tiers%20Enforced-orange)](docs/09-SYSTEM_WORKFLOWS_AND_SPECS.md)
+[![Traceability](https://img.shields.io/badge/Traceability-UI%20to%20DB%20100%25-brightgreen)](docs/10-UI_DATABASE_MAPPING.md)
 [![ADRs](https://img.shields.io/badge/ADRs-9%20Accepted%20(MADR%203.0)-purple)](docs/adr/README.md)
 
 </div>
@@ -141,13 +141,13 @@ pytest backend/tests
 | :--- | :--- | :--- |
 | **Functional Scope** | **7 Core Modules** | Buildings, Households, Residents, Stay Tracking, Vehicles, Invoices, Feedbacks |
 | **Database Architecture** | **18 Relational Tables (3NF)** | Fully normalized PostgreSQL schema with composite unique keys & cascading rules |
-| **Data Definition** | **DBML + SQL DDL + ERD** | [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md), [`database/schema.dbml`](database/schema.dbml) and [`database/schema.sql`](database/schema.sql) |
+| **Data Definition** | **DBML + SQL DDL + ERD** | [`docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md), [`database/schema.dbml`](database/schema.dbml) and [`database/schema.sql`](database/schema.sql) |
 | **API Specifications** | **OpenAPI 3.0.3 + Swagger UI** | [`docs/openapi.yaml`](docs/openapi.yaml) (1,514 lines) and interactive console at [`/api-docs`](/api-docs) |
 | **Access Governance (RBAC)**| **4 Distinct Roles** | `ADMIN`, `MANAGER`, `TECHNICIAN`, `RESIDENT` with row-level data isolation |
 | **Backend Stack** | **Python 3.11 + FastAPI + AsyncPG** | Strict 3-Tier Layering: Controllers $\rightarrow$ Domain Services $\rightarrow$ SQL Repositories |
 | **Frontend Stack** | **Next.js 16 (React 19) + TypeScript** | Modern App Router, Server Components & Tailwind CSS v4 |
 | **Test Verification** | **26/26 Tests Passed (0.42s)** | Automated Pytest suite covering Auth, Billing Engine, Quotas, and SLA workflows |
-| **Traceability** | **100% UI to Database Alignment** | Every UI field is explicitly mapped to database columns in [`docs/UI_DATABASE_MAPPING.md`](docs/UI_DATABASE_MAPPING.md) |
+| **Traceability** | **100% UI to Database Alignment** | Every UI field is explicitly mapped to database columns in [`docs/10-UI_DATABASE_MAPPING.md`](docs/10-UI_DATABASE_MAPPING.md) |
 
 ---
 
@@ -305,7 +305,7 @@ Underground parking allocation enforcing apartment vehicle quotas, license plate
 ## 🗄️ Database Architecture & Normalized ERD
 
 The database schema is modeled in 3NF across 18 relational tables. Inspect the interactive schema definitions and diagrams:
-- **Comprehensive ERD & Data Dictionary:** [`docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
+- **Comprehensive ERD & Data Dictionary:** [`docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md`](docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md)
 - **DBML Schema:** [`database/schema.dbml`](database/schema.dbml)
 - **PostgreSQL DDL:** [`database/schema.sql`](database/schema.sql)
 
@@ -357,19 +357,20 @@ erDiagram
 
 All architectural specifications are cross-referenced across the `docs/` catalog:
 
-| Document | Discipline | What It Answers |
-| :--- | :--- | :--- |
-| **[REQUIREMENTS_INVEST.md](docs/REQUIREMENTS_INVEST.md)** | Requirements Engineering | How are Agile User Stories defined? What are the verifiable BDD Gherkin acceptance criteria and INVEST compliance metrics? |
-| **[USE_CASES.md](docs/USE_CASES.md)** | Functional Specifications | What is the full functional use case catalog, actor taxonomy, and failure twin handling scenarios? |
-| **[UI_UX_SPECIFICATION.md](docs/UI_UX_SPECIFICATION.md)** | Interaction Design | How is the 4-level Information Architecture (IA) structured? What are the design tokens and screen transition rules? |
-| **[UI_DATABASE_MAPPING.md](docs/UI_DATABASE_MAPPING.md)** | Field-Level Traceability | Which SQL table and column does each visual input and metric card correspond to across all 7 operational screens? |
-| **[ARCHITECTURE_C4.md](docs/ARCHITECTURE_C4.md)** | Visual Architecture (C4 Model) | How does the system look across Context (C1), Container (C2), Component (C3), Dynamic runtime, and Production deployment views? |
-| **[ARCHITECTURE_ARC42.md](docs/ARCHITECTURE_ARC42.md)** | Architecture (arc42 Standard) | How is the complete 12-section international IEEE 42010 architecture documentation structured? |
-| **[adr/README.md](docs/adr/README.md)** | Architecture Decisions (MADR 3.0) | What are the formal architectural choices, rationales, and trade-offs (3NF, Pessimistic Locking, VietQR, Monorepo)? |
-| **[DATABASE_SPECIFICATION_AND_DIAGRAMS.md](docs/DATABASE_SPECIFICATION_AND_DIAGRAMS.md)** | Data Engineering | What is the 18-table 3NF schema design, data dictionary, indexing strategy, and pessimistic locking specification? |
-| **[openapi.yaml](docs/openapi.yaml)** | API Standard (OpenAPI 3.0.3) | What are the machine-readable REST API contracts, DTO schemas, RFC 7807 problem envelopes, and RBAC requirements? |
-| **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](docs/FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | Clean Architecture | How are layer boundaries enforced across Presentation (Controllers), Business Logic (Services), and Data Access (Repositories)? |
-| **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](docs/DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)** | Detailed UML Modeling | What are the method-level class interactions and sequence workflows for VietQR settlement, parking allocation, and batch billing? |
+| Step | Document | Discipline | What It Answers |
+| :---: | :--- | :--- | :--- |
+| **01** | **[01-REQUIREMENTS_INVEST.md](docs/01-REQUIREMENTS_INVEST.md)** | Requirements Engineering | How are Agile User Stories defined? What are the verifiable BDD Gherkin acceptance criteria and INVEST compliance metrics? |
+| **02** | **[02-UI_UX_SPECIFICATION.md](docs/02-UI_UX_SPECIFICATION.md)** | Interaction Design | How is the 4-level Information Architecture (IA) structured? What are the design tokens and screen transition rules? |
+| **03** | **[03-ARCHITECTURE_C4.md](docs/03-ARCHITECTURE_C4.md)** | Visual Architecture (C4 Model) | How does the system look across Context (C1), Container (C2), Component (C3), Dynamic runtime, and Production deployment views? |
+| **04** | **[04-ARCHITECTURE_ARC42.md](docs/04-ARCHITECTURE_ARC42.md)** | Architecture (arc42 Standard) | How is the complete 12-section international IEEE 42010 architecture documentation structured? |
+| **05** | **[05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md](docs/05-DATABASE_SPECIFICATION_AND_DIAGRAMS.md)** | Data Engineering | What is the 18-table 3NF schema design, data dictionary, indexing strategy, and pessimistic locking specification? |
+| **06** | **[06-API_DOCUMENTATION.md](docs/06-API_DOCUMENTATION.md)** | API Standard (OpenAPI 3.0.3) | What are the REST API contracts, DTO schemas, RFC 7807 problem envelopes, and RBAC requirements? ([openapi.yaml](docs/openapi.yaml)) |
+| **07** | **[07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](docs/07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)** | Clean Architecture | How are layer boundaries enforced across Presentation (Controllers), Business Logic (Services), and Data Access (Repositories)? |
+| **08** | **[08-DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](docs/08-DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)** | Detailed UML Modeling | What are the method-level class interactions and sequence workflows for VietQR settlement, parking allocation, and batch billing? |
+| **09** | **[09-SYSTEM_WORKFLOWS_AND_SPECS.md](docs/09-SYSTEM_WORKFLOWS_AND_SPECS.md)** | Business Lifecycles & Governance | What are the state machines for civil residence, billing debt, maintenance SLA, and 4-tier RBAC? |
+| **10** | **[10-UI_DATABASE_MAPPING.md](docs/10-UI_DATABASE_MAPPING.md)** | Field-Level Traceability | Which SQL table and column does each visual input and metric card correspond to across all 7 operational screens? |
+| **11** | **[11-USE_CASES.md](docs/11-USE_CASES.md)** | Functional Specifications | What is the full functional use case catalog, actor taxonomy, and failure twin handling scenarios? |
+| **ADR** | **[adr/README.md](docs/adr/README.md)** | Architecture Decisions (MADR 3.0) | What are the formal architectural choices, rationales, and trade-offs (3NF, Pessimistic Locking, VietQR, Monorepo)? |
 
 ---
 

@@ -3,8 +3,8 @@
 > **Platform:** ResidentHub (Apartment & Household Management System)  
 > **Standard:** arc42 (IEEE 42010) + C4 Model  
 > **Status:** Accepted · **Audience:** Architects, Tech Leads, Developers, Reviewers, DevOps  
-> **Primary Visual Specification:** [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md)  
-> **Functional & Use Case Specification:** [USE_CASES.md](USE_CASES.md)
+> **Primary Visual Specification:** [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md)  
+> **Functional & Use Case Specification:** [11-USE_CASES.md](11-USE_CASES.md)
 
 ---
 
@@ -54,7 +54,7 @@
 
 ### 3.1. Business Context (C4 Level 1)
 
-For the visual System Context diagram and catalog, refer to **[ARCHITECTURE_C4.md §1](ARCHITECTURE_C4.md#1-c4-system-context-diagram---level-1)**.
+For the visual System Context diagram and catalog, refer to **[03-ARCHITECTURE_C4.md §1](03-ARCHITECTURE_C4.md#1-c4-system-context-diagram---level-1)**.
 
 ### 3.2. External Interfaces Matrix
 
@@ -84,13 +84,13 @@ For the visual System Context diagram and catalog, refer to **[ARCHITECTURE_C4.m
 
 ### 5.1. C4 Level 2 — Containers
 
-Detailed visual specification and catalog in **[ARCHITECTURE_C4.md §2](ARCHITECTURE_C4.md#2-c4-container-diagram---level-2)**.
+Detailed visual specification and catalog in **[03-ARCHITECTURE_C4.md §2](03-ARCHITECTURE_C4.md#2-c4-container-diagram---level-2)**.
 
 ### 5.2. C4 Level 3 — Components & 3-Tier Layering
 
-- **C4 Component Specification**: Modular breakdown of Frontend SPA and Next.js 16 application server in **[ARCHITECTURE_C4.md §3](ARCHITECTURE_C4.md#3-c4-component-diagram---level-3)**.
-- **Physical 3-Tier Folder Architecture**: Strict layer boundaries, repository patterns, and code skeletons in **[FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)**.
-- **Detailed UML Class & Sequence Models**: Class diagrams and method-level runtime call flows across Presentation, Business Logic, and Data Access tiers in **[DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)**.
+- **C4 Component Specification**: Modular breakdown of Frontend SPA and Next.js 16 application server in **[03-ARCHITECTURE_C4.md §3](03-ARCHITECTURE_C4.md#3-c4-component-diagram---level-3)**.
+- **Physical 3-Tier Folder Architecture**: Strict layer boundaries, repository patterns, and code skeletons in **[07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md](07-FOLDER_STRUCTURE_AND_3TIER_ARCHITECTURE.md)**.
+- **Detailed UML Class & Sequence Models**: Class diagrams and method-level runtime call flows across Presentation, Business Logic, and Data Access tiers in **[08-DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md](08-DETAILED_CLASS_AND_SEQUENCE_DIAGRAMS.md)**.
 
 ### 5.3. Target Code Structure
 
@@ -132,8 +132,8 @@ d:/VSF/chung-cu-household-management/
 │
 ├── docs/                             # Comprehensive technical documentation & 9 ADRs (MADR 3.0)
 │   ├── adr/                          # ADR-0001 through ADR-0009
-│   ├── ARCHITECTURE_ARC42.md         # This arc42 architectural dossier
-│   ├── ARCHITECTURE_C4.md            # C4 Level 1-3 visual architecture & failure twins
+│   ├── 04-ARCHITECTURE_ARC42.md         # This arc42 architectural dossier
+│   ├── 03-ARCHITECTURE_C4.md            # C4 Level 1-3 visual architecture & failure twins
 │   ├── openapi.yaml                  # OpenAPI 3.0.3 specification
 │   └── ...
 └── package.json                      # Monorepo orchestrator (npm test, npm run dev, test:frontend, test:backend)
@@ -145,13 +145,13 @@ d:/VSF/chung-cu-household-management/
 
 Following the  **Failure Twin convention**, every critical workflow has both a Happy Path and a Failure Twin documented in detail:
 
-- ⚡ **VietQR Settlement**: [ARCHITECTURE_C4.md §4.1](ARCHITECTURE_C4.md#41-workflow-1-vietqr-billing-settlement)
+- ⚡ **VietQR Settlement**: [03-ARCHITECTURE_C4.md §4.1](03-ARCHITECTURE_C4.md#41-workflow-1-vietqr-billing-settlement)
   - *Happy Path*: Scans QR $\rightarrow$ IPN callback verified $\rightarrow$ Invoice updated to `PAID` $\rightarrow$ Receipt sent.
   - *Failure Twin*: Expired QR session $\rightarrow$ Network timeout $\rightarrow$ Replayed/Duplicate Webhook IPN $\rightarrow$ DB rollback.
-- ⚡ **Batch Billing Generation**: [ARCHITECTURE_C4.md §4.2](ARCHITECTURE_C4.md#42-workflow-2-month-end-batch-invoice-generation)
+- ⚡ **Batch Billing Generation**: [03-ARCHITECTURE_C4.md §4.2](03-ARCHITECTURE_C4.md#42-workflow-2-month-end-batch-invoice-generation)
   - *Happy Path*: Audits 1,200 units $\rightarrow$ Ingests meters $\rightarrow$ Computes 4,800 items $\rightarrow$ Atomic commit.
   - *Failure Twin*: Missing meter reading or negative consumption $\rightarrow$ Validation guard catches error $\rightarrow$ Dead-letter log isolation.
-- ⚡ **Service Ticket SLA Lifecycle**: [SYSTEM_WORKFLOWS_AND_SPECS.md §1.3](SYSTEM_WORKFLOWS_AND_SPECS.md#13-service-ticket--sla-state-machine-happy-path-vs-sla-breach)
+- ⚡ **Service Ticket SLA Lifecycle**: [09-SYSTEM_WORKFLOWS_AND_SPECS.md §1.3](09-SYSTEM_WORKFLOWS_AND_SPECS.md#13-service-ticket--sla-state-machine-happy-path-vs-sla-breach)
   - *Happy Path*: Open $\rightarrow$ Assigned $\rightarrow$ In Progress $\rightarrow$ Resolved $\rightarrow$ Closed.
   - *SLA Breach Twin*: Stalled > 24h $\rightarrow$ Auto-escalation to Operations Head $\rightarrow$ Reopened defect handling.
 
@@ -159,7 +159,7 @@ Following the  **Failure Twin convention**, every critical workflow has both a H
 
 ## 7. Deployment View
 
-Production infrastructure topology, security perimeters, and database replication are detailed in **[ARCHITECTURE_C4.md §5](ARCHITECTURE_C4.md#5-c4-deployment-diagram---infrastructure-view)**.
+Production infrastructure topology, security perimeters, and database replication are detailed in **[03-ARCHITECTURE_C4.md §5](03-ARCHITECTURE_C4.md#5-c4-deployment-diagram---infrastructure-view)**.
 
 ---
 

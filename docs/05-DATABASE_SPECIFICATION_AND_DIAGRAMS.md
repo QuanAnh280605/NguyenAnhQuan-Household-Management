@@ -6,10 +6,10 @@
 > **Traceability Links:**  
 > - 🗄️ [database/schema.sql](../database/schema.sql) (Production DDL Script with Constraints & Indexes)  
 > - 📐 [database/schema.dbml](../database/schema.dbml) (DBML Schema for dbdiagram.io / dbdocs.io)  
-> - 📋 [REQUIREMENTS_INVEST.md](REQUIREMENTS_INVEST.md) (Agile User Stories & Acceptance Criteria)  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (C4 Level 2 Container & Level 3 Component Diagrams)  
-> - 🔌 [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (REST Endpoints & RFC 7807 Error Envelope)  
-> - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
+> - 📋 [01-REQUIREMENTS_INVEST.md](01-REQUIREMENTS_INVEST.md) (Agile User Stories & Acceptance Criteria)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (C4 Level 2 Container & Level 3 Component Diagrams)  
+> - 🔌 [06-API_DOCUMENTATION.md](06-API_DOCUMENTATION.md) (REST Endpoints & RFC 7807 Error Envelope)  
+> - 🔗 [10-UI_DATABASE_MAPPING.md](10-UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
 
 ---
 

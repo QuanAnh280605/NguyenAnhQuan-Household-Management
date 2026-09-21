@@ -3,10 +3,10 @@
 
 > **Audience:** Product Owners, System Architects, QA/Test Engineers, Fullstack Developers  
 > **Traceability Links:**  
-> - 🏛️ [ARCHITECTURE_C4.md](ARCHITECTURE_C4.md) (Context, Container, Components & Runtime Failure Twins)  
-> - 📘 [ARCHITECTURE_ARC42.md](ARCHITECTURE_ARC42.md) (IEEE 42010 12-Section Architecture Dossier)  
-> - ⚙️ [SYSTEM_WORKFLOWS_AND_SPECS.md](SYSTEM_WORKFLOWS_AND_SPECS.md) (State Machines & RBAC Matrix)  
-> - 🔗 [UI_DATABASE_MAPPING.md](UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](03-ARCHITECTURE_C4.md) (Context, Container, Components & Runtime Failure Twins)  
+> - 📘 [04-ARCHITECTURE_ARC42.md](04-ARCHITECTURE_ARC42.md) (IEEE 42010 12-Section Architecture Dossier)  
+> - ⚙️ [09-SYSTEM_WORKFLOWS_AND_SPECS.md](09-SYSTEM_WORKFLOWS_AND_SPECS.md) (State Machines & RBAC Matrix)  
+> - 🔗 [10-UI_DATABASE_MAPPING.md](10-UI_DATABASE_MAPPING.md) (Field-level UI-to-Database Mapping)  
 > - 🗄️ [database/schema.sql](../database/schema.sql) / [database/schema.dbml](../database/schema.dbml) (18-Table Normalized Schema)
 
 ---

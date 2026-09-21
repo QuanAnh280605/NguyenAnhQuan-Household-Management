@@ -2,7 +2,7 @@
 
 This directory catalogs the high-fidelity user interface captures for **ResidentHub**, demonstrating the production UI implemented with **Next.js 16 App Router**, **React 19**, and **Tailwind CSS v4**.
 
-For the underlying database field connections, see [UI Database Traceability Matrix](../UI_DATABASE_MAPPING.md).
+For the underlying database field connections, see [UI Database Traceability Matrix](../10-UI_DATABASE_MAPPING.md).
 
 ---
 
@@ -119,6 +119,6 @@ For the underlying database field connections, see [UI Database Traceability Mat
 
 ## 🔗 Related Documentation
 - [Master Technical Documentation Hub](../README.md)
-- [C4 Architectural Specifications](../ARCHITECTURE_C4.md)
-- [UI to Database Traceability Matrix](../UI_DATABASE_MAPPING.md)
-- [System Workflows & RBAC Matrix](../SYSTEM_WORKFLOWS_AND_SPECS.md)
+- [C4 Architectural Specifications](../03-ARCHITECTURE_C4.md)
+- [UI to Database Traceability Matrix](../10-UI_DATABASE_MAPPING.md)
+- [System Workflows & RBAC Matrix](../09-SYSTEM_WORKFLOWS_AND_SPECS.md)

@@ -3,9 +3,9 @@
 > **Platform:** ResidentHub (Modern Apartment & Household Management Platform)  
 > **Governance Standard:** MADR 3.0 (Markdown Architectural Decision Records) + FlowX Specification Paradigm  
 > **Traceability Links:**  
-> - 🏛️ [ARCHITECTURE_ARC42.md](../ARCHITECTURE_ARC42.md) (arc42 Section 9: Architectural Decisions)  
-> - 🏛️ [ARCHITECTURE_C4.md](../ARCHITECTURE_C4.md) (C4 Visual Architecture & Runtime Views)  
-> - 📋 [REQUIREMENTS_INVEST.md](../REQUIREMENTS_INVEST.md) (Agile Requirements & Gherkin Acceptance Criteria)  
+> - 🏛️ [04-ARCHITECTURE_ARC42.md](../04-ARCHITECTURE_ARC42.md) (arc42 Section 9: Architectural Decisions)  
+> - 🏛️ [03-ARCHITECTURE_C4.md](../03-ARCHITECTURE_C4.md) (C4 Visual Architecture & Runtime Views)  
+> - 📋 [01-REQUIREMENTS_INVEST.md](../01-REQUIREMENTS_INVEST.md) (Agile Requirements & Gherkin Acceptance Criteria)  
 > - 🗄️ [database/schema.sql](../../database/schema.sql) (18-Table 3NF Normalized PostgreSQL Schema)  
 
 ---
