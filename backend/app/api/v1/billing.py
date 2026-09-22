@@ -1,6 +1,8 @@
 from typing import Optional
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Depends, Query, status
+from backend.app.api.deps import require_roles
 from backend.app.core.result import handle_result
+from backend.app.schemas.auth import UserResponse
 from backend.app.schemas.billing import BillingBatchSagaRequest
 from backend.app.services.billing_service import BillingService
 
@@ -26,10 +28,14 @@ async def create_pay_session(invoice_id: str):
     return handle_result(result)
 
 @router.post("/invoices/batch-saga", status_code=status.HTTP_200_OK, summary="Execute Month-End Billing Batch Saga Workflow")
-async def run_batch_billing_saga(payload: BillingBatchSagaRequest):
+async def run_batch_billing_saga(
+    payload: BillingBatchSagaRequest,
+    current_user: UserResponse = Depends(require_roles("ADMIN", "MANAGER")),
+):
     result = await service.run_month_end_billing_saga(
         month=payload.month,
         simulate_failure_step=payload.simulateFailureStep,
         dry_run=payload.dryRun or False,
     )
     return handle_result(result)
+

@@ -123,11 +123,18 @@ async def test_billing_service_saga_wrapper():
     assert len(data["journal"]) > 0
 
 
+def get_admin_headers():
+    login_res = client.post("/api/v1/auth/login", json={"username": "admin", "password": "Admin@123"})
+    token = login_res.json()["data"]["accessToken"]
+    return {"Authorization": f"Bearer {token}"}
+
+
 def test_api_batch_saga_endpoint_success():
-    """Test HTTP POST /api/v1/billing/invoices/batch-saga happy path."""
+    """Test HTTP POST /api/v1/billing/invoices/batch-saga happy path with admin token."""
     response = client.post(
         "/api/v1/billing/invoices/batch-saga",
         json={"month": "10/2025", "dryRun": False},
+        headers=get_admin_headers(),
     )
     assert response.status_code == 200
     body = response.json()
@@ -145,9 +152,11 @@ def test_api_batch_saga_endpoint_simulated_failure():
             "simulateFailureStep": "IssueVietQrSessionsStep",
             "dryRun": False,
         },
+        headers=get_admin_headers(),
     )
     assert response.status_code == 400
     body = response.json()
     assert body["code"] == "SAGA_EXECUTION_FAILED"
     assert body["errors"]["failedStep"] == "IssueVietQrSessionsStep"
     assert body["errors"]["sagaStatus"] == "COMPENSATED"
+
